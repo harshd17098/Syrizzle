@@ -74,7 +74,7 @@ export default function Navbar() {
 							<div>
 								<a href="#">
 									<img className="dark:hidden h-11 mr-2" src={logo} alt="logo" style={{ width: "111px", height: "36px" }} />
-									<img className="hidden dark:inline-block h-11 mr-2" src={logoDark} alt="logo" />
+									{/* <img className="hidden dark:inline-block h-11 mr-2" src={logoDark} alt="logo" /> */}
 								</a>
 							</div>
 							<div className="lg:hidden mt-5 absolute right-6 top-0">
@@ -121,7 +121,7 @@ export default function Navbar() {
 
 
 					<ul className="hidden lg:flex space-x-8 items-center">
-						<ThemeSwitcher />
+						{/* <ThemeSwitcher /> */}
 						<li>
 							<a className="flex flex-col items-center py-2 decoration-primary-500 " href="#">
 								<img src={notification} style={{ fontSize: "18px" }} alt="" />
