@@ -16,7 +16,7 @@ export default function HomePage() {
 		<>
 			<Banner />
 			<PopularCategories />
-			{/* <VerifiedUser />
+			<VerifiedUser />
 			<ResidenttialForRent />
 			<Cars />
 			<FurnitureAndGarden />
@@ -25,7 +25,7 @@ export default function HomePage() {
 			<MobileAndTablets />
 			<RoomsForRent />
 			<SportsEquipment />
-			<DownloadApp /> */}
+			<DownloadApp />
 		</>
 	);
 }

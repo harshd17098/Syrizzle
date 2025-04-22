@@ -34,7 +34,16 @@ export default {
 
 			backgroundImage: {
 				banner: "url('/home-banner.jpg')"
-			}
+			},
+			animation: {
+				dropdown: 'dropdownIn 0.3s ease-out',
+			  },
+			  keyframes: {
+				dropdownIn: {
+				  '0%': { opacity: '1', transform: 'translateY(-30px) scale(0.95)' },
+				  '100%': { opacity: '1', transform: 'translateY(0) scale(1)' },
+				},
+			  },
 		},
 	},
 	plugins: [flowbiteReact],

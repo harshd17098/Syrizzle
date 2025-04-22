@@ -9,6 +9,8 @@ import mobile from "../../assets/icons/mobile.svg";
 import industry from "../../assets/icons/industri.svg";
 import homeApplience from "../../assets/icons/home-applience.svg";
 import SingleCategory from "./SingleCategory";
+import { Link } from "react-router-dom";
+import MotorsPage from "../../pages/MotorsPage";
 
 const data = [
 	{
@@ -16,7 +18,7 @@ const data = [
 		categoryName: "Motors",
 
 		subcategories: [
-			"Cars",
+			<Link to={"/motors/used-cars/"}>Cars</Link>,
 			"Motorcycles",
 			"Auto Accessories & Parts",
 			"Heavy Vehicles",
@@ -26,7 +28,7 @@ const data = [
 		categoryImage: rentProperty,
 		categoryName: "Property for Rent",
 		subcategories: [
-			"Residential Units for Rent",
+		<Link to={"/en/property-for-rent/residential/"}>Residential Units for Rent</Link>,
 			"Commercial for Rent",
 			"Rooms for rent (flatmates)",
 			"Short Term (Monthly)",
@@ -106,7 +108,7 @@ const data = [
 		categoryImage: mobile,
 		categoryName: "Mobile Phones & Tablets",
 		subcategories: [
-			"Mobile Phones",
+			<a>"Mobile Phones"</a>,
 			"Mobile Phone & Tablet Accessories",
 			"Tablets",
 			"Other Mobile Phones & Tablets",

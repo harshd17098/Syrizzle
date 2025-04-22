@@ -115,7 +115,7 @@ export default function Banner() {
 					href="#"
 				>
 					<img className="w-5" src={motors} alt="motors-image" />
-					<span className="dark:text-gray-100">Motors</span>
+					<a className="dark:text-gray-100">Motors</a>
 				</a>
 				<a
 					className="flex flex-col space-y-1 items-center px-3 py-6 hover:underline rounded decoration-primary-500 border border-gray-300/40 dark:border-gray-400/30 shadow-sm"
