@@ -19,19 +19,19 @@ const data = [
 
 		subcategories: [
 			<Link to={"/motors/used-cars/"}>Cars</Link>,
-			"Motorcycles",
-			"Auto Accessories & Parts",
-			"Heavy Vehicles",
+			"Rental Cars",
+			"New Cars",
+			"Export Cars",
 		],
 	},
 	{
 		categoryImage: rentProperty,
 		categoryName: "Property for Rent",
 		subcategories: [
-		<Link to={"/en/property-for-rent/residential/"}>Residential Units for Rent</Link>,
-			"Commercial for Rent",
-			"Rooms for rent (flatmates)",
-			"Short Term (Monthly)",
+		<Link to={"/en/property-for-rent/residential/"}>Residential</Link>,
+			"Commercial",
+			"Rooms For Rent",
+			"Monthly Short Term",
 		],
 	},
 	{
