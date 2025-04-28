@@ -121,7 +121,7 @@ export default function Navbar() {
 
 
 					<ul className="hidden lg:flex space-x-8 items-center ">
-						{/* <ThemeSwitcher /> */}
+						<ThemeSwitcher />
 						<li>
 							<a className="flex flex-col items-center py-2 decoration-primary-500 " href="#">
 								<img src={notification} style={{ fontSize: "18px" }} alt="" />
