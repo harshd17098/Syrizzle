@@ -120,7 +120,7 @@ export default function Navbar() {
 
 
 
-					<ul className="hidden lg:flex space-x-8 items-center">
+					<ul className="hidden lg:flex space-x-8 items-center ">
 						{/* <ThemeSwitcher /> */}
 						<li>
 							<a className="flex flex-col items-center py-2 decoration-primary-500 " href="#">
