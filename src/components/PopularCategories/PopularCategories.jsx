@@ -19,7 +19,7 @@ const data = [
 
 		subcategories: [
 			<Link to={"/motors/used-cars/"}>Cars</Link>,
-			"Rental Cars",
+			 <Link to={"motors/rental-cars/"}>Rental Cars</Link>,
 			"New Cars",
 			"Export Cars",
 		],

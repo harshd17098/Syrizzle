@@ -5,6 +5,7 @@ import Navbar from "./shared/Navbar";
 import Footer from "./shared/Footer";
 import MotorsPage from "./pages/MotorsPage";
 import Residential from "./pages/ResidentialPage";
+import RentalCarsPages from "./pages/RentalCarsPages";
 
 export default function App() {
 	return (
@@ -15,6 +16,7 @@ export default function App() {
 			<Routes>
 				<Route path="/" element={<HomePage/>}></Route>
 				<Route path='/motors/used-cars/' element={<MotorsPage/>}></Route>
+				<Route path='/motors/rental-cars/' element={<RentalCarsPages/>}></Route>
 				<Route path="en/property-for-rent/residential/"element={<Residential/>}></Route>
 			</Routes>
 			<Footer/>

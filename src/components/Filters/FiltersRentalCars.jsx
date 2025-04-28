@@ -1,12 +1,14 @@
 import React, { useState, useRef, useEffect } from "react";
-import { ChevronDown, Search } from "lucide-react";
+import { ChevronDown, ChevronUp,Search } from "lucide-react";
+import Slider from '@mui/material/Slider';
 import { Car, Truck, Activity, HardDrive, BarChart2, Cpu, Database, Film, Gift, Heart, IceCream, Key, } from "lucide-react";
 import { FaMapMarkerAlt } from 'react-icons/fa';
-import { FaHeadphonesAlt } from 'react-icons/fa';
-import { PiTelevisionSimpleBold } from 'react-icons/pi';
-import { FaTags, FaCarSide } from 'react-icons/fa';
 
 
+const carBrands = [
+    "Abarth", "Acura", "AITO", "Alfa Romeo", "Audi", "Bentley", "BMW",
+    "Bugatti", "BYD", "Cadillac", "Changan", "Chevrolet", "Chrysler"
+];
 const allColors = [
     { name: "Black", color: "bg-[#2E2E2E]" },
     { name: "Blue", color: "bg-[#0066FF]" },
@@ -31,7 +33,6 @@ const allColors = [
     { name: "Lime", color: "bg-[#BFFF00]" },
     { name: "Maroon", color: "bg-[#800000]" },
 ];
-
 const popularSearches = [
     { name: "BMW", type: "Make" },
     { name: "Nissan Patrol", type: "Model" },
@@ -102,67 +103,68 @@ const engineCapacityOptions = [
     '4000+ cc',
     'Unknown',
 ];
-const FiltersMotors = () => {
+const warrantyOptions = ['Yes', 'No', 'Does not apply'];
+
+
+
+const FiltersRentalCars = () => {
     const [isOpen, setIsOpen] = useState(false);
-    const [isOpens, setIsOpens] = useState(false);
-    const [isOp, setIsOp] = useState(false);
-    const [isOpp, setIsOpp] = useState(false);
-    const [isOpenn, setIsOpenn] = useState(false);
-    const [search, setSearch] = useState("");
-    const [isFocused, setIsFocused] = useState(false);
-    const [isInspectedOnly, setIsInspectedOnly] = useState(false);
-
-    const [showAll, setShowAll] = useState(false);
-    const [showAlls, setShowAlls] = useState(false);
-    const [showAlll, setShowAlll] = useState(false);
-    const [showA, setShowA] = useState(false);
-    const [show, setShow] = useState(false);
-
-    const [showAllAdsPosted, setShowAllAdsPosted] = useState(false);
-    const [showAllCylinders, setShowAllCylinders] = useState(false);
-
-    const visibleColors = showA ? allColors : allColors.slice(0, 5);
-    const visibleColor = show ? allColors : allColors.slice(0, 5);
-
-    const [showAllHorsepower, setShowAllHorsepower] = useState(false);
-    const [showAllEngineCapacity, setShowAllEngineCapacity] = useState(false);
-
-    const remainingCount = allColors.length - 5;
     const [selectedCity, setSelectedCity] = useState("All Cities");
-    const [minPrice, setMinPrice] = useState("");
-    const [maxPrice, setMaxPrice] = useState("");
-    const dropdownRef = useRef();
-    const [showAllSeats, setShowAllSeats] = useState(false);
-    const [selectedSeat, setSelectedSeat] = useState(null);
-    const [transmission, setTransmission] = useState("");
-    const [transmissionn, setTransmissionn] = useState("");
 
-    const [showAllTech, setShowAllTech] = useState(false);
-    const [showAllExtras, setShowAllExtras] = useState(false);
+    const [isOpe, setIsOpe] = useState(false);
+    const [isOp, setIsOp] = useState(false);
 
-    const seats = ["2", "4", "5", "6", "7", "8", "8+"];
-    const [selectedDoor, setSelectedDoor] = useState(null);
-    const doorOptions = [2, 3, 4, "5+"];
+    const [searchTerm, setSearchTerm] = useState("");
+    const [selectedBrand, setSelectedBrand] = useState("");
 
-    const visibleSeats = showAllSeats ? seats : seats.slice(0, 5);
-    const specsToShow = showAll ? allSpecs : allSpecs.slice(0, 5);
-    const itemsToRender = showAlls ? BODY_TYPES : BODY_TYPES.slice(0, 6);
-    const specsToShows = showAlll ? Badges : Badges.slice(0, 5);
+    const [open, setOpen] = useState(false);
+    const [fromYear, setFromYear] = useState("");
+    const [toYear, setToYear] = useState("");
 
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (
-                dropdownRef.current &&
-                !dropdownRef.current.contains(event.target)
-            ) {
-                setIsOpen(false);
-            }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
-    }, []);
+    const [priceType, setPriceType] = useState("");
+    const [from, setFrom] = useState(0);
+    const [upto, setUpto] = useState(10000);
+
+   
+       const [isOpenn, setIsOpenn] = useState(false);
+      
+       const [isInspectedOnly, setIsInspectedOnly] = useState(false);
+   
+       const [showAll, setShowAll] = useState(false);
+       const [showAlls, setShowAlls] = useState(false);
+       const [showAlll, setShowAlll] = useState(false);
+       const [showA, setShowA] = useState(false);
+       const [show, setShow] = useState(false);
+   
+       const [showAllAdsPosted, setShowAllAdsPosted] = useState(false);
+       const [showAllCylinders, setShowAllCylinders] = useState(false);
+   
+       const visibleColors = showA ? allColors : allColors.slice(0, 5);
+       const visibleColor = show ? allColors : allColors.slice(0, 5);
+   
+       const [showAllHorsepower, setShowAllHorsepower] = useState(false);
+       const [showAllEngineCapacity, setShowAllEngineCapacity] = useState(false);
+   
+       
+       const dropdownRef = useRef();
+       const [showAllSeats, setShowAllSeats] = useState(false);
+       const [selectedSeat, setSelectedSeat] = useState(null);
+       const [transmission, setTransmission] = useState("");
+       const [transmissionn, setTransmissionn] = useState("");
+   
+       const [showAllTech, setShowAllTech] = useState(false);
+       const [showAllExtras, setShowAllExtras] = useState(false);
+   
+       const seats = ["2", "4", "5", "6", "7", "8", "8+"];
+       const [selectedDoor, setSelectedDoor] = useState(null);
+       const doorOptions = [2, 3, 4, "5+"];
+   
+       const visibleSeats = showAllSeats ? seats : seats.slice(0, 5);
+       const specsToShow = showAll ? allSpecs : allSpecs.slice(0, 5);
+       const itemsToRender = showAlls ? BODY_TYPES : BODY_TYPES.slice(0, 6);
+       const specsToShows = showAlll ? Badges : Badges.slice(0, 5);
+
+ 
     const [filters, setFilters] = useState({
         ads360: true,
         english: true,
@@ -214,304 +216,320 @@ const FiltersMotors = () => {
         'Aux Audio In', 'Bluetooth System', 'CD Player', 'Heated Seats',
     ];
 
+    
+   
+   
+    
 
-    const warrantyOptions = ['Yes', 'No', 'Does not apply'];
     const handleClear = () => {
         setMinPrice("");
         setMaxPrice("");
-    };
-    const handleInputChange = (e) => {
-        setSearch(e.target.value);
-    };
-
-    const handleSelect = (item) => {
+        setPriceType("");
+        setFrom(0);
+        setUpto(10000);
+        setFromYear("");
+        setToYear("");
         setSearch(item.name);
         setIsFocused(false);
     };
+    const handleApply = () => {
+        console.log("Applying filters:", { fromYear, toYear });
+        // Add your logic to filter items here
+        setOpen(false);
+    };
+    const filteredBrands = selectedBrand
+        ? carBrands
+        : carBrands.filter((brand) =>
+            brand.toLowerCase().includes(searchTerm.toLowerCase())
+        );
 
     return (
-        <>
-            <div className="relative  text-left flex" style={{ padding: "9px 0px" }}>
-                {/* Dropdown Toggle */}
-                <div className="relative" ref={dropdownRef} style={{ zIndex: "999" }}>
-                    <button
-                        onClick={() => setIsOpen(!isOpen)}
-                        className="border-t border-b border-l px-4 py-2 text-left shadow-sm bg-white flex flex-col justify-start rounded-l-[16px]"
-                        style={{ width: "166px", height: "67px" }}
-                    >
-                        <div className="text-[12px] font-bold capitalize text-[#2b2d2e] text-left mb-1">
-                            <b>City</b>
-                        </div>
-                        <div className="flex items-center justify-between">
-                            <span className="block text-sm font-medium text-gray-800">
-                                {selectedCity}
-                            </span>
+        <div className="relative flex items-start space-x-2" style={{ zIndex: "999" }}>
+            {/* City Dropdown */}
+            <div>
+                <button
+                    onClick={() => setIsOpen(!isOpen)}
+                    className="border px-4 py-2 text-left shadow-sm bg-white flex flex-col justify-center rounded-l-[16px]"
+                    style={{ width: "240px", height: "60px", borderRight: "none" }}
+                >
+                    <div className="text-[12px] font-bold capitalize text-[#2b2d2e] mb-1">City</div>
+                    <div className="flex items-center justify-between ">
+                        <span className="block text-sm font-medium text-gray-800">{selectedCity}</span>
+                        <div className="flex items-center absolute" style={{top:"20px",left:"200px"}}>
                             <ChevronDown
                                 className={`w-4 h-4 ml-2 transition-transform duration-200 ${isOpen ? "rotate-180" : ""
                                     }`}
                             />
                         </div>
-                    </button>
-
-                    {/* Dropdown */}
-                    {isOpen && (
-                        <div
-                            className="absolute z-10 mt-2 w-80 bg-white rounded-lg shadow-lg p-4 transition-all duration-300 ease-out transform opacity-100 scale-100 translate-y-0 animate-dropdown"
-                            style={{ top: "65px" }}
-                        >
-                            <div className="grid grid-cols-2 gap-2">
-                                {cities.map((city) => (
-                                    <button
-                                        key={city}
-                                        className={`px-3 py-1 text-sm rounded-full border ${selectedCity === city
-                                            ? "bg-black text-white"
-                                            : "hover:bg-gray-100 text-gray-700"
-                                            }`}
-                                        onClick={() => {
-                                            setSelectedCity(city);
-                                            setIsOpen(false); // Close dropdown on selection
-                                        }}
-                                    >
-                                        {city}
-                                    </button>
-                                ))}
-                            </div>
-                            <button
-                                className="mt-4 w-full bg-black text-white py-2 rounded-md hover:bg-gray-800"
-                                onClick={() => setIsOpen(false)}
-                            >
-                                Apply Filters
-                            </button>
-                        </div>
-                    )}
-                </div>
-
-                <div className="w-64 border-t border-b p-2 shadow-sm bg-white relative" style={{ height: "67px", border: "1px 0px soiled gray", width: '285px' }}>
-                    {/* Short left border */}
-                    <div className="absolute left-0 top-2 bottom-2 w-px bg-gray-300" />
-
-                    <div className="absolute right-0 top-2 bottom-2 w-px bg-gray-300" />
-
-                    <div className="text-sm font-semibold text-gray-700 ">Make and Model</div>
-
-                    {/* Search input */}
-                    <input
-                        type="text"
-                        placeholder="Search Make, Model"
-                        className={`w-full focus:outline-none text-sm py-1 transition ${isFocused ? "border-black" : "border-gray-300"
-                            }`}
-                        value={search}
-                        onChange={handleInputChange}
-                        onFocus={() => setIsFocused(true)}
-                        onBlur={() => setTimeout(() => setIsFocused(false), 150)} // Timeout to allow click selection
-                    />
-
-                    {/* Suggestions */}
-                    {isFocused && (
-                        <div className="absolute z-10 bg-white border mt-2 rounded shadow w-full">
-                            <div className="px-4 py-2 border-b text-sm font-semibold text-gray-600">
-                                Popular Searches
-                            </div>
-                            <ul className="divide-y">
-                                {popularSearches.map((item, index) => (
-                                    <li
-                                        key={index}
-                                        className="flex justify-between px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                        onClick={() => handleSelect(item)}
-                                    >
-                                        <span>{item.name}</span>
-                                        <span className="text-xs text-gray-400">{item.type}</span>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    )}
-
-                    {/* Done button */}
-                    {isFocused && (
-                        <div className="mt-3 text-right">
-                            <button
-                                onClick={() => setIsFocused(false)}
-                                className="text-sm font-medium text-blue-600 hover:underline"
-                            >
-                                Done
-                            </button>
-                        </div>
-                    )}
-                </div>
-
-                <button
-                    onClick={() => setIsOpens(!isOpens)}
-                    className="px-3 py-2 border-t border-b  bg-white text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 flex flex-col items-start"
-                    style={{ borderLeft: "none", width: "136px" }}
-                >
-                    <span className="block text-xs text-black-500" style={{ fontWeight: "600", paddingBottom: '8px' }}><b>Price Range</b></span>
-                    <div className="flex items-center justify-between w-full">
-                        <span>Select</span>
-                        <ChevronDown
-                            className={`w-4 h-4 ml-2 transition-transform duration-200 ${isOpens ? "rotate-180" : ""
-                                }`}
-                        />
                     </div>
                 </button>
 
-                {isOpens && (
-                    <div className="absolute z-10 mt-2 w-64 bg-white border rounded-lg shadow-lg p-4" style={{ top: "49px", left: "345px" }}>
+                {isOpen && (
+                    <div className="absolute z-10 mt-2 w-80 bg-white rounded-lg shadow-lg p-4" style={{ top: "65px" }}>
+                        <div className="grid grid-cols-2 gap-2">
+                            {cities.map((city) => (
+                                <button
+                                    key={city}
+                                    className={`px-3 py-1 text-sm rounded-full border ${selectedCity === city
+                                        ? "bg-black text-white"
+                                        : "hover:bg-gray-100 text-gray-700"}`}
+                                    onClick={() => {
+                                        setSelectedCity(city);
+                                        setIsOpen(false);
+                                    }}
+                                >
+                                    {city}
+                                </button>
+                            ))}
+                        </div>
+                        <button
+                            className="mt-4 w-full bg-black text-white py-2 rounded-md hover:bg-gray-800"
+                            onClick={() => setIsOpen(false)}
+                        >
+                            Apply Filters
+                        </button>
+                    </div>
+                )}
+            </div>
+
+            {/* Make/Model Dropdown */}
+            <div className="border px-4 py-2 shadow-sm bg-white relative flex items-center" style={{ height: "60px", width: "235px", borderLeft: "none", borderRight: "none", margin: "0px" }}>
+                <div className="absolute left-0 top-2 bottom-2 w-px bg-gray-300" />
+                <div className="absolute right-0 top-2 bottom-2 w-px bg-gray-300" />
+                <button
+                    onClick={() => setIsOpe(!isOpe)}
+                    className="border-gray-300 shadow-sm flex justify-between w-full"
+                >
+                    <div className="flex-1">
+                        <div className="text-xs font-semibold text-black  flex">Make</div>
+                        <input
+                            type="text"
+                            placeholder="Search"
+                            value={searchTerm}
+                            onChange={(e) => {
+                                setSearchTerm(e.target.value);
+                                setSelectedBrand('');
+                                setIsOpe(true);
+                            }}
+                            className="w-full text-sm  focus:outline-none focus:ring-0"
+                        />
+                    </div>
+                    <div className="pl-2 pt-6 absolute"  style={{top:"-5px",left:"187px"}}>
+                        {isOpe ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    </div>
+                </button>
+
+                {isOpe && (
+                    <div className="absolute top-[70px] left-0 w-full max-h-72 overflow-y-auto bg-white border border-gray-300 rounded-md shadow-md z-50">
+                        <div className="px-4 py-2 border-b border-gray-200 font-semibold text-sm text-gray-800">
+                            All in Rental Cars
+                        </div>
+                        {filteredBrands.length > 0 ? (
+                            filteredBrands.map((brand) => (
+                                <div
+                                    key={brand}
+                                    onClick={() => {
+                                        setSearchTerm(brand);
+                                        setSelectedBrand(brand);
+                                        setIsOpe(false);
+                                    }}
+                                    className={`px-4 py-2 text-sm cursor-pointer hover:bg-gray-100 ${selectedBrand === brand
+                                        ? "text-black font-semibold"
+                                        : "text-gray-400"}`}
+                                >
+                                    {brand}
+                                </div>
+                            ))
+                        ) : (
+                            <div className="px-4 py-2 text-sm text-gray-400">No results</div>
+                        )}
+                    </div>
+                )}
+            </div>
+
+            {/* Price Filter */}
+            <div className="border px-4 py-2 shadow-sm bg-white relative flex items-center" style={{ height: "60px", width: "235px", borderLeft: "none", borderRight: "none", margin: "0px" }}>
+                <div className="absolute right-0 top-2 bottom-2 w-px bg-gray-300" />
+                <button
+                    onClick={() => setIsOp(!isOp)}
+                    className="w-40 text-sm bg-white rounded-md flex justify-between items-center"
+                >
+                    <div className="flex flex-col items-start">
+                        <span className="text-sm">Price (AED)</span>
+                        <span className="text-xs mt-1 text-gray-500" style={{fontSize:"14px"}}>Select</span>
+                    </div>
+                    <div className="absolute" style={{left:"198px"}}>
+                    {isOp ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}</div>
+                </button>
+
+                {isOp && (
+                    <div className="absolute mt-2 w-96 bg-white rounded-xl shadow-xl p-5 z-50" style={{ top: "50px", left: "-65px" }}>
+                        <div className="font-semibold text-sm mb-4">Price (AED)</div>
+
+                        {/* Price Type */}
                         <div className="flex space-x-2 mb-4">
-                            <input
-                                type="number"
-                                value={minPrice}
-                                onChange={(e) => setMinPrice(e.target.value)}
-                                placeholder="From"
-                                className="w-1/2 border border-gray-300 rounded px-3 py-2 text-sm"
+                            {["Daily", "Weekly", "Monthly"].map((type) => (
+                                <button
+                                    key={type}
+                                    onClick={() => setPriceType(type)}
+                                    className={`px-4 py-2.5 rounded-full border text-sm  transition-colors duration-200 ${priceType === type
+                                        ? "bg-[rgb(242,247,254)] text-black border-[rgb(137,184,246)] font-extrabold"
+                                        : "bg-white text-black border-gray-300 hover:bg-[rgb(242,247,254)] hover:border-[rgb(137,184,246)]"
+                                        }`}
+                                >
+                                    {type}
+                                </button>
+                            ))}
+                        </div>
+                        <hr className="my-3" />
+
+                        {/* From and Upto Inputs */}
+                        <div className="flex space-x-4 mb-4">
+                            <div className="flex flex-col">
+                                <label className="text-xs text-gray-500 mb-1">From</label>
+                                <input
+                                    type="number"
+                                    value={from}
+                                    onChange={(e) => setFrom(Number(e.target.value))}
+                                    className="border rounded-md px-3 py-2 text-sm w-32"
+                                />
+                            </div>
+                            <div className="flex flex-col">
+                                <label className="text-xs text-gray-500 mb-1">Upto</label>
+                                <input
+                                    type="number"
+                                    value={upto}
+                                    onChange={(e) => setUpto(Number(e.target.value))}
+                                    className="border rounded-md px-3 py-2 text-sm w-32"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Range Slider */}
+                        <div className="flex items-center space-x-4 mb-4">
+                            <Slider
+                                value={[from, upto]}
+                                onChange={(e, newValue) => {
+                                    setFrom(newValue[0]);
+                                    setUpto(newValue[1]);
+                                }}
+                                valueLabelDisplay="auto"
+                                valueLabelFormat={(value) => `${value} AED`}
+                                min={0}
+                                max={10000}
+                                step={100}
+                                sx={{
+                                    color: 'black',
+                                    '& .MuiSlider-thumb': {
+                                        backgroundColor: 'black',
+                                        '&:hover': {
+                                            backgroundColor: '#d3d3d3',
+                                            boxShadow: '0 0 0 8px rgba(0,0,0,0.04)'
+                                        },
+                                    },
+                                    '& .MuiSlider-track': { backgroundColor: 'black' },
+                                    '& .MuiSlider-rail': { backgroundColor: '#ccc' },
+                                }}
                             />
-                            <input
-                                type="number"
-                                value={maxPrice}
-                                onChange={(e) => setMaxPrice(e.target.value)}
-                                placeholder="Upto"
-                                className="w-1/2 border border-gray-300 rounded px-3 py-2 text-sm"
-                            />
+                        </div>
+                        <hr className="my-3" />
+
+                        {/* Buttons */}
+                        <div className="flex justify-between items-center">
+                            <button onClick={handleClear} className="px-4 py-2 text-sm border border-gray-400 rounded-md">
+                                Clear
+                            </button>
+                            <button onClick={() => setIsOp(false)} className="px-6 py-2 text-sm bg-black text-white rounded-md">
+                                Apply Filters
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            <div className="relative border px-4 py-2 inline-block text-left w-full max-w-xs" style={{ height: "60px", width: "205px", borderLeft: "none", borderRight: "none", margin: "0px" }}>
+                {/* Toggle Button */}
+                <div className="absolute right-0 top-2 bottom-2 w-px bg-gray-300" />
+
+                <div
+                    className="  cursor-pointer flex justify-between items-center bg-white"
+                    onClick={() => setOpen(!open)}
+                >
+                    <div>
+                        <span className="font-medium" style={{fontSize:"14px"}}>Year</span><br />
+                        <span className="text-gray-500">{fromYear && toYear ? `${fromYear} - ${toYear}` : "Select"}</span>
+                    </div>
+                    <svg
+                        className={`w-4 h-4 ml-2 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        viewBox="0 0 24 24"
+                    >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </div>
+
+                {/* Dropdown Panel */}
+                {open && (
+                    <div className="absolute z-10 mt-2 w-full bg-white shadow-lg rounded p-4" style={{ width: "340px", height: "190px" }}>
+                        <div className=" mb-4">
+                            <div style={{ display: "flex", justifyContent: "space-around" }}>
+                                <span>From</span>
+                                <span>Upto</span>
+
+                            </div>
+                            <br />
+                            <div className="flex gap-2">
+                                <input
+                                    type="number"
+                                    placeholder="From"
+                                    value={fromYear}
+                                    onChange={(e) => setFromYear(e.target.value)}
+                                    className="w-1/2 border p-2 rounded text-sm"
+                                    min="1920"
+                                    max="2026"
+                                    style={{ padding: "16.5px 14px" }}
+                                />
+                                <input
+                                    type="number"
+                                    placeholder="Upto"
+                                    value={toYear}
+                                    onChange={(e) => setToYear(e.target.value)}
+                                    className="w-1/2 border p-2 rounded text-sm"
+                                    min="1920"
+                                    max="2026"
+                                />
+                            </div>
                         </div>
                         <div className="flex justify-between">
                             <button
                                 onClick={handleClear}
-                                className="px-4 py-2 border text-sm rounded text-gray-600 hover:bg-gray-100"
+                                className="border px-4 py-1 rounded text-sm hover:bg-gray-100"
                             >
                                 Clear
                             </button>
                             <button
-                                onClick={() => setIsOpen(false)}
-                                className="px-4 py-2 bg-black text-white text-sm rounded hover:opacity-90"
+                                onClick={handleApply}
+                                className="bg-black text-white px-4 py-1 rounded text-sm hover:opacity-90"
                             >
                                 Apply Filters
                             </button>
                         </div>
                     </div>
                 )}
-
-                <div className=" relative inline-block">
-                    <button
-                        onClick={() => setIsOp(!isOp)}
-                        className="px-3 py-2 border-t border-b   bg-white text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 flex flex-col items-start"
-                        style={{ borderLeft: "none", width: "136px", height: "67px" }}
-                    >
-                        <span className=" text-[13px] text-black-500" style={{ paddingBottom: "8px", fontWeight: "600" }}><b>Year</b></span>
-                        <div className="flex items-center justify-between w-full">
-                            <span>Select</span>
-                            <ChevronDown
-                                className={`w-4 h-4 ml-2 transition-transform duration-200 ${isOp ? "rotate-180" : ""
-                                    }`}
-                            />
-                        </div>
-                    </button>
-                    <div className="absolute left-0 top-2 bottom-2 w-px bg-gray-300" />
-
-                    {/* Right Divider */}
-                    <div className="absolute right-0 top-2 bottom-2 w-px bg-gray-300" />
-                    {isOp && (
-                        <div className="absolute z-10 mt-2 w-64 bg-white border rounded-lg shadow-lg p-4" style={{ top: "49px", left: "-35px" }}>
-                            <div className="flex space-x-2 mb-4">
-                                <input
-                                    type="number"
-                                    value={minPrice}
-                                    onChange={(e) => setMinPrice(e.target.value)}
-                                    placeholder="From"
-                                    className="w-1/2 border border-gray-300 rounded px-3 py-2 text-sm"
-                                />
-                                <input
-                                    type="number"
-                                    value={maxPrice}
-                                    onChange={(e) => setMaxPrice(e.target.value)}
-                                    placeholder="Upto"
-                                    className="w-1/2 border border-gray-300 rounded px-3 py-2 text-sm"
-                                />
-                            </div>
-                            <div className="flex justify-between">
-                                <button
-                                    onClick={handleClear}
-                                    className="px-4 py-2 border text-sm rounded text-gray-600 hover:bg-gray-100"
-                                >
-                                    Clear
-                                </button>
-                                <button
-                                    onClick={() => setIsOp(false)}
-                                    className="px-4 py-2 bg-black text-white text-sm rounded hover:opacity-90"
-                                >
-                                    Apply Filters
-                                </button>
-                            </div>
-                        </div>
-                    )}
-
-                </div>
+            </div>
 
 
-                <div className=" relative inline-block">
-                    <button
-                        onClick={() => setIsOpp(!isOpp)}
-                        className="px-3 py-2 border-t border-b   bg-white  font-medium text-gray-700 shadow-sm hover:bg-gray-50 flex flex-col items-start"
-                        style={{ borderLeft: "none", width: "136px", height: "67px" }}
-                    >
-                        <span className="block text-[12px] text-black-500" style={{ fontWeight: "600", paddingBottom: "8px" }}><b>Kilometers</b></span>
-                        <div className="flex items-center justify-between w-full">
-                            <span>Select</span>
-                            <ChevronDown
-                                className={`w-4 h-4 ml-2 transition-transform duration-200 ${isOpp ? "rotate-180" : ""
-                                    }`}
-                            />
-                        </div>
-                    </button>
-                    <div className="absolute left-0 top-2 bottom-2 w-px bg-gray-300" />
-
-                    {/* Right Divider */}
-                    <div className="absolute right-0 top-2 bottom-2 w-px bg-gray-300" />
-                    {isOpp && (
-                        <div className="absolute z-10 mt-2 w-64 bg-white border rounded-lg shadow-lg p-4" style={{ top: "49px", left: "-35px" }}>
-                            <div className="flex space-x-2 mb-4">
-                                <input
-                                    type="number"
-                                    value={minPrice}
-                                    onChange={(e) => setMinPrice(e.target.value)}
-                                    placeholder="From"
-                                    className="w-1/2 border border-gray-300 rounded px-3 py-2 text-sm"
-                                />
-                                <input
-                                    type="number"
-                                    value={maxPrice}
-                                    onChange={(e) => setMaxPrice(e.target.value)}
-                                    placeholder="Upto"
-                                    className="w-1/2 border border-gray-300 rounded px-3 py-2 text-sm"
-                                />
-                            </div>
-                            <div className="flex justify-between">
-                                <button
-                                    onClick={handleClear}
-                                    className="px-4 py-2 border text-sm rounded text-gray-600 hover:bg-gray-100"
-                                >
-                                    Clear
-                                </button>
-                                <button
-                                    onClick={() => setIsOpp(false)}
-                                    className="px-4 py-2 bg-black text-white text-sm rounded hover:opacity-90"
-                                >
-                                    Apply Filters
-                                </button>
-                            </div>
-                        </div>
-                    )}
-
-                </div>
-
-                <div className="relative inline-block" ref={dropdownRef}>
+            <div className="relative inline-block" ref={dropdownRef} style={{margin:"0px"}}>
                     {/* Toggle Button */}
                     <button
                         onClick={() => setIsOpenn(!isOpenn)}
                         className="flex items-center justify-between w-[280px] px-4 py-2 border  border-l-0  bg-white text-left shadow-sm hover:bg-gray-50"
-                        style={{ height: "66px", borderTopRightRadius: "16px", borderBottomRightRadius: "16px" }}      >
+                        style={{ height: "60px", borderTopRightRadius: "16px", borderBottomRightRadius: "16px" }}      >
                         <div className="flex flex-col items-start">
                             <span className="text-[13px] font-medium text-black-500"><b>Filters</b></span>
-                            <span className="text-sm text-gray-800 truncate">Regional Specs, Keywords, ...</span>
+                            <span className="text-sm text-gray-800 truncate">Body Type, Fuel Type,etc</span>
                         </div>
                         <ChevronDown
                             className={`ml-2 w-4 h-4 transition-transform duration-200 ${isOpenn ? "rotate-180" : ""}`}
@@ -1139,9 +1157,8 @@ const FiltersMotors = () => {
                     )}
 
                 </div>
-            </div>
+        </div>
+    );
+};
 
-        </>
-    )
-}
-export default FiltersMotors;
+export default FiltersRentalCars;
