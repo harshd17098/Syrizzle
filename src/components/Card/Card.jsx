@@ -16,8 +16,8 @@ export default function Card({ item }) {
 		<div className="hover:shadow-md p-2 rounded-md duration-200">
 			<img className="rounded mb-3 object-cover h-56 lg:h-32 w-full" src={image} alt={title + "image"} />
 			<h3 className="text-base text-primary-500 font-semibold">{price}</h3>
-			<p className="dark:text-gray-300 font-semibold">{title}</p>
-			<p className="dark:text-gray-400 text-sm text-gray-600">{extension}</p>
+			<p className="dark:text-gray-300 " style={{fontSize:"14px"}}>{title}</p>
+			<p className="dark:text-gray-400 text-sm text-gray-600" style={{fontSize:"14px"}}>{extension}</p>
 		</div>
 	);
 }

@@ -70,24 +70,27 @@ export default function Navbar() {
 			<div className="lg:border-b lg:border-b-gray-500/10 dark:lg:border-b-gray-300/10">
 				<nav className="flex justify-center lg:justify-between lg:items-center container ">
 					<div className="group flex items-center bg-white px-4 py-1 rounded cursor-pointer min-w-[165px] relative">
-						<div className="inline-flex lg:flex items-center space-x-3 py-3 md:py-0">
+						<div className="flex items-center space-x-3 py-3">
+							{/* Logo or Site Name */}
 							<div>
 								<a href="#">
-									<img className="dark:hidden h-11 mr-2" src={logo} alt="logo" style={{ width: "111px", height: "36px" }} />
-									{/* <img className="hidden dark:inline-block h-11 mr-2" src={logoDark} alt="logo" /> */}
+									{/* Replace with your image if needed */}
+									<div style={{border:"1px solid black"}}>
+									<span style={{ width: "111px", height: "36px", color: "black" }}>Syrizzle</span>
+									</div>
 								</a>
 							</div>
-							<div className="lg:hidden mt-5 absolute right-6 top-0">
-								<ThemeSwitcher />
 
+							{/* Theme Switcher */}
+							<div className="lg:hidden">
+								<ThemeSwitcher />
 							</div>
 
-							{/* City name display */}
-							<div className="mt-5 text-sm hidden lg:inline-block text-gray-900 dark:text-gray-200 relative">
+							{/* City Name Display */}
+							<div className="text-sm hidden lg:flex items-center text-gray-900 dark:text-gray-200">
 								<div className="flex items-center group cursor-pointer">
 									<span className="mr-2 font-semibold text-[15px] text-[#000000] group-hover:text-[#e60000]">
 										{selectedCity}
-
 									</span>
 									<span className="text-xs text-[#000000] group-hover:text-[#e60000]">
 										<IoIosArrowDown className="text-[10px]" />
@@ -95,6 +98,7 @@ export default function Navbar() {
 								</div>
 							</div>
 						</div>
+
 
 						{/* Dropdown on hover */}
 						<div className="hidden group-hover:block absolute left-[90px] top-[48px] min-w-[190px] bg-white border border-gray-200 shadow-[0_4px_18px_0_#00000013] rounded-md z-10">

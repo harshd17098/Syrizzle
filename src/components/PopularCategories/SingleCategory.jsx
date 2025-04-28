@@ -29,7 +29,7 @@ export default function SingleCategory({ category }) {
 			</ul>
 			<li className="list-none mt-1">
 				<a className="hover:text-primary-500 flex space-x-2 group dark:text-gray-300" href="#">
-					<span>All in {categoryName}</span>
+					<span style={{color:"red"}}>All in {categoryName}</span>
 					<img
 						className="w-3 group-hover:ml-3 duration-200"
 						src={rightArrow}
