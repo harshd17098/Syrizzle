@@ -15,12 +15,12 @@ import MotorsPage from "../../pages/MotorsPage";
 const data = [
 	{
 		categoryImage: motors,
-		categoryName: "Motors",
+		categoryName:<Link to={"/motors/"}>Motors</Link>,
 
 		subcategories: [
 			<Link to={"/motors/used-cars/"}>Cars</Link>,
 			 <Link to={"motors/rental-cars/"}>Rental Cars</Link>,
-			"New Cars",
+			<Link to={"/motors/new-cars/"}>New Cars</Link>,
 			"Export Cars",
 		],
 	},

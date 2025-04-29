@@ -75,8 +75,8 @@ export default function Navbar() {
 							<div>
 								<a href="#">
 									{/* Replace with your image if needed */}
-									<div style={{border:"1px solid black"}}>
-									<span style={{ width: "111px", height: "36px", color: "black" }}>Syrizzle</span>
+									<div style={{border:"1px solid black",borderRadius:"25px"}}>
+									<span style={{ width: "111px", height: "36px", color: "black" ,padding:"25px"}}>Syrizzle</span>
 									</div>
 								</a>
 							</div>
