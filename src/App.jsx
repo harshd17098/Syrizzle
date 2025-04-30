@@ -8,7 +8,9 @@ import Residential from "./pages/ResidentialPage";
 import RentalCarsPages from "./pages/RentalCarsPages";
 import FeaturedMotors from "./pages/FeaturedMotors";
 import NewCarsPages from "./pages/NewCarsPages";
-
+import AllImagesGallery from "./components/CarsFilter/AllImagesGallery";
+import FullGallery from "./components/CarsFilter/FullGallery";
+import ExportsCarsPages from "./pages/ExportsCarsPages";
 export default function App() {
 	return (
 		<>
@@ -21,7 +23,11 @@ export default function App() {
 				<Route path='/motors/rental-cars/' element={<RentalCarsPages/>}></Route>
 				<Route path="en/property-for-rent/residential/"element={<Residential/>}></Route>
 				<Route path="/motors/" element={<FeaturedMotors/>}></Route>
+				<Route path="/motors/export-cars/"element={<ExportsCarsPages/>}></Route>
 				<Route path="/motors/new-cars/" element={<NewCarsPages/>}></Route>
+				<Route path="/motors/used-cars/" element={<MotorsPage />} />
+				<Route path="/fullgallery" element={<FullGallery />} />
+				<Route path="/gallery" element={<AllImagesGallery />} />
 			</Routes>
 			<Footer/>
 			</BrowserRouter>

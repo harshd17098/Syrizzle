@@ -21,16 +21,18 @@ import {
     ChevronsLeft,
     ChevronsRight,
 } from 'lucide-react';
+import LoginModal from "../LoginModal/LoginModal";
+
 const carBrands = [
 
-    "Mercedes-Benz 5658",
-    "Toyota (3520)",
-    "Nissan (3239)",
-    "BMW (2374)",
-    "Land Rover (1937)",
-    "Ford (1493)",
-    "Porsche (1257)",
-    "Lexus (1200)",
+    "Toyota (604)",
+    "Hyundai (3520)",
+    "Kia (3239)",
+    "Mercedes-Benz (2374)",
+    "Suzuki (1937)",
+    "RAM (1493)",
+    "Lexus (1257)",
+    "BYD (1200)",
     "Audi (1164)",
     "Hyundai (1162)",
     "Jeep (1049)",
@@ -72,11 +74,13 @@ const sortOptions = [
     "Year Highest to Lowest",
     "Year Lowest to Highest",
 ];
-const Motors = () => {
+const ExpotsCars = () => {
     const [showMore, setShowMore] = useState(false);
     const visibleBrands = showMore ? carBrands.slice(0, 36) : carBrands.slice(0, 7);
     const [open, setOpen] = useState(false);
     const [selected, setSelected] = useState("Oldest to Newest");
+    const [showUSD, setShowUSD] = useState(false);
+    const [showModal, setShowModal] = useState(false);
 
     const handleSelect = (option) => {
         setSelected(option);
@@ -92,12 +96,12 @@ const Motors = () => {
         hand: "Left Hand",
         specs: "GCC Specs",
         imageUrls: [
-            "https://dbz-images.dubizzle.com/images/2024/09/23/3745682b2cb94a6d8140b6e46427a3ee-.jpeg?impolicy=dpv",
-            "https://dbz-images.dubizzle.com/images/2024/09/23/7bf467999051470ea4806258e8e6dadc-.jpeg?impolicy=dpv",
-            "https://dbz-images.dubizzle.com/images/2024/09/23/67052d15ff7e44008400cb80efdb4ca9-.jpeg?impolicy=dpv",
-            "https://dbz-images.dubizzle.com/images/2024/09/23/499d88850a1c40eba0673ab03a19794e-.jpeg?impolicy=dpv",
-            "https://dbz-images.dubizzle.com/images/2024/09/23/0490d486fae0463190ceb0a17301cbbf-.jpeg?impolicy=dpv",
-            "https://dbz-images.dubizzle.com/images/2024/09/23/4a708ff2e63744008642f414297477c5-.jpeg?impolicy=dpv",
+            "https://dbz-images.dubizzle.com/images/2025/04/30/28890b8006cd4e7faa98b311f98da77f-.jpeg?impolicy=dpv",
+            "https://dbz-images.dubizzle.com/images/2025/04/30/74ef88781a884b6dacf91d6ba05cd40b-.jpeg?impolicy=dpv",
+            "https://dbz-images.dubizzle.com/images/2025/04/30/a06de8e5abb942bfad25fa03235ea098-.jpeg?impolicy=dpv",
+            "https://dbz-images.dubizzle.com/images/2025/04/30/a06de8e5abb942bfad25fa03235ea098-.jpeg?impolicy=dpv",
+            "https://dbz-images.dubizzle.com/images/2025/04/30/cdeedd9b17c34ab097f285babff53f53-.jpeg?impolicy=dpv",
+            "https://dbz-images.dubizzle.com/images/2025/04/30/e2ec6d448dad4b518f171f04a6c647bd-.jpeg?impolicy=dpv",
         ],
     };
     const [currentPage, setCurrentPage] = useState(1);
@@ -118,13 +122,28 @@ const Motors = () => {
                 <FiltersMotors />
                 <div>
                     <div className="p-6">
-                        <div className="text-sm text-blue-500 mb-2">UAE  <span style={{ color: "gray" }}>&gt;</span> Motors <span style={{ color: "gray" }}>&gt;</span> &nbsp;<span style={{ color: "gray" }}>Cars</span> </div>
+                        <div className="text-sm text-blue-500 mb-2">UAE  <span style={{ color: "gray" }}>&gt;</span> Motors <span style={{ color: "gray" }}>&gt;</span> &nbsp;<span style={{ color: "gray" }}>Export Cars</span> </div>
                         <div className="flex justify-between items-start flex-wrap md:flex-nowrap gap-4 mb-4">
                             {/* Left Side: Title */}
                             <h2 className=" " style={{ fontSize: "20px" }}>
                                 Cars for sale in <span className="text-black font-bold">UAE</span> • 37,574 Ads
                             </h2>
-
+                            <label className="flex items-center space-x-3 cursor-pointer select-none">
+                                <span className="font-semibold text-sm">Show Prices in USD</span>
+                                <div className="relative">
+                                    <input
+                                        type="checkbox"
+                                        checked={showUSD}
+                                        onChange={() => setShowUSD(!showUSD)}
+                                        className="sr-only"
+                                    />
+                                    <div className={`w-10 h-5 rounded-full transition-colors ${showUSD ? "bg-black" : "bg-gray-300"}`}></div>
+                                    <div
+                                        className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow-md transform transition-transform ${showUSD ? "translate-x-5" : ""
+                                            }`}
+                                    ></div>
+                                </div>
+                            </label>
                             {/* Right Side: Sort + Save */}
                             <div className="flex items-center space-x-3">
                                 {/* Sort Dropdown */}
@@ -155,12 +174,17 @@ const Motors = () => {
 
                                 </div>
 
-                                {/* Save Search Button */}
-                                <button className="flex items-center gap-2 px-4 py-2 border rounded-md text-sm text-gray-800 hover:bg-gray-100">
+                                <button
+                                    onClick={() => setShowModal(true)}
+                                    className="flex items-center gap-2 px-4 py-2 border rounded-md text-sm text-gray-800 hover:bg-gray-100"
+                                >
                                     <BookmarkIcon className="w-5 h-5 text-black" />
                                     Save Search
                                 </button>
 
+                                {showModal && (
+                                    <LoginModal onClose={() => setShowModal(false)} />
+                                )}
                             </div>
                         </div>
                         <div className="flex flex-wrap gap-2 my-4">
@@ -168,7 +192,7 @@ const Motors = () => {
                                 <button
                                     key={index}
                                     className="px-4 py-2 border rounded-full  hover:bg-blue-50 transition"
-                                    style={{color:"#0F5DC4"}}
+                                    style={{ color: "#0F5DC4" }}
                                 >
                                     {brand}
                                 </button>
@@ -214,7 +238,11 @@ const Motors = () => {
                         >
                             {car.imageUrls.map((url, index) => (
                                 <SwiperSlide key={index}>
-                                    <img src={url} alt="Car" className="w-full h-full object-cover rounded-lg" />
+<img
+  src={url}
+  alt="Car"
+  className="w-full h-full object-cover rounded-lg cursor-pointer"
+/>
                                 </SwiperSlide>
                             ))}
                         </Swiper>
@@ -382,4 +410,4 @@ const Motors = () => {
     );
 };
 
-export default Motors;
+export default ExpotsCars;

@@ -82,9 +82,9 @@ export default function Navbar() {
 							</div>
 
 							{/* Theme Switcher */}
-							<div className="lg:hidden">
+							{/* <div className="lg:hidden">
 								<ThemeSwitcher />
-							</div>
+							</div> */}
 
 							{/* City Name Display */}
 							<div className="text-sm hidden lg:flex items-center text-gray-900 dark:text-gray-200">
@@ -125,7 +125,7 @@ export default function Navbar() {
 
 
 					<ul className="hidden lg:flex space-x-8 items-center ">
-						<ThemeSwitcher />
+						{/* <ThemeSwitcher /> */}
 						<li>
 							<a className="flex flex-col items-center py-2 decoration-primary-500 " href="#">
 								<img src={notification} style={{ fontSize: "18px" }} alt="" />

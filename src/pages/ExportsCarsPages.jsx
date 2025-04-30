@@ -1,6 +1,7 @@
+import ExpotsCars from "../components/Motors/ExpotsCars";
 import Motors from "../components/Motors/Motors";
 
-export default function MotorsPage() {
+export default function ExportsCarsPages() {
     return (
         <section className="Motors">
             <div className="container" style={{ padding: "0px 8px" }}>
@@ -40,7 +41,7 @@ export default function MotorsPage() {
                         borderRadius: "10px 10px 0px 0px",
                     }}
                 >
-                    <Motors/>
+                    <ExpotsCars/>
                 </div>
             </div>
         </section>

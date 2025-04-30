@@ -21,7 +21,7 @@ const data = [
 			<Link to={"/motors/used-cars/"}>Cars</Link>,
 			 <Link to={"motors/rental-cars/"}>Rental Cars</Link>,
 			<Link to={"/motors/new-cars/"}>New Cars</Link>,
-			"Export Cars",
+		 <Link to={"/motors/export-cars/"}>Export Cars</Link>
 		],
 	},
 	{
