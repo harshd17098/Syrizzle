@@ -1,5 +1,4 @@
-import ExpotsCars from "../components/Motors/ExpotsCars";
-import Motors from "../components/Motors/Motors";
+import ExpotsCars from "../../components/Motors/cars/Motors";
 
 export default function ExportsCarsPages() {
     return (

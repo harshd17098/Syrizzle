@@ -1,4 +1,4 @@
-import FiltersMotors from "../Filters/FiltersMotors";
+import FiltersMotors from "../../Filters/cars/FiltersMotors";
 import React, { useState } from "react";
 import { IoMdShareAlt } from "react-icons/io";
 import { ChevronDown, Check } from "lucide-react";
@@ -21,7 +21,7 @@ import {
     ChevronsLeft,
     ChevronsRight,
 } from 'lucide-react';
-import LoginModal from "../LoginModal/LoginModal";
+import LoginModal from "../../LoginModal/LoginModal";
 
 const carBrands = [
 

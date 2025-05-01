@@ -3,14 +3,15 @@ import router from "./routes/router";
 import HomePage from "./pages/HomePage";
 import Navbar from "./shared/Navbar";
 import Footer from "./shared/Footer";
-import MotorsPage from "./pages/MotorsPage";
-import Residential from "./pages/ResidentialPage";
-import RentalCarsPages from "./pages/RentalCarsPages";
-import FeaturedMotors from "./pages/FeaturedMotors";
-import NewCarsPages from "./pages/NewCarsPages";
+import MotorsPage from "./pages/cars/MotorsPage";
+import RentalCarsPages from "./pages/cars/RentalCarsPages";
+import FeaturedMotors from "./pages/cars/FeaturedMotors";
+import NewCarsPages from "./pages/cars/NewCarsPages";
 import AllImagesGallery from "./components/CarsFilter/AllImagesGallery";
 import FullGallery from "./components/CarsFilter/FullGallery";
-import ExportsCarsPages from "./pages/ExportsCarsPages";
+import ExportsCarsPages from "./pages/cars/ExportsCarsPages";
+import Residentialpage from "./pages/rent/ResidentialPage";
+import CommercialPages from "./pages/rent/CommercialPage";
 export default function App() {
 	return (
 		<>
@@ -21,13 +22,14 @@ export default function App() {
 				<Route path="/" element={<HomePage/>}></Route>
 				<Route path='/motors/used-cars/' element={<MotorsPage/>}></Route>
 				<Route path='/motors/rental-cars/' element={<RentalCarsPages/>}></Route>
-				<Route path="en/property-for-rent/residential/"element={<Residential/>}></Route>
+				<Route path="en/property-for-rent/residential/"element={<Residentialpage/>}></Route>
 				<Route path="/motors/" element={<FeaturedMotors/>}></Route>
 				<Route path="/motors/export-cars/"element={<ExportsCarsPages/>}></Route>
 				<Route path="/motors/new-cars/" element={<NewCarsPages/>}></Route>
 				<Route path="/motors/used-cars/" element={<MotorsPage />} />
 				<Route path="/fullgallery" element={<FullGallery />} />
 				<Route path="/gallery" element={<AllImagesGallery />} />
+				<Route path="/en/property-for-rent/commercial/" element={<CommercialPages/>}></Route>
 			</Routes>
 			<Footer/>
 			</BrowserRouter>

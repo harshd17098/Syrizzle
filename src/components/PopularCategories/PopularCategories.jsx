@@ -10,26 +10,26 @@ import industry from "../../assets/icons/industri.svg";
 import homeApplience from "../../assets/icons/home-applience.svg";
 import SingleCategory from "./SingleCategory";
 import { Link } from "react-router-dom";
-import MotorsPage from "../../pages/MotorsPage";
+import MotorsPage from "../../pages/cars/MotorsPage";
 
 const data = [
 	{
 		categoryImage: motors,
-		categoryName:<Link to={"/motors/"}>Motors</Link>,
+		categoryName: <Link to={"/motors/"}>Motors</Link>,
 
 		subcategories: [
 			<Link to={"/motors/used-cars/"}>Cars</Link>,
-			 <Link to={"motors/rental-cars/"}>Rental Cars</Link>,
+			<Link to={"motors/rental-cars/"}>Rental Cars</Link>,
 			<Link to={"/motors/new-cars/"}>New Cars</Link>,
-		 <Link to={"/motors/export-cars/"}>Export Cars</Link>
+			<Link to={"/motors/export-cars/"}>Export Cars</Link>
 		],
 	},
 	{
 		categoryImage: rentProperty,
 		categoryName: "Property for Rent",
 		subcategories: [
-		<Link to={"/en/property-for-rent/residential/"}>Residential</Link>,
-			"Commercial",
+			<Link to={"/en/property-for-rent/residential/"}>Residential</Link>,
+			<Link to={"/en/property-for-rent/commercial/"}>Commercial</Link>,
 			"Rooms For Rent",
 			"Monthly Short Term",
 		],

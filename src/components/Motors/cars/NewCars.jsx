@@ -1,4 +1,4 @@
-import FiltersNewCars from "../Filters/FiltersNewCars";
+import FiltersNewCars from "../../Filters/cars/FiltersNewCars";
 
 const NewCars = () => {
     return (

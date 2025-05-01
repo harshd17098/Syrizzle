@@ -1,4 +1,4 @@
-import NewCars from "../components/Motors/NewCars";
+import NewCars from "../../components/Motors/cars/NewCars";
 
 
 

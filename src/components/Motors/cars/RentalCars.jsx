@@ -1,4 +1,4 @@
-import FiltersRentalCars from "../Filters/FiltersRentalCars";
+import FiltersRentalCars from "../../Filters/cars/FiltersRentalCars";
 
 
 

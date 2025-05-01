@@ -1,4 +1,5 @@
-import Motors from "../components/Motors/Motors";
+import Motors from "../../components/Motors/cars/Motors";
+
 
 export default function MotorsPage() {
     return (

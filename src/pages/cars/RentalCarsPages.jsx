@@ -1,6 +1,8 @@
 
-import RentalCars from "../components/Motors/RentalCars";
-import "./css/CarInspectionBanner.css"
+import RentalCars from "../../components/Motors/cars/RentalCars";
+
+import "../css/CarInspectionBanner.css"
+
 
 const RentalCarsPages = () => {
     return (
