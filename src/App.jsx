@@ -12,6 +12,8 @@ import FullGallery from "./components/CarsFilter/FullGallery";
 import ExportsCarsPages from "./pages/cars/ExportsCarsPages";
 import Residentialpage from "./pages/rent/ResidentialPage";
 import CommercialPages from "./pages/rent/CommercialPage";
+import MonthlyPages from "./pages/rent/MonthlyPage";
+import PropertyForRentPage from "./pages/rent/PropertyForRentPage";
 export default function App() {
 	return (
 		<>
@@ -30,6 +32,8 @@ export default function App() {
 				<Route path="/fullgallery" element={<FullGallery />} />
 				<Route path="/gallery" element={<AllImagesGallery />} />
 				<Route path="/en/property-for-rent/commercial/" element={<CommercialPages/>}></Route>
+				<Route path="/en/property-for-rent/short-term/" element={<MonthlyPages/>}></Route>
+				<Route path="/en/property-for-rent/"element={<PropertyForRentPage/>}></Route>
 			</Routes>
 			<Footer/>
 			</BrowserRouter>

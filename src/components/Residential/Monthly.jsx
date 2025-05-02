@@ -1,4 +1,4 @@
-
+import FiltersCommercial from "../Filters/Rent/FiltersCommercial";
 import { ChevronRight, Home } from 'lucide-react';
 import React, { useState } from "react";
 import { FaArrowsUpDown } from "react-icons/fa6";
@@ -16,8 +16,7 @@ import {
 import { IoMdShareAlt } from "react-icons/io";
 import { Mail, Phone, MessageCircle } from 'lucide-react'; // Optional: Replace with your preferred icon library
 import { FaWhatsapp } from 'react-icons/fa';
-import FiltersResidential from "../Filters/Rent/FiltersResidential";
-
+import FiltersMonthly from "../Filters/Rent/FiltersMonthly";
 const sortOptions = [
     "Popular",
     "Verified",
@@ -25,47 +24,45 @@ const sortOptions = [
     "Oldest to Newest",
     "Price Highest to Lowest",
     "Price Lowest to Highest",
-];
 
+];
 const carBrands = [
 
-    "Dubai (47,076)",
-    "Sharjah (29,412)",
-    "Ajman (21,277)",
-    "Abu Dhabi (19,364)",
-    "Ras Al Khaimah (1,932)",
-    "Al Ain (1853)",
-    "Umm Al Qawain (104)",
-    "Fujeirah (71)",
+    "Dubai (12,046)",
+    "Abu Dhabi (2,829)",
+    "Sharjah (1,735)",
+    "Ajman (1,522)",
+    "Umm Al Qawain (881)",
+    "Al Ain (244)",
+    "Ras Al Khaimah (184)",
+    "Fujeirah (37)",
 
 
 ];
 const car = {
-    price: "AED 190,000 Yearly",
-    title: "Apartment",
-    location: "2 beds",
-    location1: "2 baths",
-    location2: "1268 sqft",
+    price: "AED 6,499 Monthly",
+    title: "Office",
+    location: "544 sqft",
     year: 2013,
-    mileage: "Corner Unit | Brand New | Premium Living",
-    hand: "Creek Vistas Grande, Sobha Hartland, Dubai, UAE",
+    mileage: "3 Months Promo for Studio with Kitchenette | Hot...",
+    hand: "Dubai Marina Mall, Dubai Marina, Dubai",
     specs: "GCC Specs",
     imageUrls: [
-        "https://dbz-images.dubizzle.com/images/2025/05/02/2f1b529c-c41c-4adc-8214-237a9435fbcc/b352dc54dd5d4cb48a09133534596d2d-.jpg?impolicy=dpv",
-        "https://dbz-images.dubizzle.com/images/2025/05/02/2f1b529c-c41c-4adc-8214-237a9435fbcc/003aec46920b4fbb9c09711b37f7c61f-.jpg?impolicy=dpv",
-        "https://dbz-images.dubizzle.com/images/2025/05/02/2f1b529c-c41c-4adc-8214-237a9435fbcc/6ce1903593db429c97cf834a9b07acbb-.jpg?impolicy=dpv",
-        "https://dbz-images.dubizzle.com/images/2025/05/02/2f1b529c-c41c-4adc-8214-237a9435fbcc/715de7a3eaac4f23848091a031e622da-.jpg?impolicy=dpv",
-        "https://dbz-images.dubizzle.com/images/2025/05/02/2f1b529c-c41c-4adc-8214-237a9435fbcc/6ce1903593db429c97cf834a9b07acbb-.jpg?impolicy=dpv",
-        "https://dbz-images.dubizzle.com/images/2025/05/02/2f1b529c-c41c-4adc-8214-237a9435fbcc/23a9f1b599ec4c8f83be89123bbb5110-.jpg?impolicy=dpv",
+        "https://dbz-images.dubizzle.com/images/2025/04/20/c1fd4033-3e05-4c41-b0a8-9846790d0632/5334b58d9e2d4bf6880bf26422c9e118-.jpg?impolicy=dpv",
+        "https://dbz-images.dubizzle.com/images/2025/04/20/c1fd4033-3e05-4c41-b0a8-9846790d0632/6d2e7413dc4f42e5b50f96e4501addbe-.jpg?impolicy=dpv",
+        "https://dbz-images.dubizzle.com/images/2025/04/20/c1fd4033-3e05-4c41-b0a8-9846790d0632/85bc78fa502f48a99ba574e92f9a579e-.jpg?impolicy=dpv",
+        "https://dbz-images.dubizzle.com/images/2025/04/20/c1fd4033-3e05-4c41-b0a8-9846790d0632/88f9f743695946d5a10f501fc0c15959-.jpg?impolicy=dpv",
+        "https://dbz-images.dubizzle.com/images/2025/04/20/c1fd4033-3e05-4c41-b0a8-9846790d0632/b88c5f4ebc054d0f93c2de39d673d45b-.jpg?impolicy=dpv",
+        "https://dbz-images.dubizzle.com/images/2025/04/20/c1fd4033-3e05-4c41-b0a8-9846790d0632/ee6b8ea8530a4fa7aca9dbc4f38210a0-.jpg?impolicy=dpv",
     ],
 };
-const Residential = () => {
+const Monthly = () => {
     const [open, setOpen] = useState(false);
     const [showMore, setShowMore] = useState(false);
 
     const visibleBrands = showMore ? carBrands.slice(0, 8) : carBrands.slice(0, 7);
 
-    const [selected, setSelected] = useState("Popular");
+    const [selected, setSelected] = useState("Oldest to Newest");
     const handleSelect = (option) => {
         setSelected(option);
         setOpen(false);
@@ -78,8 +75,8 @@ const Residential = () => {
     return (
         <>
             <section>
-                <div className="sticky top-1 " style={{zIndex:"9999"}}>
-                <FiltersResidential/>
+                <div className="sticky top-1 " style={{ zIndex: "9999" }}>
+                    <FiltersMonthly />
                 </div>
 
                 <div>
@@ -88,15 +85,15 @@ const Residential = () => {
                         <div className="flex items-center text-sm text-gray-500 space-x-1">
                             <Home className="w-4 h-4 text-black" style={{ fontSize: "20px" }} />
                             <ChevronRight className="w-4 h-4" />
-                            <a href="#" className="text-blue-600 "> Real Estate for Rent </a>
+                            <a href="#" className="text-blue-600 ">Real Estate for Rent</a>
                             <ChevronRight className="w-4 h-4" />
-                            <span> Properties for rent in UAE </span>
+                            <span>Properties for rent monthly in UAE</span>
                         </div>
                         <div className="flex justify-between items-start flex-wrap md:flex-nowrap gap-4 mb-4">
 
                             <h1 className="mt-2 text-xl font-semibold text-gray-900">
-                                <span className="font-bold">Properties for rent in UAE</span>
-                                <span className="font-normal text-gray-600"> • 19,791 Ads</span>
+                                <span className="font-bold">Monthly short term for rent in UAE</span>
+                                <span className="font-normal text-gray-600"> • 10,305 Ads</span>
                             </h1>
 
                             <div className="flex items-center space-x-3">
@@ -138,7 +135,6 @@ const Residential = () => {
                         </div>
 
                     </div>
-
                     <div className="flex flex-wrap gap-2 my-4">
                         {visibleBrands.map((brand, index) => (
                             <button
@@ -180,28 +176,7 @@ const Residential = () => {
                         </div>
 
                         {/* Toggle */}
-                        <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium text-gray-800">Show Verified First</span>
-                            <label className="relative inline-flex items-center cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    className="sr-only peer"
-                                    checked={enabled}
-                                    onChange={() => setEnabled(!enabled)}
-                                />
-                                <div
-                                    className={`w-10 h-6 rounded-full transition-all duration-300 ${enabled ? "bg-black" : "bg-gray-300"
-                                        }`}
-                                ></div>
-                                <div
-                                    className={`absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow-md transition-transform duration-300 ${enabled ? "translate-x-4" : "translate-x-0"
-                                        }`}
-                                ></div>
-                            </label>
 
-
-
-                        </div>
 
                     </div>
                 </div>
@@ -251,7 +226,6 @@ const Residential = () => {
                             onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(43, 45, 46, 0.61)")}
                             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
                         >
-                            <IoMdShareAlt />
                         </div>
 
                         <div
@@ -289,24 +263,24 @@ const Residential = () => {
                         <div className="flex items-center gap-1 mt-3 text-gray-600 text-sm md:text-base">
                             <img
                                 src="https://static.dubizzle.com/frontend-web/static-resources/assets/images/bed_space.svg"
-                                alt=""
+                                alt="bed"
                                 className="mr-1"
                             />
-                            {car.location}
+                            <span>Studio</span>
 
                             <img
                                 src="https://static.dubizzle.com/frontend-web/static-resources/assets/images/bath.svg"
-                                alt=""
-                                className="mr-1"
+                                alt="bath"
+                                className="ml-2 mr-1"
                             />
-                            {car.location1}
+                            <span>1 baths</span>
 
                             <img
                                 src="https://static.dubizzle.com/frontend-web/static-resources/assets/images/size.svg"
-                                alt=""
-                                className="mr-1"
+                                alt="size"
+                                className="ml-2 mr-1"
                             />
-                            {car.location2}
+                            <span>600 sqft</span>
                         </div>
 
                         <div className="flex flex-wrap gap-4 mt-3 text-gray-700 text-sm md:text-base items-center relative">
@@ -320,9 +294,9 @@ const Residential = () => {
                             </div>
 
                             <div className="flex items-center justify-center">
-                                <div className="rounded-lg overflow-hidden absolute" style={{ right: "10px", top: "-6px", padding: "4px", width: "74px", height: "74px" }}>
+                                <div className="rounded-lg overflow-hidden absolute" style={{ right: "10px", top: "56px", padding: "4px", width: "74px", height: "74px" }}>
                                     <img
-                                        src="https://dbz-images.dubizzle.com/profiles/property_agency/LUXEHOMES_REAL_ESTATE_BUYING__SELLING_BROKERAGE_-_logo.jpg?impolicy=agency"
+                                        src="https://dbz-images.dubizzle.com/profiles/property_agency/luxury_bricks_logo.png?impolicy=agency"
                                         alt="UPGRADE YOUR CAR AUCTIONS L.L.C"
                                         className="w-full h-full object-contain"
                                         loading="lazy"
@@ -358,4 +332,4 @@ const Residential = () => {
         </>
     )
 }
-export default Residential;
+export default Monthly;

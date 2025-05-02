@@ -26,12 +26,12 @@ const data = [
 	},
 	{
 		categoryImage: rentProperty,
-		categoryName: "Property for Rent",
+		categoryName: <Link to={"/en/property-for-rent/"}>Property for Rent</Link>,
 		subcategories: [
 			<Link to={"/en/property-for-rent/residential/"}>Residential</Link>,
 			<Link to={"/en/property-for-rent/commercial/"}>Commercial</Link>,
-			"Rooms For Rent",
-			"Monthly Short Term",
+			<Link to={"/en/property-for-rent/rooms-for-rent-flatmates/"}>Rooms For Rent</Link>,
+			<Link to={"/en/property-for-rent/short-term/"}>Monthly Short Term</Link>
 		],
 	},
 	{
