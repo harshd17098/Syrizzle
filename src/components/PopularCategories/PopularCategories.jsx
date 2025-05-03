@@ -40,8 +40,8 @@ const data = [
 		subcategories: [
 			"Residential for Sale",
 			"Commercial for Sale",
-			"Land for Sale",
-			"Multiple Units for Sale",
+			<Link to={"/new-projects/residential/"}>New Projects</Link>,
+		    <Link to={"/en/property-for-sale/off-plan/residential/"}>Off-Plan</Link>,
 		],
 	},
 	{

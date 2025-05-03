@@ -14,6 +14,9 @@ import Residentialpage from "./pages/rent/ResidentialPage";
 import CommercialPages from "./pages/rent/CommercialPage";
 import MonthlyPages from "./pages/rent/MonthlyPage";
 import PropertyForRentPage from "./pages/rent/PropertyForRentPage";
+import RoomsforRentPage from "./pages/rent/RoomsforRentPage";
+import LandForSalePage from "./pages/Sale/NewProjects";
+import OffPlanePage from "./pages/Sale/OffPlanePage";
 export default function App() {
 	return (
 		<>
@@ -34,6 +37,9 @@ export default function App() {
 				<Route path="/en/property-for-rent/commercial/" element={<CommercialPages/>}></Route>
 				<Route path="/en/property-for-rent/short-term/" element={<MonthlyPages/>}></Route>
 				<Route path="/en/property-for-rent/"element={<PropertyForRentPage/>}></Route>
+				<Route path="/en/property-for-rent/rooms-for-rent-flatmates/"element={<RoomsforRentPage/>}></Route>
+				<Route path="/new-projects/residential/"element={<LandForSalePage/>}></Route>
+				<Route path="/en/property-for-sale/off-plan/residential/"element={<OffPlanePage/>}></Route>
 			</Routes>
 			<Footer/>
 			</BrowserRouter>
