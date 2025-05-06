@@ -71,23 +71,20 @@ export default function Navbar({onClose}) {
 	const [password, setPassword] = useState('');
 	const [loginTriggered, setLoginTriggered] = useState(false);
 
-	const handleSocialLogin = async (provider, data) => {
+	const handleSocialLogin = async (googleData) => {
 		try {
-			const idToken = data.id_token || data.accessToken;
-			const response = await axios.post('https://syrizzle.vyominfotech.in/api/login', {
-				login_type: provider,
-				idToken,
-				device_name: 'web',
-			});
-
-			const jwt = response.data.token;
-			localStorage.setItem('jwt', jwt);
-			alert(`${provider.charAt(0).toUpperCase() + provider.slice(1)} login successful!`);
+		  const response = await axios.post("https://your-backend.com/api/login", {
+			login_type: "google",
+			idToken: googleData.credential, // or googleData.tokenId
+			device_name: "web",
+		  });
+	  
+		  console.log("Login success", response.data);
 		} catch (error) {
-			console.error(`${provider} login failed:`, error);
-			alert(`${provider} login failed`);
+		  console.error("Google login failed:", error);
 		}
-	};
+	  };
+	  
 
 	const handleEmailLogin = async (e) => {
 		e.preventDefault();
@@ -332,7 +329,7 @@ export default function Navbar({onClose}) {
 											{/* Social Buttons */}
 											<div className="flex flex-col items-center justify-center space-y-3">
 												<LoginSocialGoogle
-													client_id="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"
+													client_id="121819088833-0u8gvlt0b0jg5junojjdhb12msh9ks6e.apps.googleusercontent.com"
 													onResolve={({ data }) => handleSocialLogin('google', data)}
 													onReject={(err) => console.log('Google login error', err)}
 												>
