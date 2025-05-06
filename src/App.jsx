@@ -17,6 +17,12 @@ import PropertyForRentPage from "./pages/rent/PropertyForRentPage";
 import RoomsforRentPage from "./pages/rent/RoomsforRentPage";
 import LandForSalePage from "./pages/Sale/NewProjects";
 import OffPlanePage from "./pages/Sale/OffPlanePage";
+import AccountingPage from "./pages/Jobs/AccountingPage";
+import EngineeringPage from "./pages/Jobs/EngineeringPage";
+import BusinessDevelopmentPage from "./pages/Jobs/BusinessDevelopmentPage";
+import FrontOfficePage from "./pages/Jobs/FrontOfficePage";
+import ElectronicsPage from "./pages/Classified/ElectronicsPage";
+
 export default function App() {
 	return (
 		<>
@@ -40,6 +46,15 @@ export default function App() {
 				<Route path="/en/property-for-rent/rooms-for-rent-flatmates/"element={<RoomsforRentPage/>}></Route>
 				<Route path="/new-projects/residential/"element={<LandForSalePage/>}></Route>
 				<Route path="/en/property-for-sale/off-plan/residential/"element={<OffPlanePage/>}></Route>
+
+				<Route path="/jobs/accounting-finance/" element={<AccountingPage/>}></Route>
+				<Route path="/jobs/engineering/" element={<EngineeringPage/>}></Route>
+				<Route path="/jobs/sales-business-development/" element={<BusinessDevelopmentPage/>}></Route>
+				<Route path="/jobs/secretarial-front-office/" element={<FrontOfficePage/>}></Route>
+
+
+				<Route path="/classified/electronics/" element={<ElectronicsPage/>}></Route>
+
 			</Routes>
 			<Footer/>
 			</BrowserRouter>

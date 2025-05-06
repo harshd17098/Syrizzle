@@ -16,6 +16,22 @@ import { IoIosArrowDown } from "react-icons/io";
 import { Button, Checkbox, Label, Modal, ModalBody, ModalHeader, TextInput } from "flowbite-react";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import SignUp from "../components/SignUp/SignUp";
+import axios from 'axios';
+import {
+	LoginSocialGoogle,
+	LoginSocialFacebook,
+	LoginSocialApple,
+} from 'reactjs-social-login';
+import {
+	GoogleLoginButton,
+	FacebookLoginButton,
+	AppleLoginButton,
+} from 'react-social-login-buttons';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
+
 
 const CITIES = [
 	"All Cities (UAE)",
@@ -39,29 +55,110 @@ const titles = [
 	"Log in to post an ad",
 ];
 
-export default function Navbar() {
+export default function Navbar({onClose}) {
 
 	const [selectedCity, setSelectedCity] = useState(CITIES[0]);
 	const [openModal, setOpenModal] = useState(false);
 	const [activeIndex, setActiveIndex] = useState(0);
 	const [showModal, setShowModal] = useState(false);
+	const [user, setUser] = useState(null);
+	const [showSignUp, setShowSignUp] = useState(false);
 
 	const [openStaticModal, setOpenStaticModal] = useState(false);
+	const navigate = useNavigate();
 
-	const [email, setEmail] = useState(""); useEffect(() => {
-		const interval = setInterval(() => {
-			setActiveIndex((prevIndex) =>
-				prevIndex === images.length - 1 ? 0 : prevIndex + 1
-			);
-		}, 3000);
-		return () => clearInterval(interval);
-	}, []);
+	const [email, setEmail] = useState('');
+	const [password, setPassword] = useState('');
+	const [loginTriggered, setLoginTriggered] = useState(false);
+
+	const handleSocialLogin = async (provider, data) => {
+		try {
+			const idToken = data.id_token || data.accessToken;
+			const response = await axios.post('https://syrizzle.vyominfotech.in/api/login', {
+				login_type: provider,
+				idToken,
+				device_name: 'web',
+			});
+
+			const jwt = response.data.token;
+			localStorage.setItem('jwt', jwt);
+			alert(`${provider.charAt(0).toUpperCase() + provider.slice(1)} login successful!`);
+		} catch (error) {
+			console.error(`${provider} login failed:`, error);
+			alert(`${provider} login failed`);
+		}
+	};
+
+	const handleEmailLogin = async (e) => {
+		e.preventDefault();
+		try {
+		  const response = await axios.post('https://syrizzle.vyominfotech.in/api/login', {
+			email,
+			password,
+			login_type: 'email',
+			device_name: 'web',
+		  });
+	  
+		  const result = response.data?.data?.result;
+	  
+		  if (result && result.login_devices && result.login_devices.length > 0) {
+			const jwt = result.login_devices[0].token;
+			localStorage.setItem('jwt', jwt);
+	  
+			const userData = {
+			  first_name: result.first_name,
+			  last_name: result.last_name,
+			  email: result.email,
+			  image: result.image,
+			};
+	  
+			localStorage.setItem('user', JSON.stringify(userData));
+			setUser(userData);
+	  
+			toast.success('Email login successful!', {
+			  position: 'top-center',
+			});
+	  
+			setEmail('');
+			setPassword('');
+			setOpenModal(false); // Close the modal
+			navigate('/'); // Navigate to home page
+		  } else {
+			toast.warn('Login successful but no token found.', {
+			  position: 'top-center',
+			});
+		  }
+		} catch (error) {
+		  console.error('Email login failed:', error);
+		  toast.error('Email login failed. Please check your credentials.', {
+			position: 'top-center',
+		  });
+		}
+	  };
+	  
+
+	const handleLogout = () => {
+		localStorage.removeItem('user');
+		localStorage.removeItem('jwt');
+		setUser(null);
+		toast.info('Logged out successfully', { position: 'top-center' });
+	};
+
 
 	function onCloseModal() {
 		setOpenModal(false);
 		setEmail("");
 		setOpenStaticModal(false)
 	}
+	useEffect(() => {
+		const storedUser = localStorage.getItem('user');
+		if (storedUser) {
+			setUser(JSON.parse(storedUser));
+		}
+	}, []);
+
+	
+	if (showSignUp) return <SignUp onClose={() => setShowSignUp(false)} />;
 
 
 	return (
@@ -75,8 +172,8 @@ export default function Navbar() {
 							<div>
 								<a href="#">
 									{/* Replace with your image if needed */}
-									<div style={{border:"1px solid black",borderRadius:"25px"}}>
-									<span style={{ width: "111px", height: "36px", color: "black" ,padding:"25px"}}>Syrizzle</span>
+									<div style={{ border: "1px solid black", borderRadius: "25px" }}>
+										<span style={{ width: "111px", height: "36px", color: "black", padding: "25px" }}>Syrizzle</span>
 									</div>
 								</a>
 							</div>
@@ -151,12 +248,18 @@ export default function Navbar() {
 							</a>
 						</li>
 						<li>
-							<button
-								onClick={() => setOpenModal(true)}
-								className="cursor-pointer px-2 py-6 text-[#2B2D2E] border-x border-transparent hover:border-[#EEF0F1] dark:text-gray-200 text-[14px] transition-colors duration-200"
-							>
-								Log in or sign up
-							</button>
+							{user ? (
+								<div className="px-2 py-6 text-[#2B2D2E] dark:text-gray-200 text-[14px]">
+									Hello, {user.first_name}
+								</div>
+							) : (
+								<button
+									onClick={() => setOpenModal(true)}
+									className="cursor-pointer px-2 py-6 text-[#2B2D2E] border-x border-transparent hover:border-[#EEF0F1] dark:text-gray-200 text-[14px] transition-colors duration-200"
+								>
+									Log in or sign up
+								</button>
+							)}
 
 							<Modal show={openModal} onClose={onCloseModal} popup>
 								<div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-40 z-[9999]">
@@ -165,128 +268,128 @@ export default function Navbar() {
 											style={{ position: "absolute", top: "5px", left: "390px", color: "gray" }}
 										/>
 
-										<ModalBody style={{ padding: "30px", paddingTop: "28px" }}>
-											<div className="relative mb-4 flex justify-center items-center">
+										<ModalBody className="p-6 md:p-8">
+											{/* Carousel */}
+											<div className="relative mb-6 flex justify-center items-center">
 												<button
-													style={{ left: "35px" }}
-													className="absolute left-0 text-white bg-opacity-40 p-1 rounded-full"
+													className="absolute left-0 text-white p-1 rounded-full"
 													onClick={() =>
-														setActiveIndex((prev) =>
-															prev === 0 ? images.length - 1 : prev - 1
-														)
+														setActiveIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1))
 													}
 												>
-													<FaArrowLeft style={{ backgroundColor: "white", color: "#E0E0E0" }} />
+													<FaArrowLeft className="bg-white text-gray-400 rounded-full" />
 												</button>
 
 												<div className="flex flex-col items-center gap-4">
 													<img
 														src={images[activeIndex]}
 														alt={`Slide ${activeIndex + 1}`}
-														className="rounded-md h-[160px] w-[100px] object-cover transition duration-500"
+														className="rounded-md h-[120px] w-[100px] object-contain"
 													/>
-													<div className="text-xl font-bold">{titles[activeIndex]}</div>
+													<div className="text-lg md:text-xl font-bold text-center">
+														{titles[activeIndex]}
+													</div>
 												</div>
 
 												<button
-													style={{ right: "35px" }}
-													className="absolute right-0 text-white bg-opacity-40 p-1 rounded-full"
+													className="absolute right-0 text-white p-1 rounded-full"
 													onClick={() =>
-														setActiveIndex((prev) =>
-															prev === images.length - 1 ? 0 : prev + 1
-														)
+														setActiveIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1))
 													}
 												>
-													<FaArrowRight style={{ backgroundColor: "white", color: "#E0E0E0" }} />
+													<FaArrowRight className="bg-white text-gray-400 rounded-full" />
 												</button>
 											</div>
 
-											<div className="flex flex-col items-center justify-center space-y-4">
-												{[
-													{
-														id: "facebook",
-														text: "Continue with Facebook",
-														img: "https://static.dubizzle.com/frontend-web/static-resources/assets/auth-icons/fb-logo.png",
-														className: "border-gray-600 text-blue-600",
-													},
-													{
-														id: "google",
-														text: "Continue with Google",
-														img: "https://static.dubizzle.com/frontend-web/static-resources/assets/auth-icons/google-logo.png",
-														className: "border-gray-400 text-gray-700",
-													},
-													{
-														id: "apple",
-														text: "Continue with Apple",
-														img: "https://static.dubizzle.com/frontend-web/static-resources/assets/auth-icons/apple-logo.png",
-														className: "border-gray-400 text-gray-700",
-													},
-													{
-														id: "email",
-														text: "Continue with Email",
-														img: "https://static.dubizzle.com/frontend-web/static-resources/assets/auth-icons/email-logo.png",
-														className: "border-gray-400 text-gray-700",
-													},
-												].map(({ id, text, img, className }) => (
-													<button
-														key={id}
-														id={`popup_${id}_login_btn`}
-														type="button"
-														className={`w-72 flex border ${className} px-4 py-2 rounded-md transition duration-200 hover:border-gray-300`}
-													>
-														<img src={img} alt={`${id} logo`} className="w-6 h-6 mr-2" />
-														{text}
-													</button>
-												))}
-
-												<div
-													className="mt-2 p-2 rounded-md"
-													style={{
-														backgroundColor: "rgba(245, 89, 89, 0.06)",
-														cursor: "pointer",
-													}}
-													onMouseEnter={(e) =>
-														(e.currentTarget.style.backgroundColor = "#fee2e2")
-													}
-													onMouseLeave={(e) =>
-														(e.currentTarget.style.backgroundColor = "rgba(245, 89, 89, 0.06)")
-													}
+											{/* Email Login */}
+											<form onSubmit={handleEmailLogin} className="space-y-4 mb-4 w-full">
+												<input
+													type="email"
+													placeholder="Email"
+													className="border p-2 w-full rounded"
+													value={email}
+													onChange={(e) => setEmail(e.target.value)}
+													required
+												/>
+												<input
+													type="password"
+													placeholder="Password"
+													className="border p-2 w-full rounded"
+													value={password}
+													onChange={(e) => setPassword(e.target.value)}
+													required
+												/>
+												<button
+													type="submit"
+													className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
 												>
-													<button
-														type="button"
-														id="popup_create_account_link"
-														onClick={() => setShowModal(true)}
-														className="text-red-600 font-semibold text-sm md:text-base focus:outline-none"
-													>
-														Don’t have an account? Create one
-													</button>
+													Login with Email
+												</button>
+											</form>
 
-													{showModal && <SignUp onClose={() => setShowModal(false)} />}
-												</div>
+											<div className="my-4 text-center text-gray-500">OR</div>
 
-												<p
-													className="text-center text-xs text-gray-400 px-6"
+											{/* Social Buttons */}
+											<div className="flex flex-col items-center justify-center space-y-3">
+												<LoginSocialGoogle
+													client_id="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"
+													onResolve={({ data }) => handleSocialLogin('google', data)}
+													onReject={(err) => console.log('Google login error', err)}
 												>
-													By signing up I agree to the{" "}
-													<a
-														href="https://www.dubizzle.com/legalhub/terms/"
-														target="_blank"
-														id="terms-and-conditions-link"
-														className="text-blue-600 hover:text-blue-400"
-													>
-														Terms and Conditions
-													</a>{" "}
-													and{" "}
-													<a
-														href="https://www.dubizzle.com/legalhub/privacy/"
-														target="_blank"
-														id="privacy-policy-link"
-														className="text-blue-600 hover:text-blue-400"
-													>
-														Privacy Policy
-													</a>
-												</p>
+													<GoogleLoginButton />
+												</LoginSocialGoogle>
+
+												<LoginSocialFacebook
+													appId="YOUR_FACEBOOK_APP_ID"
+													onResolve={({ data }) => handleSocialLogin('facebook', data)}
+													onReject={(err) => console.log('Facebook login error', err)}
+												>
+													<FacebookLoginButton />
+												</LoginSocialFacebook>
+
+												<LoginSocialApple
+													client_id="YOUR_APPLE_CLIENT_ID"
+													scope="name email"
+													redirect_uri="https://yourdomain.com"
+													onResolve={({ data }) => handleSocialLogin('apple', data)}
+													onReject={(err) => console.log('Apple login error', err)}
+												>
+													<AppleLoginButton />
+												</LoginSocialApple>
 											</div>
+
+											{/* Create Account Prompt */}
+											<div
+												className="mt-6 p-3 rounded-md bg-red-50 hover:bg-red-100 transition cursor-pointer"
+												onClick={() => setShowSignUp(true)}
+											>
+												<button className="text-red-600 font-semibold text-sm md:text-base w-full text-center">
+													Don’t have an account? Create one
+												</button>
+											</div>
+
+											{/* Terms and Privacy */}
+											<p className="text-center text-xs text-gray-400 px-6 mt-3">
+												By signing up I agree to the{' '}
+												<a
+													href="https://www.dubizzle.com/legalhub/terms/"
+													className="text-blue-600"
+													target="_blank"
+													rel="noopener noreferrer"
+												>
+													Terms and Conditions
+												</a>{' '}
+												and{' '}
+												<a
+													href="https://www.dubizzle.com/legalhub/privacy/"
+													className="text-blue-600"
+													target="_blank"
+													rel="noopener noreferrer"
+												>
+													Privacy Policy
+												</a>
+												.
+											</p>
 										</ModalBody>
 									</div>
 								</div>
@@ -294,9 +397,24 @@ export default function Navbar() {
 						</li>
 
 						<li>
-							<button className="btn" href="#" onClick={() => setOpenStaticModal(true)} style={{ fontSize: "14px" }}>
-								Place Your Ad
-							</button>
+							{user ? (
+								<button
+									className="btn"
+									onClick={handleLogout}
+									style={{ fontSize: "14px" }}
+								>
+									Logout
+								</button>
+							) : (
+								<button
+									className="btn"
+									onClick={() => setOpenStaticModal(true)}
+									style={{ fontSize: "14px" }}
+								>
+									Place Your Ad
+								</button>
+							)}
+
 							<Modal show={openStaticModal} onClose={onCloseModal} popup>
 								<div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-40 z-[9999]">
 									<div className="relative bg-white rounded-lg shadow-lg p-4" style={{ width: "466px" }}>
@@ -510,6 +628,9 @@ export default function Navbar() {
 					</a>
 				</div>
 			</div>
+			<ToastContainer />
+
 		</header>
+
 	);
 }

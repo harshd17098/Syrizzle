@@ -48,20 +48,20 @@ const data = [
 		categoryImage: classiFields,
 		categoryName: "Classifieds",
 		subcategories: [
-			"Electronics",
-			"Computers & Networking",
-			"Clothing & Accessories",
-			"Jewelry & Watches",
+			<Link to={"/classified/electronics/"}> Electronics </Link>,
+			<Link to={"/classified/computers-networking/"}> Computers & Networking </Link>,
+			<Link to={"/classified/clothing-accessories/"}> Clothing & Accessories </Link>,
+			<Link to={"/classified/jewelry-watches/"}> Jewelry & Watches </Link>,
 		],
 	},
 	{
 		categoryImage: jobs,
 		categoryName: "Jobs",
 		subcategories: [
-			"Accounting / Finance",
-			"Engineering",
-			"Sales / Business Development",
-			"Secretarial / Front Office",
+			<Link to={"/jobs/accounting-finance/"}>Accounting / Finance</Link>,
+			<Link to={"/jobs/engineering/"}>Engineering</Link>,
+			<Link to={"/jobs/sales-business-development/"}>Sales / Business Development</Link>,
+			<Link to={"/jobs/secretarial-front-office/"}>Secretarial / Front Office</Link>,
 		],
 	},
 	{

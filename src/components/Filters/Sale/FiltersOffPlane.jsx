@@ -510,10 +510,10 @@ const FiltersOffPlane = () => {
 
                             {/* Sticky Footer */}
                             <div className="sticky bottom-0 bg-white border-t px-4 py-3 flex justify-between items-center">
-                                <button className="px-4 py-2 text-sm border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
+                                <button className="px-4 py-2 text-sm border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100" style={{height:"46px",width:"150px"}}>
                                     Clear
                                 </button>
-                                <button className="px-4 py-2 text-sm bg-black text-white rounded-md hover:bg-gray-900">
+                                <button className="px-4 py-2 text-sm bg-black text-white rounded-md hover:bg-gray-900" style={{height:"46px",width:"180px"}}>
                                     Apply Filters
                                 </button>
                             </div>
