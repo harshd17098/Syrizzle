@@ -10,146 +10,135 @@ const Profile = () => {
         gender: "",
         country: "",
         date_of_birth: "",
-    }); const [profileFromAPI, setProfileFromAPI] = useState({});
+        image: ""
+    });
+
     const [token, setToken] = useState(null);
     const [profileImage, setProfileImage] = useState(null);
+    const [selectedFile, setSelectedFile] = useState(null);
 
     const formatDateToInput = (isoDate) => {
         if (!isoDate) return "";
-        return new Date(isoDate).toISOString().split("T")[0]; // returns yyyy-mm-dd
+        return new Date(isoDate).toISOString().split("T")[0];
     };
+
     useEffect(() => {
-        setProfile((prev) => ({
-            ...prev,
-            dob: formatDateToInput(profileFromAPI.dob)
-        }));
-    }, [profileFromAPI]);
-    useEffect(() => {
-        const fetchProfile = async () => {
-            const token = localStorage.getItem("jwt");
-            if (!token) return console.error("No token found");
-
-            try {
-                const res = await fetch("https://syrizzle.vyominfotech.in/api/profile", {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                const data = await res.json();
-                console.log(data); // for debug
-
-                if (data?.data?.result) {
-                    setProfile(data.data.result);
-
-
-                } else {
-                    console.error("Profile fetch failed", data?.data?.message || "Unknown error");
-                }
-            } catch (err) {
-                console.error("Error fetching profile", err);
-            }
-        };
-
-        fetchProfile();
-    }, []);
-    useEffect(() => {
-        const jwtToken = localStorage.getItem("jwt"); // Get JWT token from localStorage
-        if (jwtToken) {
-            setToken(jwtToken);
-            // Fetch user profile data
-            axios
-                .get("https://syrizzle.vyominfotech.in/api/profile", {
-                    headers: {
-                        Authorization: `Bearer ${jwtToken}`, // Use JWT token for authorization
-                    },
-                })
-                .then((response) => {
-                    setProfile(response.data);
-                })
-                .catch((error) => {
-                    console.error("Error fetching profile:", error);
-                });
-        } else {
-            console.log("No JWT token found in localStorage.");
-        }
-    }, []);
-    useEffect(() => {
-        // Get the JWT token from localStorage
         const jwtToken = localStorage.getItem("jwt");
-    
-        if (jwtToken) {
-          // Make API request to fetch profile image
-          axios
-            .get("https://syrizzle.vyominfotech.in/api/profile-image", {
-              headers: {
-                Authorization: `Bearer ${jwtToken}`, // Pass JWT token for authorization
-              },
+
+        if (!jwtToken) {
+            console.warn("No JWT token in localStorage.");
+            return;
+        }
+
+        setToken(jwtToken);
+
+        // Fetch profile data
+        axios
+            .get("https://syrizzle.vyominfotech.in/api/profile", {
+                headers: {
+                    Authorization: `Bearer ${jwtToken}`,
+                },
             })
             .then((response) => {
-              console.log("Profile image response:", response); // Log the full response for debugging
-              if (response.data && response.data.imageUrl) {
-                setProfileImage(response.data.imageUrl);
-                console.log(response.data);
-                 // Set the profile image URL in state
-              } else {
-                console.error("No image URL in response.");
-              }
+                const data = response.data?.data?.result;
+                if (data) {
+                    setProfile({
+                        ...data,
+                        date_of_birth: formatDateToInput(data.date_of_birth),
+                    });
+                }
+                console.log(data);
+
             })
             .catch((error) => {
-              console.error("Error fetching profile image:", error);
+                console.error("Error fetching profile:", error);
             });
-        } else {
-          console.log("No JWT token found in localStorage.");
-        }
-      }, []);
+
+        // Fetch profile image
+        axios
+            .post("https://syrizzle.vyominfotech.in/api/profile-image", {
+                headers: {
+                    Authorization: `Bearer ${jwtToken}`,
+                },
+            })
+            .then((response) => {
+                if (response.data?.imageUrl) {
+                    setProfileImage(response.data.imageUrl);
+                } else {
+                    console.warn("No imageUrl found in response.");
+                }
+            })
+            .catch((error) => {
+                if (error.response?.status === 404) {
+                    console.warn("Profile image not found (404).");
+                } else {
+                    console.error("Error fetching profile image:", error);
+                }
+            });
+    }, []);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setProfile((prevProfile) => ({
-            ...prevProfile,
+        setProfile((prev) => ({
+            ...prev,
             [name]: value,
         }));
     };
+
     const handleFileChange = (event) => {
-        const file = event.target.files[0]; // Get the selected file
+        const file = event.target.files[0];
         if (file) {
-            // Create a FileReader to read the file
+            setSelectedFile(file);
             const reader = new FileReader();
-
-            // Set up the onload event for the FileReader
             reader.onloadend = () => {
-                setProfileImage(reader.result); // Set the base64 image result into the state
+                setProfileImage(reader.result);
             };
-
-            // Read the file as a data URL (base64 format)
             reader.readAsDataURL(file);
         }
     };
-    const handleSubmit = () => {
-        if (token) {
-            axios
-                .post(
-                    "https://syrizzle.vyominfotech.in/api/profile-image",
-                    {
-                        ...profile, // Send the updated profile data
+
+    const handleSubmit = async () => {
+        const jwtToken = localStorage.getItem("jwt");
+
+        if (!jwtToken) {
+            console.warn("No JWT token in localStorage.");
+            return;
+        }
+        try {
+            // Submit profile info
+            await axios.post(
+                "https://syrizzle.vyominfotech.in/api/profile",
+                profile,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
                     },
+                }
+            );
+
+            // Submit image if selected
+            if (selectedFile) {
+                const formData = new FormData();
+                formData.append("image", selectedFile);
+
+                await axios.post(
+                    "https://syrizzle.vyominfotech.in/api/profile-image",
+                    formData,
                     {
                         headers: {
                             Authorization: `Bearer ${token}`,
+                            "Content-Type": "multipart/form-data",
                         },
                     }
-                )
-                .then((response) => {
-                    console.log("Profile updated successfully", response.data);
-                })
-                .catch((error) => {
-                    console.error("Error updating profile:", error);
-                });
+                );
+            }
+
+            alert("Profile updated successfully!");
+        } catch (error) {
+            console.error("Error updating profile:", error);
+            alert("Failed to update profile.");
         }
     };
-
-    if (!profile) return <div className="text-center mt-10">Loading profile...</div>;
 
     return (
         <>
@@ -175,8 +164,11 @@ const Profile = () => {
                             />
                             <label htmlFor="file-input" className="cursor-pointer">
                                 <img
-                                    src={profileImage || "https://via.placeholder.com/100"} // Default to placeholder if no image found
-                                    alt="Profile"
+                                    src={
+                                        profile.image
+                                            ? `https://syrizzle.vyominfotech.in${profile.image}`
+                                            : "https://via.placeholder.com/100"
+                                    } alt="Profile"
                                     className="w-20 h-20 rounded-full object-cover"
                                 /> </label>
                             <div>
