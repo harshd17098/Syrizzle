@@ -416,12 +416,12 @@ const MyAddresses = () => {
 
 
                         <div className="border rounded px-4 py-2 flex justify-between items-center">
-                            <div className="border rounded px-4 py-2 flex justify-between items-center">
+                            <div className="px-4 py-2 flex justify-between items-center">
                                 <div
-                                    className="border rounded px-4 py-2 flex justify-between items-center cursor-pointer"
+                                    className=" py-2 flex justify-between items-center cursor-pointer"
                                     onClick={() => setShowForm(true)}
                                 >
-                                    <span className="font-medium text-blue-600">+ Work Address</span>
+                                    <span className="font-medium text-gray-600">+ Work Address</span>
 
                                 </div>
 
