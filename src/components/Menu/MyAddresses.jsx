@@ -1,6 +1,8 @@
 import MyProfile from "./MyProfile";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { IoLocation } from "react-icons/io5";
+
 const MyAddresses = () => {
     const [showForm, setShowForm] = useState(false);
     const [addressData, setAddressData] = useState([]);
@@ -103,7 +105,7 @@ const MyAddresses = () => {
     useEffect(() => {
         fetchAddresses();
     }, []);
-    
+
     return (
         <div className="flex w-full">
             <div style={{ width: "25%" }}>
@@ -137,152 +139,163 @@ const MyAddresses = () => {
                     <div className="max-w-md mx-auto space-y-4">
                         {addressData.length > 0 ? (
                             <div className="space-y-4">
-                            <button
-                                onClick={() => {
-                                    setFormData({
-                                        neighbourhood: '',
-                                        building: '',
-                                        apartment: '',
-                                        custom_label: 'work',
-                                        address_type: 1,
-                                        isDefault: 0,
-                                        latitude: '',
-                                        longitude: '',
-                                    });
-                                    setSelectedAddressId(null);
-                                    setShowForm(true);
-                                }}
-                                className="px-4 py-2 bg-blue-600 text-white rounded"
-                            >
-                                Add New Address
-                            </button>
-                
-                            {addressData.map((addr) => (
-                                <div
-                                    key={addr._id}
-                                    className="border p-4 rounded shadow-sm flex justify-between items-start"
+                                <button
+                                    onClick={() => {
+                                        setFormData({
+                                            neighbourhood: '',
+                                            building: '',
+                                            apartment: '',
+                                            custom_label: 'work',
+                                            address_type: 1,
+                                            isDefault: 0,
+                                            latitude: '',
+                                            longitude: '',
+                                        });
+                                        setSelectedAddressId(null);
+                                        setShowForm(true);
+                                    }}
+                                    className="px-4 py-2 bg-blue-600 text-white rounded"
                                 >
-                                    <div>
-                                        <div className="font-semibold">{addr.custom_label}</div>
-                                        <p className="text-sm text-gray-600">
-                                            {[addr.apartment, addr.building, addr.neighbourhood].filter(Boolean).join(", ")}
-                                        </p>
-                                        <button
-                                            className="mt-2 text-blue-600 hover:underline text-sm"
-                                            onClick={() => handleEdit(addr)}
-                                        >
-                                            Edit
-                                        </button>
-                                        <button>
-                                            Delete
-                                        </button>
-                                    </div>
-                                    {addr.isDefault === 1 && (
-                                        <span className="text-xs px-2 py-1 bg-black text-white rounded">
-                                            Default
-                                        </span>
-                                    )}
-                                </div>
-                            ))}
-                
-                            {showForm && (
-                                <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-                                    <div className="bg-white p-6 rounded-lg w-full max-w-md relative">
-                                        <button
-                                            onClick={() => {
-                                                setShowForm(false);
-                                                setSelectedAddressId(null);
-                                            }}
-                                            className="absolute top-2 right-2 text-gray-500 text-xl"
-                                        >
-                                            ✕
-                                        </button>
-                
-                                        <h2 className="text-xl font-semibold mb-4">
-                                            {selectedAddressId ? 'Edit Address' : 'Add Address'}
-                                        </h2>
-                
-                                        <input
-                                            type="text"
-                                            name="neighbourhood"
-                                            placeholder="Neighbourhood"
-                                            value={formData.neighbourhood}
-                                            onChange={handleChange}
-                                            className="border w-full p-2 rounded mb-2"
-                                            required
-                                        />
-                                        <input
-                                            type="text"
-                                            name="building"
-                                            placeholder="Building"
-                                            value={formData.building}
-                                            onChange={handleChange}
-                                            className="border w-full p-2 rounded mb-2"
-                                        />
-                                        <input
-                                            type="text"
-                                            name="apartment"
-                                            placeholder="Apartment"
-                                            value={formData.apartment}
-                                            onChange={handleChange}
-                                            className="border w-full p-2 rounded mb-4"
-                                        />
-                
-                                        <input
-                                            type="number"
-                                            name="latitude"
-                                            placeholder="Latitude"
-                                            value={formData.latitude}
-                                            onChange={handleChange}
-                                            className="border w-full p-2 rounded mb-2"
-                                        />
-                                        <input
-                                            type="number"
-                                            name="longitude"
-                                            placeholder="Longitude"
-                                            value={formData.longitude}
-                                            onChange={handleChange}
-                                            className="border w-full p-2 rounded mb-4"
-                                        />
-                
-                                        <div className="mb-2 font-medium">Label this address:</div>
-                                        <div className="flex space-x-2 mb-4">
-                                            {[
-                                                { label: 'Other', type: 3 },
-                                                { label: 'Home', type: 2 },
-                                                { label: 'Work', type: 1 }
-                                            ].map(({ label, type }) => (
+                                    Add New Address
+                                </button>
+
+                                {addressData.map((addr) => (
+                                    <div
+                                        key={addr._id}
+                                        className="border p-4 rounded shadow-sm flex justify-between items-start"
+                                    >
+                                        <div>
+                                            <div className="flex items-center font-semibold">
+                                                <IoLocation className="mr-1" />
+                                                {addr.custom_label}
+                                            </div>
+
+                                            <p className="text-sm text-gray-600">
+                                                {[addr.apartment, addr.building, addr.neighbourhood].filter(Boolean).join(", ")}
+                                            </p>
+                                            <div >
                                                 <button
-                                                    key={type}
-                                                    onClick={() => handleLabel(label.toLowerCase(), type)}
-                                                    className={`px-3 py-1 border rounded ${formData.address_type === type ? 'bg-blue-100' : ''}`}
+                                                    className="mt-2 border border-blue-600 text-blue-600 text-sm px-3 py-1 rounded transition-all duration-300 hover:bg-blue-600 hover:text-white hover:scale-105"
+                                                    onClick={() => handleEdit(addr)}
+                                                    style={{ marginRight: "10px" }}
                                                 >
-                                                    {label}
+                                                    Edit
                                                 </button>
-                                            ))}
+
+                                                <button
+                                                    className="mt-2 border border-red-600 text-red-600 text-sm px-3 py-1 rounded transition-all duration-300 hover:bg-red-600 hover:text-white hover:scale-105"
+                                                >
+                                                    Delete
+                                                </button>
+
+                                            </div>
                                         </div>
-                
-                                        <label className="inline-flex items-center mb-4">
-                                            <input
-                                                type="checkbox"
-                                                name="isDefault"
-                                                checked={formData.isDefault === 1}
-                                                onChange={handleChange}
-                                                className="mr-2"
-                                            />
-                                            Set as default
-                                        </label>
-                
-                                        <button
-                                            onClick={handleSubmit}
-                                            className="bg-blue-600 text-white w-full py-2 rounded"
-                                        >
-                                            {selectedAddressId ? 'Update Address' : 'Save Address'}
-                                        </button>
+                                        {addr.isDefault === 1 && (
+                                            <span className="text-xs px-2 py-1 bg-black text-white rounded">
+                                                Default
+                                            </span>
+                                        )}
                                     </div>
-                                </div>
-                            )}
-                        </div>
+                                ))}
+
+                                {showForm && (
+                                    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                                        <div className="bg-white p-6 rounded-lg w-full max-w-md relative">
+                                            <button
+                                                onClick={() => {
+                                                    setShowForm(false);
+                                                    setSelectedAddressId(null);
+                                                }}
+                                                className="absolute top-2 right-2 text-gray-500 text-xl"
+                                            >
+                                                ✕
+                                            </button>
+
+                                            <h2 className="text-xl font-semibold mb-4">
+                                                {selectedAddressId ? 'Edit Address' : 'Add Address'}
+                                            </h2>
+
+                                            <input
+                                                type="text"
+                                                name="neighbourhood"
+                                                placeholder="Neighbourhood"
+                                                value={formData.neighbourhood}
+                                                onChange={handleChange}
+                                                className="border w-full p-2 rounded mb-2"
+                                                required
+                                            />
+                                            <input
+                                                type="text"
+                                                name="building"
+                                                placeholder="Building"
+                                                value={formData.building}
+                                                onChange={handleChange}
+                                                className="border w-full p-2 rounded mb-2"
+                                            />
+                                            <input
+                                                type="text"
+                                                name="apartment"
+                                                placeholder="Apartment"
+                                                value={formData.apartment}
+                                                onChange={handleChange}
+                                                className="border w-full p-2 rounded mb-4"
+                                            />
+
+                                            <input
+                                                type="number"
+                                                name="latitude"
+                                                placeholder="Latitude"
+                                                value={formData.latitude}
+                                                onChange={handleChange}
+                                                className="border w-full p-2 rounded mb-2"
+                                            />
+                                            <input
+                                                type="number"
+                                                name="longitude"
+                                                placeholder="Longitude"
+                                                value={formData.longitude}
+                                                onChange={handleChange}
+                                                className="border w-full p-2 rounded mb-4"
+                                            />
+
+                                            <div className="mb-2 font-medium">Label this address:</div>
+                                            <div className="flex space-x-2 mb-4">
+                                                {[
+                                                    { label: 'Other', type: 3 },
+                                                    { label: 'Home', type: 2 },
+                                                    { label: 'Work', type: 1 }
+                                                ].map(({ label, type }) => (
+                                                    <button
+                                                        key={type}
+                                                        onClick={() => handleLabel(label.toLowerCase(), type)}
+                                                        className={`px-3 py-1 border rounded ${formData.address_type === type ? 'bg-blue-100' : ''}`}
+                                                    >
+                                                        {label}
+                                                    </button>
+                                                ))}
+                                            </div>
+
+                                            <label className="inline-flex items-center mb-4">
+                                                <input
+                                                    type="checkbox"
+                                                    name="isDefault"
+                                                    checked={formData.isDefault === 1}
+                                                    onChange={handleChange}
+                                                    className="mr-2"
+                                                />
+                                                Set as default
+                                            </label>
+
+                                            <button
+                                                onClick={handleSubmit}
+                                                className="bg-blue-600 text-white w-full py-2 rounded"
+                                            >
+                                                {selectedAddressId ? 'Update Address' : 'Save Address'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         ) : (
                             <div className="border rounded px-4 py-2 flex justify-between items-center">
                                 <div
