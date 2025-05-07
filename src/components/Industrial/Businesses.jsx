@@ -16,7 +16,7 @@ import { IoMdShareAlt } from "react-icons/io";
 import { Mail, Phone } from 'lucide-react';
 import { FaWhatsapp } from 'react-icons/fa';
 
-import FiltersNetworking from '../Filters/Classifieds/FiltersNetworking'
+import FiltersBusinesses from '../Filters/Industrial/FiltersBusinesses';
 
 const sortOptions = [
     "Popular",
@@ -28,20 +28,20 @@ const sortOptions = [
 
 ];
 const carBrands = [
-    "Computers (5847)",
-    "Monitors, Printers & Other Peripherals (3737)",
-    "Accessories (1861)",
-    "Networking & Communication (1527)",
-    "Ras Al Khaimah (6,050)",
+    "Clothing (10476)",
+    "Shoes/Footwear (10281)",
+    "Handbags, Bags & Wallets (8299)",
+    "Fragrances (3885)",
+    "Women's Accessories (2267)",
     "Umm Al Qawain (774)",
     "Al Ain (67)",
     "Fujeirah (16)",
 ];
 
 const car = {
-    price: "DELL OPTIPLEX 7050 SFF RAM 16GB DDR4 INTEL CORE I5 ",
-    title: "Desktop Computers . Dell",
-    location: "AED 650",
+    price: "Authentic Louis Vuitton Alma BB Handbag with Original Box ",
+    title: "Handbags, Bags & Wallets . Bags",
+    location: "AED 3,500",
     location1: "2 baths",
     location2: "768 sqft",
     mileage: "Close to Metro | Investor deal | Last unit & Smart...",
@@ -49,14 +49,15 @@ const car = {
     hand: "Havelock Residences, Discovery Gardens Du...",
     specs: "GCC Specs",
     imageUrls: [
-        "https://dbz-images.dubizzle.com/images/2025/01/30/8e81c91a126449f9beabfc1b062eaf48-.png?impolicy=dpc",
-        "https://dbz-images.dubizzle.com/images/2025/01/30/044c61c44e8a4b2f978e33083dd3838f-.jpeg?impolicy=dpc",
-        "https://dbz-images.dubizzle.com/images/2025/01/30/c7cb066235b945568515f22301fb4c99-.jpeg?impolicy=dpc",
-        "https://dbz-images.dubizzle.com/images/2025/01/30/acab3ad7e4a041f2b80bd9965b01c4dd-.jpeg?impolicy=dpc",
+        "https://dbz-images.dubizzle.com/images/2025/05/03/5cc3e777b8c04eff9ef95fd1a414ba95-.jpeg?impolicy=dpc",
+        "https://dbz-images.dubizzle.com/images/2025/05/03/3493348aaa4a4adb8d70232a0b13ef83-.jpeg?impolicy=dpc",
+        "https://dbz-images.dubizzle.com/images/2025/05/03/34ff4f390c0d4c208c2a73d8ddc8d640-.jpeg?impolicy=dpc",
+        "https://dbz-images.dubizzle.com/images/2025/05/03/ba2d81e4fcab43f8b4f59f1632c99cdc-.jpeg?impolicy=dpc",
+        "https://dbz-images.dubizzle.com/images/2025/05/03/886d821647404c829a371c9cca2e71e0-.jpeg?impolicy=dpc"
         
     ],
 };
-const Networking = () => {
+const Businesses = () => {
     const [open, setOpen] = useState(false);
     const [showMore, setShowMore] = useState(false);
 
@@ -75,11 +76,9 @@ const Networking = () => {
         <>
             <section>
                 <div className="sticky top-1 " style={{ zIndex: "9999" }}>
-                    {/* <FiltersResidentialSale />
-                     */}
-                    {/* <FiltersElectronics /> */}
-                    <FiltersNetworking/>
-                    {/* <Networking/> */}
+                   
+                    {/* <FiltersAccesories/> */}
+                    <FiltersBusinesses/>
                 </div>
 
                 <div>
@@ -92,13 +91,13 @@ const Networking = () => {
                             <ChevronRight className="w-4 h-4" />
                             <a href="#" className="text-blue-600 ">Classifieds</a>
                             <ChevronRight className="w-4 h-4" />
-                            <span>Computers & Networking</span>
+                            <span>Clothing & Accessories</span>
                         </div>
                         <div className="flex justify-between items-start flex-wrap md:flex-nowrap gap-4 mb-4">
 
                             <h1 className="mt-2 text-xl font-semibold text-gray-900">
-                                <span className="font-bold">New and Used Computers & Networking  for sale in UAE</span>
-                                <span className="font-normal text-gray-600"> • 14,078 Ads</span>
+                                <span className="font-bold">New and Used Clothing & Accessories  for sale in UAE</span>
+                                <span className="font-normal text-gray-600"> • 44,510 Ads</span>
                             </h1>
 
                             <div className="flex items-center space-x-3">
@@ -183,8 +182,8 @@ const Networking = () => {
 
                         {/* Badges - Verified & Off-Plan */}
                         <div className="absolute top-2 left-2 z-10 flex gap-1">
-                            <span className="bg-white text-xs font-medium px-2 py-1 rounded-full flex items-center gap-1 shadow" style={{ color: 'green' }}>
-                                <FaCheckCircle className="text-green-600 w-3 h-3" /> VERIFIED BUSINESS
+                            <span className="bg-white text-xs font-medium px-2 py-1 rounded-full flex items-center gap-1 shadow" style={{ color: 'blue' }}>
+                                <FaCheckCircle className="text-blue-600 w-3 h-3" /> VERIFIED USER
                             </span>
 
                         </div>
@@ -298,15 +297,15 @@ const Networking = () => {
                             <div className="flex gap-2 flex-wrap">
                                 <div className="bg-gray-100 px-3 py-2 rounded-md ">
                                     <div className="text-[10px] text-gray-500 font-semibold leading-none uppercase">Age</div>
-                                    <div className="text-sm font-semibold">6-12 months</div>
+                                    <div className="text-sm font-semibold">2-5 years</div>
                                 </div>
                                 <div className="bg-gray-100 px-3 py-2 rounded-md ">
                                     <div className="text-[10px] text-gray-500 font-semibold leading-none uppercase">Usage</div>
-                                    <div className="text-sm font-semibold">Used Once</div>
+                                    <div className="text-sm font-semibold">Light Usage</div>
                                 </div>
                                 <div className="bg-gray-100 px-3 py-2 rounded-md ">
                                     <div className="text-[10px] text-gray-500 font-semibold leading-none uppercase">Condition</div>
-                                    <div className="text-sm font-semibold">Flawless</div>
+                                    <div className="text-sm font-semibold">Excellent</div>
                                 </div>
                             </div>
 
@@ -318,9 +317,9 @@ const Networking = () => {
                                 alt="Location"
                                 className="w-4 h-4"
                             />
-                            <span className="text-black font-medium">Al Qusais, Dubai</span>
+                            <span className="text-black font-medium">Al Muwaiji, Al Ain</span>
                             <span>•</span>
-                            <span>28 April 2025</span>
+                            <span>03 May 2025</span>
                         </div>
 
                         {/* Chat Button */}
@@ -338,4 +337,4 @@ const Networking = () => {
         </>
     )
 }
-export default Networking;
+export default Businesses;

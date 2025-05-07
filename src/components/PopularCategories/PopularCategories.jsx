@@ -68,7 +68,7 @@ const data = [
 		categoryImage: community,
 		categoryName: "Community",
 		subcategories: [
-			"Freelancers",
+			<Link to={"/community/freelancers/"}>Freelancers</Link>,
 			"Home Maintenance",
 			"Other Services",
 			"Tutors & Classes",
@@ -78,7 +78,7 @@ const data = [
 		categoryImage: industry,
 		categoryName: "Business & Industrial",
 		subcategories: [
-			"Businesses for Sale",
+			<Link to={"/classified/business-industrial/businesses-for-sale/"}>Businesses for Sale</Link>,
 			"Construction",
 			"Food & Beverage",
 			"Industrial Supplies",

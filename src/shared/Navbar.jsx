@@ -31,7 +31,25 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import { Link } from "react-router-dom";
 
+
+const menuItems = [
+	"My Job Applications",
+	"My Profile",
+	"My Job Profile",
+	"My Public Profile",
+	"My Ads",
+	"Get Verified ✅",
+	"Chats",
+	"Favorites",
+	"My Searches",
+	"Car Appointments 🆕",
+	"Car Inspections 🆕",
+	"My Bookmarks",
+	"Account Settings",
+	"Sign out",
+];
 
 const CITIES = [
 	"All Cities (UAE)",
@@ -55,7 +73,7 @@ const titles = [
 	"Log in to post an ad",
 ];
 
-export default function Navbar({onClose}) {
+export default function Navbar({ onClose }) {
 
 	const [selectedCity, setSelectedCity] = useState(CITIES[0]);
 	const [openModal, setOpenModal] = useState(false);
@@ -63,6 +81,7 @@ export default function Navbar({onClose}) {
 	const [showModal, setShowModal] = useState(false);
 	const [user, setUser] = useState(null);
 	const [showSignUp, setShowSignUp] = useState(false);
+	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
 	const [openStaticModal, setOpenStaticModal] = useState(false);
 	const navigate = useNavigate();
@@ -73,66 +92,83 @@ export default function Navbar({onClose}) {
 
 	const handleSocialLogin = async (googleData) => {
 		try {
-		  const response = await axios.post("https://your-backend.com/api/login", {
-			login_type: "google",
-			idToken: googleData.credential, // or googleData.tokenId
-			device_name: "web",
-		  });
-	  
-		  console.log("Login success", response.data);
+			console.log("Google Data:", googleData);
+
+			const payload = {
+				login_type: "google",
+				idToken: googleData.credential, // This is the ID Token from Google One Tap
+				device_name: "web"
+			};
+
+			const response = await axios.post("https://syrizzle.vyominfotech.in/api/login", payload);
+			console.log("Login success", response.data);
 		} catch (error) {
-		  console.error("Google login failed:", error);
+			console.error("Google login failed:", error.response?.data || error.message);
 		}
-	  };
-	  
+	};
+
+
+
+
 
 	const handleEmailLogin = async (e) => {
 		e.preventDefault();
+
 		try {
-		  const response = await axios.post('https://syrizzle.vyominfotech.in/api/login', {
-			email,
-			password,
-			login_type: 'email',
-			device_name: 'web',
-		  });
-	  
-		  const result = response.data?.data?.result;
-	  
-		  if (result && result.login_devices && result.login_devices.length > 0) {
+			const response = await axios.post(
+				'https://syrizzle.vyominfotech.in/api/login',
+				{
+					email,
+					password,
+					login_type: 'email',
+					device_name: 'web',
+				}
+			);
+
+			const result = response.data?.data?.result;
+
+			if (!result || !result.login_devices?.length) {
+				toast.warn('Login successful but no token found.', {
+					position: 'top-center',
+				});
+				return;
+			}
+
+			// Store JWT
 			const jwt = result.login_devices[0].token;
 			localStorage.setItem('jwt', jwt);
-	  
+
+			// Prepare and store user data
 			const userData = {
-			  first_name: result.first_name,
-			  last_name: result.last_name,
-			  email: result.email,
-			  image: result.image,
+				first_name: result.first_name,
+				last_name: result.last_name,
+				email: result.email,
+				image: result.image,
 			};
-	  
 			localStorage.setItem('user', JSON.stringify(userData));
 			setUser(userData);
-	  
+
+			// Notify success and navigate
 			toast.success('Email login successful!', {
-			  position: 'top-center',
+				position: 'top-center',
 			});
-	  
+
+			// Clear form & close modal
 			setEmail('');
 			setPassword('');
-			setOpenModal(false); // Close the modal
-			navigate('/'); // Navigate to home page
-		  } else {
-			toast.warn('Login successful but no token found.', {
-			  position: 'top-center',
-			});
-		  }
+			setOpenModal(false);
+			navigate('/');
 		} catch (error) {
-		  console.error('Email login failed:', error);
-		  toast.error('Email login failed. Please check your credentials.', {
-			position: 'top-center',
-		  });
+			console.error('Email login failed:', error?.response || error);
+			toast.error(
+				error?.response?.data?.message || 'Email login failed. Please check your credentials.',
+				{ position: 'top-center' }
+			);
 		}
-	  };
-	  
+	};
+
+
+
 
 	const handleLogout = () => {
 		localStorage.removeItem('user');
@@ -154,7 +190,7 @@ export default function Navbar({onClose}) {
 		}
 	}, []);
 
-	
+
 	if (showSignUp) return <SignUp onClose={() => setShowSignUp(false)} />;
 
 
@@ -245,7 +281,12 @@ export default function Navbar({onClose}) {
 							</a>
 						</li>
 						<li>
-							{user ? (
+							<div className="relative px-2 py-6 text-[#2B2D2E] dark:text-gray-200 text-[14px]">
+								<button
+									onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+									className="flex items-center justify-between w-full"
+								>
+									{user ? (
 								<div className="px-2 py-6 text-[#2B2D2E] dark:text-gray-200 text-[14px]">
 									Hello, {user.first_name}
 								</div>
@@ -257,6 +298,28 @@ export default function Navbar({onClose}) {
 									Log in or sign up
 								</button>
 							)}
+									<svg
+										className={`w-4 h-4 ml-2 transition-transform ${isDropdownOpen ? 'rotate-180' : ''
+											}`}
+										fill="none"
+										stroke="currentColor"
+										viewBox="0 0 24 24"
+									>
+										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+									</svg>
+								</button>
+
+								{isDropdownOpen && (
+									<ul className="absolute left-0 mt-2 w-48 bg-white dark:bg-gray-800 border dark:border-gray-700 rounded shadow-lg z-10">
+									<Link to={"/settings/profile"}>	<li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
+											My Profile
+										</li></Link>
+										<li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
+											Option 2
+										</li>
+									</ul>
+								)}
+							</div>
 
 							<Modal show={openModal} onClose={onCloseModal} popup>
 								<div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-40 z-[9999]">
@@ -330,7 +393,7 @@ export default function Navbar({onClose}) {
 											<div className="flex flex-col items-center justify-center space-y-3">
 												<LoginSocialGoogle
 													client_id="121819088833-0u8gvlt0b0jg5junojjdhb12msh9ks6e.apps.googleusercontent.com"
-													onResolve={({ data }) => handleSocialLogin('google', data)}
+													onResolve={({ data }) => handleSocialLogin(data)}
 													onReject={(err) => console.log('Google login error', err)}
 												>
 													<GoogleLoginButton />

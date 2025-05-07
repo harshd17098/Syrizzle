@@ -22,41 +22,64 @@ import EngineeringPage from "./pages/Jobs/EngineeringPage";
 import BusinessDevelopmentPage from "./pages/Jobs/BusinessDevelopmentPage";
 import FrontOfficePage from "./pages/Jobs/FrontOfficePage";
 import ElectronicsPage from "./pages/Classified/ElectronicsPage";
-
+import FreelancersPage from "./pages/Community/FreelancersPage";
+import NetworkingPage from "./pages/Classified/NetworkingPage";
+import AccessoriesPages from "./pages/Classified/AccessoriesPage"
+import WatchesPage from "./pages/Classified/WatchesPage"
+import BusinessesPage from "./pages/Industrial/Businesses";
+import MyProfile from "./components/Menu/MyProfile";
+import Profile from "./components/Menu/Profile";
+import MyAddresses from "./components/Menu/MyAddresses";
+import PhoneNumber from "./components/Menu/PhoneNumber";
 export default function App() {
 	return (
 		<>
 			{/* <RouterProvider router={router} /> */}
 			<BrowserRouter>
-			<Navbar/>
-			<Routes>
-				<Route path="/" element={<HomePage/>}></Route>
-				<Route path='/motors/used-cars/' element={<MotorsPage/>}></Route>
-				<Route path='/motors/rental-cars/' element={<RentalCarsPages/>}></Route>
-				<Route path="en/property-for-rent/residential/"element={<Residentialpage/>}></Route>
-				<Route path="/motors/" element={<FeaturedMotors/>}></Route>
-				<Route path="/motors/export-cars/"element={<ExportsCarsPages/>}></Route>
-				<Route path="/motors/new-cars/" element={<NewCarsPages/>}></Route>
-				<Route path="/motors/used-cars/" element={<MotorsPage />} />
-				<Route path="/fullgallery" element={<FullGallery />} />
-				<Route path="/gallery" element={<AllImagesGallery />} />
-				<Route path="/en/property-for-rent/commercial/" element={<CommercialPages/>}></Route>
-				<Route path="/en/property-for-rent/short-term/" element={<MonthlyPages/>}></Route>
-				<Route path="/en/property-for-rent/"element={<PropertyForRentPage/>}></Route>
-				<Route path="/en/property-for-rent/rooms-for-rent-flatmates/"element={<RoomsforRentPage/>}></Route>
-				<Route path="/new-projects/residential/"element={<LandForSalePage/>}></Route>
-				<Route path="/en/property-for-sale/off-plan/residential/"element={<OffPlanePage/>}></Route>
+				<Navbar />
+				<Routes>
+					<Route path="/" element={<HomePage />}></Route>
+					<Route path='/motors/used-cars/' element={<MotorsPage />}></Route>
+					<Route path='/motors/rental-cars/' element={<RentalCarsPages />}></Route>
+					<Route path="en/property-for-rent/residential/" element={<Residentialpage />}></Route>
+					<Route path="/motors/" element={<FeaturedMotors />}></Route>
+					<Route path="/motors/export-cars/" element={<ExportsCarsPages />}></Route>
+					<Route path="/motors/new-cars/" element={<NewCarsPages />}></Route>
+					<Route path="/motors/used-cars/" element={<MotorsPage />} />
+					<Route path="/fullgallery" element={<FullGallery />} />
+					<Route path="/gallery" element={<AllImagesGallery />} />
+					<Route path="/en/property-for-rent/commercial/" element={<CommercialPages />}></Route>
+					<Route path="/en/property-for-rent/short-term/" element={<MonthlyPages />}></Route>
+					<Route path="/en/property-for-rent/" element={<PropertyForRentPage />}></Route>
+					<Route path="/en/property-for-rent/rooms-for-rent-flatmates/" element={<RoomsforRentPage />}></Route>
+					<Route path="/new-projects/residential/" element={<LandForSalePage />}></Route>
+					<Route path="/en/property-for-sale/off-plan/residential/" element={<OffPlanePage />}></Route>
 
-				<Route path="/jobs/accounting-finance/" element={<AccountingPage/>}></Route>
-				<Route path="/jobs/engineering/" element={<EngineeringPage/>}></Route>
-				<Route path="/jobs/sales-business-development/" element={<BusinessDevelopmentPage/>}></Route>
-				<Route path="/jobs/secretarial-front-office/" element={<FrontOfficePage/>}></Route>
+					<Route path="/jobs/accounting-finance/" element={<AccountingPage />}></Route>
+					<Route path="/jobs/engineering/" element={<EngineeringPage />}></Route>
+					<Route path="/jobs/sales-business-development/" element={<BusinessDevelopmentPage />}></Route>
+					<Route path="/jobs/secretarial-front-office/" element={<FrontOfficePage />}></Route>
+					<Route path="/classified/jewelry-watches/" element={<WatchesPage />}></Route>
 
 
-				<Route path="/classified/electronics/" element={<ElectronicsPage/>}></Route>
+					<Route path="/classified/computers-networking/" element={<NetworkingPage />}></Route>
+					<Route path="/classified/clothing-accessories/" element={<AccessoriesPages />}></Route>
 
-			</Routes>
-			<Footer/>
+
+
+					<Route path="/classified/electronics/" element={<ElectronicsPage />}></Route>
+					<Route path="/community/freelancers/" element={<FreelancersPage />}></Route>
+
+
+					<Route path="/classified/business-industrial/businesses-for-sale/" element={<BusinessesPage />}></Route>
+					<Route path="/settings/profile" element={<MyProfile />}></Route>
+
+					<Route path="/settings/profiles" element={<Profile />}></Route>
+					<Route path="/settings/profile/my-address" element={<MyAddresses/>}></Route>
+					<Route path="/settings/account" element={<PhoneNumber/>}></Route>
+
+				</Routes>
+				<Footer />
 			</BrowserRouter>
 		</>
 	);
