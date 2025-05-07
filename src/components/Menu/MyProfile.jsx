@@ -1,46 +1,77 @@
 import React from "react";
 import Profile from "./Profile";
 import { Link } from "react-router-dom";
-
+import { useState, useEffect } from "react";
+import { FaUser, FaCog, FaLock } from 'react-icons/fa';
 const MyProfile = () => {
 
-
+  const [openProfile, setOpenProfile] = useState(true);
+  const [openAccount, setOpenAccount] = useState(false);
   return (
     <>
-      <div className=" bg-white flex">
-        {/* Sidebar */}
-        <aside className="w-64 p-6 border-r border-gray-200">
-          <h1 className="text-2xl font-semibold mb-6">Profile Settings</h1>
-          <nav className="space-y-2">
-            <div className="flex flex-col space-y-1">
-              <button className="flex items-center px-4 py-2 rounded hover:bg-gray-100">
-                <Link to={"/settings/profiles"}> <span className="mr-2">👤</span> Profile</Link>
-              </button>
-              {/* <button className="flex items-center px-4 py-2 rounded hover:bg-gray-100">
-              Basic Info
-            </button> */}
-              <Link to={"/settings/profile/my-address"}><button className="flex items-center px-4 py-2 bg-gray-100 border-l-4 border-red-500 text-black font-medium rounded">
-                My Addresses
-              </button></Link>
-              <button className="flex items-center px-4 py-2 rounded hover:bg-gray-100">
-                <span className="mr-2">⚙️</span> Account
-              </button>
+    
+        <div className="bg-white flex h-screen">
+      {/* Sidebar */}
+      <aside className="w-64  ">
+        <div className="p-6">
+          <h1 className="text-2xl font-semibold mb-6 text-center">Profile Settings</h1>
 
-              <Link to={"/settings/account"}>  <button className="flex items-center px-4 py-2 bg-gray-100 border-l-4 border-red-500 text-black font-medium rounded">
-                Phone numbers
-              </button></Link>
-              <button className="flex items-center px-4 py-2 rounded hover:bg-gray-100">
-                <span className="mr-2">🔒</span> Security
+          <div className="w-60 rounded-xl shadow-md bg-white text-sm text-[#2B2D2E] dark:text-gray-200">
+            {/* Profile section */}
+            <div>
+              <button
+                onClick={() => setOpenProfile(!openProfile)}
+                className="flex items-center w-full px-4 py-3 hover:bg-gray-100 focus:outline-none"
+              >
+                <FaUser className="mr-2" />
+                <span className="flex-1 text-left">Profile</span>
+                <span>{openProfile ? '▾' : '▸'}</span>
               </button>
+              {openProfile && (
+                <div className="pl-10 border-l-2 border-red-600 bg-gray-50">
+                  <Link to="/settings/profile">
+                    <div className="py-2 hover:bg-gray-200 px-2 cursor-pointer">Basic Info</div>
+                  </Link>
+                  <Link to="/settings/profile/my-address">
+                    <div className="py-2 hover:bg-gray-200 px-2 cursor-pointer">My Addresses</div>
+                  </Link>
+                </div>
+              )}
             </div>
-          </nav>
-        </aside>
-        <main>
+
+            {/* Account section */}
+            <div>
+              <button
+                onClick={() => setOpenAccount(!openAccount)}
+                className="flex items-center w-full px-4 py-3 hover:bg-gray-100 focus:outline-none"
+              >
+                <FaCog className="mr-2" />
+                <span className="flex-1 text-left">Account</span>
+                <span>{openAccount ? '▾' : '▸'}</span>
+              </button>
+              {openAccount && (
+                <div className="pl-10 border-l-2 border-transparent bg-gray-50">
+                  <Link to="/settings/account">
+                    <div className="py-2 hover:bg-gray-200 px-2 cursor-pointer">Phone numbers</div>
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* Security item */}
+            <div className="flex items-center px-4 py-3 hover:bg-gray-100 cursor-pointer">
+              <FaLock className="mr-2" />
+              <span>Security</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      {/* Main Content */}
+     
+    </div>
 
 
-        </main>
-
-      </div>
 
     </>
   )

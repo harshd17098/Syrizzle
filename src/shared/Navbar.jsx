@@ -82,9 +82,17 @@ export default function Navbar({ onClose }) {
 	const [user, setUser] = useState(null);
 	const [showSignUp, setShowSignUp] = useState(false);
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
+	const [profile, setProfile] = useState({
+		first_name: "",
+		last_name: "",
+		gender: "",
+		country: "",
+		date_of_birth: "",
+		image: ""
+	});
 	const [openStaticModal, setOpenStaticModal] = useState(false);
 	const navigate = useNavigate();
+	const [image, setImage] = useState(null);
 
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
@@ -107,9 +115,35 @@ export default function Navbar({ onClose }) {
 		}
 	};
 
+	useEffect(() => {
+		const fetchProfileImage = async () => {
+			const token = localStorage.getItem("jwt");
+			if (!token) return;
+
+			try {
+				const res = await axios.get("https://syrizzle.vyominfotech.in/api/profile", {
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				});
+
+				setImage(res.data.data.result);
 
 
+			} catch (err) {
+				console.error("Failed to fetch profile image", err);
+			}
+		};
 
+		fetchProfileImage();
+	}, []);
+
+	useEffect(() => {
+		const userData = localStorage.getItem("user");
+		if (userData) {
+			setUser(JSON.parse(userData));
+		}
+	}, []);
 
 	const handleEmailLogin = async (e) => {
 		e.preventDefault();
@@ -122,6 +156,7 @@ export default function Navbar({ onClose }) {
 					password,
 					login_type: 'email',
 					device_name: 'web',
+					image: ""
 				}
 			);
 
@@ -145,6 +180,7 @@ export default function Navbar({ onClose }) {
 				email: result.email,
 				image: result.image,
 			};
+
 			localStorage.setItem('user', JSON.stringify(userData));
 			setUser(userData);
 
@@ -287,17 +323,37 @@ export default function Navbar({ onClose }) {
 									className="flex items-center justify-between w-full"
 								>
 									{user ? (
-								<div className="px-2 py-6 text-[#2B2D2E] dark:text-gray-200 text-[14px]">
-									Hello, {user.first_name}
-								</div>
-							) : (
-								<button
-									onClick={() => setOpenModal(true)}
-									className="cursor-pointer px-2 py-6 text-[#2B2D2E] border-x border-transparent hover:border-[#EEF0F1] dark:text-gray-200 text-[14px] transition-colors duration-200"
-								>
-									Log in or sign up
-								</button>
-							)}
+
+										<div className="px-2  text-[#2B2D2E] dark:text-gray-200 text-[14px] flex items-center gap-2">
+											{image ? (
+												<img
+													src={`https://syrizzle.vyominfotech.in${image.image}`}
+													alt="Profile"
+													height={20}
+													width={20}
+													style={{ backgroundColor: "gray", borderRadius: "50%" }}
+												/>
+											) : (
+												<div
+													style={{
+														width: 40,
+														height: 40,
+														backgroundColor: "gray",
+														borderRadius: "50%",
+													}}
+												/>
+											)}
+											<span>Hello, {user.first_name}</span>
+										</div>
+
+									) : (
+										<button
+											onClick={() => setOpenModal(true)}
+											className="cursor-pointer px-2 py-6 text-[#2B2D2E] border-x border-transparent hover:border-[#EEF0F1] dark:text-gray-200 text-[14px] transition-colors duration-200"
+										>
+											Log in or sign up
+										</button>
+									)}
 									<svg
 										className={`w-4 h-4 ml-2 transition-transform ${isDropdownOpen ? 'rotate-180' : ''
 											}`}
@@ -311,11 +367,20 @@ export default function Navbar({ onClose }) {
 
 								{isDropdownOpen && (
 									<ul className="absolute left-0 mt-2 w-48 bg-white dark:bg-gray-800 border dark:border-gray-700 rounded shadow-lg z-10">
-									<Link to={"/settings/profile"}>	<li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
+										<Link to={"/settings/profile"}>	<li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
 											My Profile
 										</li></Link>
 										<li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
 											Option 2
+										</li>
+										<li>
+											<button
+												className="btn w-full"
+												onClick={handleLogout}
+												style={{ fontSize: "14px", backgroundColor: "white", color: "black" }}
+											>
+												Logout
+											</button>
 										</li>
 									</ul>
 								)}
@@ -457,23 +522,15 @@ export default function Navbar({ onClose }) {
 						</li>
 
 						<li>
-							{user ? (
-								<button
-									className="btn"
-									onClick={handleLogout}
-									style={{ fontSize: "14px" }}
-								>
-									Logout
-								</button>
-							) : (
-								<button
-									className="btn"
-									onClick={() => setOpenStaticModal(true)}
-									style={{ fontSize: "14px" }}
-								>
-									Place Your Ad
-								</button>
-							)}
+
+							<button
+								className="btn"
+								onClick={() => setOpenStaticModal(true)}
+								style={{ fontSize: "14px" }}
+							>
+								Place Your Ad
+							</button>
+
 
 							<Modal show={openStaticModal} onClose={onCloseModal} popup>
 								<div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-40 z-[9999]">

@@ -1,6 +1,9 @@
 import MyProfile from "./MyProfile";
 import React, { useEffect, useState } from "react";
 import axios from 'axios';
+import { FaPen } from 'react-icons/fa';
+import { FaUpload } from 'react-icons/fa';
+
 
 
 const Profile = () => {
@@ -12,16 +15,26 @@ const Profile = () => {
         date_of_birth: "",
         image: ""
     });
+    const [isModalVisible, setIsModalVisible] = useState(false);
+
+    const [selectedAvatar, setSelectedAvatar] = useState(null);
 
     const [token, setToken] = useState(null);
     const [profileImage, setProfileImage] = useState(null);
     const [selectedFile, setSelectedFile] = useState(null);
+    const [modalOpen, setModalOpen] = useState(false);
 
+    const [activeTab, setActiveTab] = useState("computer")
     const formatDateToInput = (isoDate) => {
         if (!isoDate) return "";
         return new Date(isoDate).toISOString().split("T")[0];
     };
-
+    const [avatarUrls, setAvatarUrls] = useState([
+        "https://dbz-images.dubizzle.com/profiles/user/2010/02/14/1883887_UD_thumbnail.gif?impolicy=up",
+    "https://dbz-images.dubizzle.com/profiles/user/2010/02/14/1883886_UD_thumbnail.gif?impolicy=up",
+    "https://dbz-images.dubizzle.com/profiles/user/2010/02/14/1883889_UD_thumbnail.gif?impolicy=up",
+    "https://dbz-images.dubizzle.com/profiles/user/2010/02/14/1883892_UD_thumbnail.gif?impolicy=up",
+    ]); 
     useEffect(() => {
         const jwtToken = localStorage.getItem("jwt");
 
@@ -47,7 +60,7 @@ const Profile = () => {
                         date_of_birth: formatDateToInput(data.date_of_birth),
                     });
                 }
-                console.log(data);
+                // console.log(data);
 
             })
             .catch((error) => {
@@ -84,7 +97,6 @@ const Profile = () => {
             [name]: value,
         }));
     };
-
     const handleFileChange = (event) => {
         const file = event.target.files[0];
         if (file) {
@@ -97,48 +109,71 @@ const Profile = () => {
         }
     };
 
+
     const handleSubmit = async () => {
         const jwtToken = localStorage.getItem("jwt");
-
+    
         if (!jwtToken) {
             console.warn("No JWT token in localStorage.");
             return;
         }
+    
         try {
-            // Submit profile info
+            const updatedProfile = {
+                ...profile,
+                image: selectedAvatar || profile.image, // Set the selected avatar or keep the existing image
+            };
+    
+            // Submit updated profile info (including avatar) first
             await axios.post(
                 "https://syrizzle.vyominfotech.in/api/profile",
-                profile,
+                updatedProfile,
                 {
                     headers: {
-                        Authorization: `Bearer ${token}`,
+                        Authorization: `Bearer ${jwtToken}`,
                     },
                 }
             );
-
-            // Submit image if selected
+    
+            // If a new image is selected, upload it to the profile-image API
             if (selectedFile) {
                 const formData = new FormData();
                 formData.append("image", selectedFile);
-
+    
                 await axios.post(
                     "https://syrizzle.vyominfotech.in/api/profile-image",
                     formData,
                     {
                         headers: {
-                            Authorization: `Bearer ${token}`,
-                            "Content-Type": "multipart/form-data",
+                            Authorization: `Bearer ${jwtToken}`,
+                            "Content-Type": "multipart/form-data", // necessary for file upload
                         },
                     }
                 );
+    
+                // After successful image upload, update the profile with the new image URL
+                // Assuming the API returns the image URL or filename after upload
+                const uploadedImageUrl = '/path/to/updated/image.jpg'; // Update with actual image URL response if provided
+                setProfile((prev) => ({
+                    ...prev,
+                    image: uploadedImageUrl, // Update profile image with new image URL
+                }));
             }
-
+    
+            setIsModalVisible(false);
             alert("Profile updated successfully!");
+    
         } catch (error) {
             console.error("Error updating profile:", error);
-            alert("Failed to update profile.");
+            if (error.response) {
+                alert(`Failed to update profile. ${error.response.data.message || "Please try again."}`);
+            } else {
+                alert("Failed to update profile. Please check your connection and try again.");
+            }
         }
     };
+    
+    
 
     return (
         <>
@@ -156,21 +191,139 @@ const Profile = () => {
                     {/* Profile Card */}
                     <div className="bg-white shadow rounded-lg p-6">
                         <div className="flex items-center space-x-4">
-                            <input
-                                type="file"
-                                onChange={handleFileChange} // Handle file selection
-                                className="hidden" // Hide the default file input
-                                id="file-input"
-                            />
-                            <label htmlFor="file-input" className="cursor-pointer">
+                        <div className="relative inline-block">
+    <div className="relative p-10">
+        {/* Profile Image + Edit Button */}
+        <div className="relative inline-block">
+            <img
+                src={
+                    selectedAvatar
+                        ? selectedAvatar
+                        : profile.image
+                        ? `https://syrizzle.vyominfotech.in${profile.image}`
+                        : 'https://via.placeholder.com/100'
+                }
+                alt="Profile"
+                className="w-20 h-20 rounded-full object-cover relative"
+            />
+            <div
+                onClick={() => setIsModalVisible(true)}
+                className="w-7 h-7 rounded-full absolute bg-gray-700 flex items-center justify-center shadow-md hover:bg-gray-800 cursor-pointer"
+                style={{ left: '60px', top: '45px', zIndex: '222' }}
+            >
+                <FaPen className="text-white text-sm" />
+            </div>
+        </div>
+
+        {/* Hidden File Input */}
+        <input
+            type="file"
+            onChange={handleFileChange}
+            className="hidden"
+            id="file-input"
+        />
+
+        {/* Modal */}
+        {isModalVisible && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="bg-white rounded-lg w-[400px] p-6 shadow-lg">
+                    {/* Modal Header */}
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-lg font-semibold">Update profile picture</h2>
+                        <button onClick={() => setIsModalVisible(false)} className="text-gray-500 hover:text-gray-700">
+                            &times;
+                        </button>
+                    </div>
+
+                    {/* Preview Image */}
+                    <div className="flex justify-center items-center">
+                        <img
+                            src={
+                                selectedAvatar
+                                    ? selectedAvatar
+                                    : profile.image
+                                    ? `https://syrizzle.vyominfotech.in${profile.image}`
+                                    : 'https://via.placeholder.com/100'
+                            }
+                            alt="Profile"
+                            className="w-20 h-20 rounded-full object-cover"
+                        />
+                    </div>
+
+                    {/* Tabs */}
+                    <div className="flex border-b mb-4 mt-4">
+                        <div
+                            onClick={() => setActiveTab("computer")}
+                            className={`w-1/2 text-center py-2 border-b-2 font-semibold cursor-pointer ${activeTab === "computer" ? "border-red-600 text-black" : "border-transparent text-gray-400"}`}
+                        >
+                            From Computer
+                        </div>
+                        <div
+                            onClick={() => setActiveTab("avatar")}
+                            className={`w-1/2 text-center py-2 border-b-2 font-semibold cursor-pointer ${activeTab === "avatar" ? "border-red-600 text-black" : "border-transparent text-gray-400"}`}
+                        >
+                            Avatars
+                        </div>
+                    </div>
+
+                    {/* Tab Content */}
+                    {activeTab === "computer" && (
+                        <div className="flex flex-col items-center border border-dashed border-gray-300 p-6 text-center rounded-md">
+                            <div className="bg-red-100 p-3 rounded-full mb-2">
+                                <FaUpload className="text-red-500 text-xl" />
+                            </div>
+                            <p className="mb-2">Drag and drop</p>
+                            <p className="text-gray-500 mb-4">— OR —</p>
+
+                            <label htmlFor="file-input" className="px-4 py-2 border rounded hover:bg-gray-100 cursor-pointer">
+                                Upload
+                            </label>
+                            <input id="file-input" type="file" className="hidden" />
+                            <p className="text-gray-400 text-xs mt-2">Image will be resized to 140 x 140</p>
+                        </div>
+                    )}
+
+                    {activeTab === "avatar" && (
+                        <div className="grid grid-cols-4 gap-4 mt-4">
+                            {avatarUrls.map((url, index) => (
+                                <div
+                                    key={index}
+                                    onClick={() => setSelectedAvatar(url)}
+                                    className={`border rounded-md p-1 cursor-pointer transition-all ${selectedAvatar === url ? "border-black ring-2 ring-red-500" : "hover:border-black"}`}
+                                >
+                                    <img
+                                        src={url}
+                                        alt={`Avatar ${index + 1}`}
+                                        className="w-full h-auto rounded"
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* Submit Button */}
+                    <button
+                        onClick={handleSubmit}
+                        disabled={!selectedFile && !selectedAvatar}
+                        className={`mt-4 w-full py-2 rounded text-white ${selectedFile || selectedAvatar ? 'bg-red-500 hover:bg-red-600' : 'bg-gray-300 cursor-not-allowed'}`}
+                    >
+                        Save Profile Picture
+                    </button>
+                </div>
+            </div>
+        )}
+    </div>
+</div>
+
+                            {/* <label htmlFor="file-input" className="cursor-pointer">
                                 <img
                                     src={
                                         profile.image
                                             ? `https://syrizzle.vyominfotech.in${profile.image}`
                                             : "https://via.placeholder.com/100"
                                     } alt="Profile"
-                                    className="w-20 h-20 rounded-full object-cover"
-                                /> </label>
+                                    className="w-20 h-20 rounded-full object-cover relative"
+                                /> </label> */}
                             <div>
                                 <h2 className="text-xl font-semibold">
                                     {profile.first_name} {profile.last_name}

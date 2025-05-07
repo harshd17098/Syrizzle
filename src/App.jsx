@@ -72,9 +72,9 @@ export default function App() {
 
 
 					<Route path="/classified/business-industrial/businesses-for-sale/" element={<BusinessesPage />}></Route>
-					<Route path="/settings/profile" element={<MyProfile />}></Route>
+					{/* <Route path="/settings/profile" element={<MyProfile />}></Route> */}
 
-					<Route path="/settings/profiles" element={<Profile />}></Route>
+					<Route path="/settings/profile" element={<Profile />}></Route>
 					<Route path="/settings/profile/my-address" element={<MyAddresses/>}></Route>
 					<Route path="/settings/account" element={<PhoneNumber/>}></Route>
 
