@@ -31,6 +31,9 @@ import MyProfile from "./components/Menu/MyProfile";
 import Profile from "./components/Menu/Profile";
 import MyAddresses from "./components/Menu/MyAddresses";
 import PhoneNumber from "./components/Menu/PhoneNumber";
+import SecuritySettings from "./components/Menu/SecuritySettings";
+import HelpPage from "./components/Menu/CustomerSupport/HelpPage";
+import ChangePassword from "./components/Menu/ChangePassword";
 export default function App() {
 	return (
 		<>
@@ -77,6 +80,11 @@ export default function App() {
 					<Route path="/settings/profile" element={<Profile />}></Route>
 					<Route path="/settings/profile/my-address" element={<MyAddresses/>}></Route>
 					<Route path="/settings/account" element={<PhoneNumber/>}></Route>
+					<Route path="/settings/security" element={<SecuritySettings/>}></Route>
+
+					{/* Customer Support */}
+					<Route path="/hc/en-us/requests/new" element={<HelpPage/>}></Route>
+					<Route path="/settings/security/password_edit" element={<ChangePassword/>}></Route>
 
 				</Routes>
 				<Footer />

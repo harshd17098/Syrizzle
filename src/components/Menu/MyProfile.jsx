@@ -59,10 +59,10 @@ const MyProfile = () => {
             </div>
 
             {/* Security item */}
-            <div className="flex items-center px-4 py-3 hover:bg-gray-100 cursor-pointer">
-              <FaLock className="mr-2" />
+            <Link to={"/settings/security"}><div className="flex items-center px-4 py-3 hover:bg-gray-100 cursor-pointer">
+             <FaLock className="mr-2" />
               <span>Security</span>
-            </div>
+            </div></Link>
           </div>
         </div>
       </aside>

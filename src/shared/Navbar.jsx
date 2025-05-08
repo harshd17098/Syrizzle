@@ -457,7 +457,7 @@ export default function Navbar({ onClose }) {
 											{/* Social Buttons */}
 											<div className="flex flex-col items-center justify-center space-y-3">
 												<LoginSocialGoogle
-													client_id="121819088833-0u8gvlt0b0jg5junojjdhb12msh9ks6e.apps.googleusercontent.com"
+													client_id=""
 													onResolve={({ data }) => handleSocialLogin(data)}
 													onReject={(err) => console.log('Google login error', err)}
 												>
