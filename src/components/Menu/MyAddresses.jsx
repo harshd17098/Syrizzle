@@ -2,6 +2,7 @@ import MyProfile from "./MyProfile";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { IoLocation } from "react-icons/io5";
+import API_BASE_URL from '../../api/api';
 
 const MyAddresses = () => {
     const [showForm, setShowForm] = useState(false);
@@ -76,6 +77,39 @@ const MyAddresses = () => {
             alert('Failed to save address');
         }
     };
+   const handleDelete = async (addressId) => {
+    try {
+        const confirmDelete = window.confirm("Are you sure you want to delete this address?");
+        if (!confirmDelete) return;
+
+        const token = localStorage.getItem('jwt');
+        if (!token) return alert('User not authenticated');
+
+        const endpoint = `https://syrizzle.vyominfotech.in/api/address/delete/${addressId}`;
+
+        const response = await axios.delete(endpoint, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        console.log('Delete response:', response.data);
+
+        const { status, message } = response.data;
+
+        if (status === true) {
+            alert('Address deleted successfully!');
+            fetchAddresses(); // ✅ Refresh address list
+        } else {
+            alert(`Failed to delete address: ${message || 'Unknown error'}`);
+        }
+    } catch (error) {
+        console.error('Failed to delete address:', error);
+        const errorMsg = error.response?.data?.message || error.message || 'Unknown error';
+        alert(`Failed to delete address: ${errorMsg}`);
+    }
+};
+
 
     const fetchAddresses = async () => {
         const jwtToken = localStorage.getItem("jwt");
@@ -117,9 +151,9 @@ const MyAddresses = () => {
                         <h2 className="text-2xl font-semibold">Addresses</h2>
                         <p className="text-gray-500 text-sm">Manage your saved addresses</p>
                     </div>
-                    <button className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800">
+                    {/* <button className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800">
                         + Add A Location
-                    </button>
+                    </button> */}
                 </div>
 
                 {/* Empty State */}
@@ -184,6 +218,8 @@ const MyAddresses = () => {
 
                                                 <button
                                                     className="mt-2 border border-red-600 text-red-600 text-sm px-3 py-1 rounded transition-all duration-300 hover:bg-red-600 hover:text-white hover:scale-105"
+                                                    onClick={() => handleDelete(addr._id)} // Pass the address ID to handleDelete
+                                                    style={{ marginRight: "10px" }}
                                                 >
                                                     Delete
                                                 </button>
@@ -212,7 +248,7 @@ const MyAddresses = () => {
                                             </button>
 
                                             <h2 className="text-xl font-semibold mb-4">
-                                                {selectedAddressId ? 'Edit Address' : 'Add Address'}
+                                                {selectedAddressId ? 'Edit Address' : 'Location Details '}
                                             </h2>
 
                                             <input
@@ -299,10 +335,10 @@ const MyAddresses = () => {
                         ) : (
                             <div className="border rounded px-4 py-2 flex justify-between items-center">
                                 <div
-                                    className="border rounded px-4 py-2 flex justify-between items-center cursor-pointer"
+                                    className=" rounded px-4 py-2 flex justify-between items-center cursor-pointer"
                                     onClick={() => setShowForm(true)}
                                 >
-                                    <span className="font-medium text-blue-600">+ Home Address</span>
+                                    <span className="font-medium text-black-600">+ Home Address</span>
 
                                 </div>
 
@@ -416,27 +452,43 @@ const MyAddresses = () => {
 
 
                         <div className="border rounded px-4 py-2 flex justify-between items-center">
-                            <div className="px-4 py-2 flex justify-between items-center">
-                                <div
-                                    className=" py-2 flex justify-between items-center cursor-pointer"
-                                    onClick={() => setShowForm(true)}
+                            <div className="space-y-4">
+                                <button
+                                    onClick={() => {
+                                        setFormData({
+                                            neighbourhood: '',
+                                            building: '',
+                                            apartment: '',
+                                            custom_label: 'work',
+                                            address_type: 1,
+                                            isDefault: 0,
+                                            latitude: '',
+                                            longitude: '',
+                                        });
+                                        setSelectedAddressId(null);
+                                        setShowForm(true);
+                                    }}
+                                    className="px-4 py-2 text-black rounded"
                                 >
-                                    <span className="font-medium text-gray-600">+ Work Address</span>
+                                    + Work Address
+                                </button>
 
-                                </div>
-
-                                {/* Overlay Form Modal */}
                                 {showForm && (
-                                    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                                    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
                                         <div className="bg-white p-6 rounded-lg w-full max-w-md relative">
                                             <button
-                                                className="absolute top-2 right-2 text-gray-500"
-                                                onClick={() => setShowForm(false)}
+                                                onClick={() => {
+                                                    setShowForm(false);
+                                                    setSelectedAddressId(null);
+                                                }}
+                                                className="absolute top-2 right-2 text-gray-500 text-xl"
                                             >
                                                 ✕
                                             </button>
 
-                                            <h2 className="text-xl font-semibold mb-4">Location Details</h2>
+                                            <h2 className="text-xl font-semibold mb-4">
+                                                {selectedAddressId ? 'Edit Address' : 'Location Details '}
+                                            </h2>
 
                                             <input
                                                 type="text"
@@ -450,7 +502,7 @@ const MyAddresses = () => {
                                             <input
                                                 type="text"
                                                 name="building"
-                                                placeholder="Building or Street name"
+                                                placeholder="Building"
                                                 value={formData.building}
                                                 onChange={handleChange}
                                                 className="border w-full p-2 rounded mb-2"
@@ -458,16 +510,11 @@ const MyAddresses = () => {
                                             <input
                                                 type="text"
                                                 name="apartment"
-                                                placeholder="Apartment or Villa number"
+                                                placeholder="Apartment"
                                                 value={formData.apartment}
                                                 onChange={handleChange}
                                                 className="border w-full p-2 rounded mb-4"
                                             />
-
-                                            {/* Map Placeholder */}
-                                            <div className="bg-gray-100 h-40 rounded mb-4 flex items-center justify-center">
-                                                <span className="text-gray-500">Map Placeholder</span>
-                                            </div>
 
                                             <input
                                                 type="number"
@@ -488,44 +535,37 @@ const MyAddresses = () => {
 
                                             <div className="mb-2 font-medium">Label this address:</div>
                                             <div className="flex space-x-2 mb-4">
-                                                <button
-                                                    onClick={() => handleLabel('other', 3)}
-                                                    className={`px-3 py-1 border rounded ${formData.address_type === 3 ? 'bg-blue-100' : ''}`}
-                                                >
-                                                    Other
-                                                </button>
-                                                <button
-                                                    onClick={() => handleLabel('home', 2)}
-                                                    className={`px-3 py-1 border rounded ${formData.address_type === 2 ? 'bg-blue-100' : ''}`}
-                                                >
-                                                    Home
-                                                </button>
-                                                <button
-                                                    onClick={() => handleLabel('work', 1)}
-                                                    className={`px-3 py-1 border rounded ${formData.address_type === 1 ? 'bg-blue-100' : ''}`}
-                                                >
-                                                    Work
-                                                </button>
+                                                {[
+                                                    { label: 'Other', type: 3 },
+                                                    { label: 'Home', type: 2 },
+                                                    { label: 'Work', type: 1 }
+                                                ].map(({ label, type }) => (
+                                                    <button
+                                                        key={type}
+                                                        onClick={() => handleLabel(label.toLowerCase(), type)}
+                                                        className={`px-3 py-1 border rounded ${formData.address_type === type ? 'bg-blue-100' : ''}`}
+                                                    >
+                                                        {label}
+                                                    </button>
+                                                ))}
                                             </div>
 
-                                            <div className="mb-4">
-                                                <label className="inline-flex items-center">
-                                                    <input
-                                                        type="checkbox"
-                                                        name="isDefault"
-                                                        checked={formData.isDefault === 1}
-                                                        onChange={handleChange}
-                                                        className="form-checkbox mr-2"
-                                                    />
-                                                    Set as default
-                                                </label>
-                                            </div>
+                                            <label className="inline-flex items-center mb-4">
+                                                <input
+                                                    type="checkbox"
+                                                    name="isDefault"
+                                                    checked={formData.isDefault === 1}
+                                                    onChange={handleChange}
+                                                    className="mr-2"
+                                                />
+                                                Set as default
+                                            </label>
 
                                             <button
                                                 onClick={handleSubmit}
                                                 className="bg-blue-600 text-white w-full py-2 rounded"
                                             >
-                                                Save Address
+                                                {selectedAddressId ? 'Update Address' : 'Save Address'}
                                             </button>
                                         </div>
                                     </div>

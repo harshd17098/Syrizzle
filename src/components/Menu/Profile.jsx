@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import axios from 'axios';
 import { FaPen } from 'react-icons/fa';
 import { FaUpload } from 'react-icons/fa';
-
+import API_BASE_URL from '../../api/api';
 
 
 const Profile = () => {
@@ -26,7 +26,7 @@ const Profile = () => {
     const [modalOpen, setModalOpen] = useState(false);
 
 
-    
+
 
     const [activeTab, setActiveTab] = useState("computer")
     const formatDateToInput = (isoDate) => {
@@ -46,7 +46,7 @@ const Profile = () => {
 
         // Fetch profile data
         axios
-            .get("https://syrizzle.vyominfotech.in/api/profile", {
+            .get(`${API_BASE_URL}/profile`, {
                 headers: {
                     Authorization: `Bearer ${jwtToken}`,
                 },
@@ -74,6 +74,8 @@ const Profile = () => {
             [name]: value,
         }));
     };
+
+
     const handleFileChange = (event) => {
         const file = event.target.files[0];
         if (file) {
@@ -98,12 +100,16 @@ const Profile = () => {
         try {
             const updatedProfile = {
                 ...profile,
-                image: selectedAvatar || profile.image, // Set the selected avatar or keep the existing image
+                image: selectedAvatar || profile.image, // Ensure selectedAvatar is part of the profile
+                country: profile.country || '' // Include the country in the updated profile
+
             };
+            console.log(updatedProfile); // Check the updated profile object before sending it to the backend
+
 
             // Submit updated profile info (including avatar) first
             await axios.post(
-                "https://syrizzle.vyominfotech.in/api/profile",
+                `${API_BASE_URL}/profile`,
                 updatedProfile,
                 {
                     headers: {
@@ -118,7 +124,7 @@ const Profile = () => {
                 formData.append("image", selectedFile)
 
                 await axios.post(
-                    "https://syrizzle.vyominfotech.in/api/profile-image",
+                    `${API_BASE_URL}/profile-image`,
                     formData,
                     {
                         headers: {
@@ -133,7 +139,7 @@ const Profile = () => {
                 const uploadedImageUrl = '/path/to/updated/image.jpg'; // Update with actual image URL response if provided
                 setProfile((prev) => ({
                     ...prev,
-                   image: selectedAvatar || profile.image // Update profile image with new image URL
+                    image: selectedAvatar || profile.image // Update profile image with new image URL
                 }));
             }
 
@@ -215,7 +221,7 @@ const Profile = () => {
                                         <div
                                             onClick={() => setIsModalVisible(true)}
                                             className="w-7 h-7 rounded-full absolute bg-gray-700 flex items-center justify-center shadow-md hover:bg-gray-800 cursor-pointer"
-                                            style={{ left: '60px', top: '45px', zIndex: '222' }}
+                                            style={{ left: '60px', top: '45px', zIndex: '22' }}
                                         >
                                             <FaPen className="text-white text-sm" />
                                         </div>
@@ -296,8 +302,8 @@ const Profile = () => {
                                                                 key={avatar.id}
                                                                 onClick={() => setSelectedAvatar(avatar.imageUrl)}
                                                                 className={`border rounded-md p-1 cursor-pointer transition-all ${selectedAvatar === avatar.imageUrl
-                                                                        ? "border-black ring-2 ring-red-500"
-                                                                        : "hover:border-black"
+                                                                    ? "border-black ring-2 ring-red-500"
+                                                                    : "hover:border-black"
                                                                     }`}
                                                             >
                                                                 <img
@@ -443,9 +449,10 @@ const Profile = () => {
                                     onChange={handleInputChange}
                                     className="w-full border rounded px-3 py-2 text-black"
                                 >
+                                    <option value="">---Selected one</option>
                                     <option value="India">India</option>
-                                    {/* Add more countries dynamically if needed */}
                                 </select>
+
                             </div>
                         </div>
 

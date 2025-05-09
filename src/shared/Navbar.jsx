@@ -32,7 +32,9 @@ import 'react-toastify/dist/ReactToastify.css';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { Link } from "react-router-dom";
-
+import { MdEmail } from "react-icons/md"; // Red email icon
+import ForgotPasswordModal from "../components/ForgotPassword/ForgotPasswordModal"
+import AdPostCity from "../components/PlaceYourAd/City/AdPostCity";
 
 const menuItems = [
 	"My Job Applications",
@@ -74,6 +76,7 @@ const titles = [
 ];
 
 export default function Navbar({ onClose }) {
+	const [isModalOpen, setIsModalOpen] = useState(false);
 
 	const [selectedCity, setSelectedCity] = useState(CITIES[0]);
 	const [openModal, setOpenModal] = useState(false);
@@ -97,6 +100,8 @@ export default function Navbar({ onClose }) {
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [loginTriggered, setLoginTriggered] = useState(false);
+	const [isAdPostVisible, setIsAdPostVisible] = useState(false);
+	const users = JSON.parse(localStorage.getItem("user"));
 
 	const handleSocialLogin = async (googleData) => {
 		try {
@@ -205,7 +210,13 @@ export default function Navbar({ onClose }) {
 
 
 
+	const handleClick = () => {
+		setIsAdPostVisible(true); // Show the AdPostCity when clicked
+	};
 
+	const handleCloseAdPost = () => {
+		setIsAdPostVisible(false); // Hide the AdPostCity
+	};
 	const handleLogout = () => {
 		localStorage.removeItem('user');
 		localStorage.removeItem('jwt');
@@ -452,6 +463,16 @@ export default function Navbar({ onClose }) {
 												</button>
 											</form>
 
+											<div className="mt-6 p-3 rounded-md bg-red-50 hover:bg-red-100 transition cursor-pointer ">
+												<button
+													onClick={() => setIsModalOpen(true)}
+													className="text-red-600 font-semibold text-sm md:text-base w-full text-center"
+												>
+													Forgot Password?
+												</button>
+
+												<ForgotPasswordModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+											</div>
 											<div className="my-4 text-center text-gray-500">OR</div>
 
 											{/* Social Buttons */}
@@ -481,6 +502,7 @@ export default function Navbar({ onClose }) {
 												>
 													<AppleLoginButton />
 												</LoginSocialApple>
+
 											</div>
 
 											{/* Create Account Prompt */}
@@ -522,15 +544,26 @@ export default function Navbar({ onClose }) {
 						</li>
 
 						<li>
+						
+							<div>
+								{/* {users ? (
+									<button className="btn text-sm" onClick={handleClick}>
+									Place Your Ad
+								</button>
+								) : ( */}
+									<Link to="/place-an-ad/pick-a-city/">
+										<button className="btn text-sm">Place Your Ad</button>
+									</Link>
+								{/* )} */}
 
-							<button
-								className="btn"
-								onClick={() => setOpenStaticModal(true)}
-								style={{ fontSize: "14px" }}
-							>
-								Place Your Ad
-							</button>
-
+								{/* Conditionally render AdPostCity based on the isAdPostVisible state */}
+								{isAdPostVisible && (
+									<div>
+										<AdPostCity />
+										<button onClick={handleCloseAdPost}>Close Ad Post</button>
+									</div>
+								)}
+							</div>
 
 							<Modal show={openStaticModal} onClose={onCloseModal} popup>
 								<div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-40 z-[9999]">

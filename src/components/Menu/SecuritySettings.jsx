@@ -7,6 +7,12 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import { MdOutlineDelete } from "react-icons/md";
 import ChangePassword from './ChangePassword';
+import { XIcon } from "lucide-react";
+import { IoIosArrowForward } from "react-icons/io";
+import { FiShield } from "react-icons/fi"; // Feather Icons
+import { HiShieldExclamation } from "react-icons/hi"; // Heroicons (bold)
+import { IoIosLaptop } from "react-icons/io";
+import API_BASE_URL from '../../api/api';
 
 const SecuritySettings = () => {
     const [email, setEmail] = useState('');
@@ -17,6 +23,11 @@ const SecuritySettings = () => {
     const [isSending, setIsSending] = useState(false);
     const [cooldownTime, setCooldownTime] = useState(0);
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const [showModal, setShowModal] = useState(false);
+    const [createdAt, setCreatedAt] = useState(null);
+    const [isCurrentDevice, setIsCurrentDevice] = useState(false);
+    const [deviceInfo, setDeviceInfo] = useState(null);
+    const [country, setCountry] = useState(''); // New state for country
 
     const handleClose = () => {
         setIsModalVisible(false); // Close the modal
@@ -30,7 +41,7 @@ const SecuritySettings = () => {
             }
 
             try {
-                const res = await fetch("https://syrizzle.vyominfotech.in/api/profile", {
+                const res = await fetch(`${API_BASE_URL}/profile`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                         "Content-Type": "application/json",
@@ -42,7 +53,10 @@ const SecuritySettings = () => {
 
                 if (data.data.result) {
                     setEmail(data.data.result.email || '');
-                    setPassword('********'); // Do not attempt to decrypt bcrypt password
+                    setPassword('********'); // No need to show real password
+                    setCreatedAt(data.data.result.createdAt);
+                    setCountry(data.data.result.country || ''); // Set country if available
+
                 } else {
                     console.error("Failed to load profile:", data.message || data);
                 }
@@ -54,6 +68,13 @@ const SecuritySettings = () => {
         fetchProfile();
     }, []);
 
+    const formattedDate = createdAt
+        ? new Date(createdAt).toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+        })
+        : "";
     const handleAccountDeactivate = async () => {
         const token = localStorage.getItem("jwt");
 
@@ -65,7 +86,7 @@ const SecuritySettings = () => {
         try {
             // Include the 'deleted' field in the request payload
             const response = await axios.post(
-                "https://syrizzle.vyominfotech.in/api/account-deactive",
+                `${API_BASE_URL}/account-deactive`,
                 { deleted: true }, // Send deleted: true to the backend
                 {
                     headers: {
@@ -118,7 +139,7 @@ const SecuritySettings = () => {
 
         try {
             const response = await axios.post(
-                "https://syrizzle.vyominfotech.in/api/change-password",
+                `${API_BASE_URL}/change-password`,
                 { email },
                 {
                     headers: {
@@ -155,7 +176,31 @@ const SecuritySettings = () => {
             setIsSending(false);
         }
     };
+    useEffect(() => {
+        const token = localStorage.getItem("jwt");
+        if (!token) return;
 
+        axios
+            .get(`${API_BASE_URL}/login-device`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+            .then((res) => {
+                const devices = res?.data?.data?.result || [];
+
+                // Find the device whose token matches the local token
+                const currentDevice = devices.find((device) => device.token === token);
+
+
+                if (res.data?.success === true && currentDevice) {
+                    setDeviceInfo(currentDevice);
+                }
+            })
+            .catch((err) => {
+                console.error("Device check error:", err?.response || err.message);
+            });
+    }, []);
 
     useEffect(() => {
         if (cooldownTime > 0) {
@@ -288,18 +333,61 @@ const SecuritySettings = () => {
                         </button>
 
                     </div>
-                    <div>
-                        <button
-                            onClick={() => setIsModalVisible(true)} // Open the modal
-                            className="bg-blue-500 text-white p-2 rounded"
-                        >
-                            Open Change Password Modal
-                        </button>
 
-                        {isModalVisible && (
-                            <ChangePassword onClose={handleClose} />
+
+
+
+
+                    <div className="">
+
+
+                        {showModal && (
+                            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                                <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
+                                    {/* Close Icon */}
+                                    <button
+                                        className="absolute top-4 right-4 text-gray-500 hover:text-black"
+                                        onClick={() => setShowModal(false)}
+                                    >
+                                        <XIcon size={20} />
+                                    </button>
+
+                                    <h2 className="text-xl mb-4 flex items-center gap-2" style={{ color: "rgba(0, 0, 0, 0.87)" }}>
+                                        <HiShieldExclamation size={20} />  Secure your account
+                                    </h2>
+                                    <p className="text-gray-600 text-sm mb-6">
+                                        If you don’t recognize your device, protect your account by resetting your password.
+                                        This will log you out of all other devices for added security.
+                                    </p>
+                                    <hr />
+                                    <br />
+                                    <div className="flex justify-end gap-2">
+                                        <button
+                                            onClick={() => setShowModal(false)}
+                                            className="px-4 py-2 rounded border border-gray-300 text-gray-700 hover:bg-gray-100"
+                                        >
+                                            Close
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                setShowModal(false);
+                                                openPopup();
+                                            }}
+                                            className="px-4 py-2 rounded bg-black text-white hover:bg-gray-800 flex items-center gap-1"
+                                        >
+                                            Update Password <IoIosArrowForward />
+                                        </button>
+
+
+                                    </div>
+                                </div>
+                            </div>
                         )}
                     </div>
+
+
+
+
 
                     <hr className="my-6" />
 
@@ -310,17 +398,32 @@ const SecuritySettings = () => {
                         </div>
                         <div className="flex items-center justify-between gap-4 mb-5">
                             <p className="text-sm text-gray-600 mb-0">If you don’t recognize any devices below</p>
-                            <button className="px-4 py-2 text-sm bg-gray-100 border rounded hover:bg-gray-200">
+                            <button className="px-4 py-2 text-sm bg-gray-100 border rounded hover:bg-gray-200" onClick={() => setShowModal(true)}>
                                 Secure your account
                             </button>
                         </div>
 
-                        <div className="flex items-center justify-between p-4 border rounded-md">
+                        <div className="flex items-center justify-between  ">
                             <div>
-                                <p className="font-medium text-sm">Chrome from Windows computer (This Device)</p>
-                                <p className="text-xs text-gray-500">India</p>
+                                <div>
+                                    {deviceInfo && (
+                                        <p className="font-medium text-sm flex gap-2">
+                                            <IoIosLaptop style={{ fontSize: "20px" }} />
+                                            {`${deviceInfo.user_agent.split("(")[0].trim()} from ${deviceInfo.device_name} (This Device)`}
+                                        </p>
+                                    )}
+                                </div>
+
+                                <p className="text-xs text-gray-500" style={{ marginLeft: "28px" }}>
+                                    {country || "Country not available"}
+                                </p>
+
                             </div>
-                            <div className="text-xs text-gray-500">Added on 06 May, 2025</div>
+                            <div>
+                                {createdAt && (
+                                    <div className="text-xs text-gray-500">Added on {formattedDate}</div>
+                                )}
+                            </div>
                         </div>
 
 

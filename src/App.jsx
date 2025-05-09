@@ -1,8 +1,7 @@
-import { BrowserRouter, Route, RouterProvider, Routes } from "react-router-dom";
-import router from "./routes/router";
-import HomePage from "./pages/HomePage";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Navbar from "./shared/Navbar";
 import Footer from "./shared/Footer";
+import HomePage from "./pages/HomePage";
 import MotorsPage from "./pages/cars/MotorsPage";
 import RentalCarsPages from "./pages/cars/RentalCarsPages";
 import FeaturedMotors from "./pages/cars/FeaturedMotors";
@@ -24,71 +23,69 @@ import FrontOfficePage from "./pages/Jobs/FrontOfficePage";
 import ElectronicsPage from "./pages/Classified/ElectronicsPage";
 import FreelancersPage from "./pages/Community/FreelancersPage";
 import NetworkingPage from "./pages/Classified/NetworkingPage";
-import AccessoriesPages from "./pages/Classified/AccessoriesPage"
-import WatchesPage from "./pages/Classified/WatchesPage"
+import AccessoriesPages from "./pages/Classified/AccessoriesPage";
+import WatchesPage from "./pages/Classified/WatchesPage";
 import BusinessesPage from "./pages/Industrial/Businesses";
-import MyProfile from "./components/Menu/MyProfile";
 import Profile from "./components/Menu/Profile";
 import MyAddresses from "./components/Menu/MyAddresses";
 import PhoneNumber from "./components/Menu/PhoneNumber";
 import SecuritySettings from "./components/Menu/SecuritySettings";
 import HelpPage from "./components/Menu/CustomerSupport/HelpPage";
 import ChangePassword from "./components/Menu/ChangePassword";
+import ForgotPassword from "./components/ForgotPassword/ForgotPassword";
+import AdPostCity from "./components/PlaceYourAd/City/AdPostCity";
+import ListingPage from "./components/PlaceYourAd/listing/ListingPage";
+import MotorListingPage from "./components/PlaceYourAd/MotorListing/MotorListingPage";
+import CarCategorys from "./components/PlaceYourAd/CarCategory/CarCategorys";
+
 export default function App() {
-	return (
-		<>
-			{/* <RouterProvider router={router} /> */}
-			<BrowserRouter>
-				<Navbar />
-				<Routes>
-					<Route path="/" element={<HomePage />}></Route>
-					<Route path='/motors/used-cars/' element={<MotorsPage />}></Route>
-					<Route path='/motors/rental-cars/' element={<RentalCarsPages />}></Route>
-					<Route path="en/property-for-rent/residential/" element={<Residentialpage />}></Route>
-					<Route path="/motors/" element={<FeaturedMotors />}></Route>
-					<Route path="/motors/export-cars/" element={<ExportsCarsPages />}></Route>
-					<Route path="/motors/new-cars/" element={<NewCarsPages />}></Route>
-					<Route path="/motors/used-cars/" element={<MotorsPage />} />
-					<Route path="/fullgallery" element={<FullGallery />} />
-					<Route path="/gallery" element={<AllImagesGallery />} />
-					<Route path="/en/property-for-rent/commercial/" element={<CommercialPages />}></Route>
-					<Route path="/en/property-for-rent/short-term/" element={<MonthlyPages />}></Route>
-					<Route path="/en/property-for-rent/" element={<PropertyForRentPage />}></Route>
-					<Route path="/en/property-for-rent/rooms-for-rent-flatmates/" element={<RoomsforRentPage />}></Route>
-					<Route path="/new-projects/residential/" element={<LandForSalePage />}></Route>
-					<Route path="/en/property-for-sale/off-plan/residential/" element={<OffPlanePage />}></Route>
+  return (
+    <>
+      <BrowserRouter>
+        {/* Render Navbar and Footer for all routes except AdPostCity */}
+        <Routes>
+          {/* Routes that render Navbar and Footer */}
+          <Route path="/" element={<><Navbar /><HomePage /><Footer /></>} />
+          <Route path="/motors/used-cars/" element={<><Navbar /><MotorsPage /><Footer /></>} />
+          <Route path="/motors/rental-cars/" element={<><Navbar /><RentalCarsPages /><Footer /></>} />
+          <Route path="en/property-for-rent/residential/" element={<><Navbar /><Residentialpage /><Footer /></>} />
+          <Route path="/motors/" element={<><Navbar /><FeaturedMotors /><Footer /></>} />
+          <Route path="/motors/export-cars/" element={<><Navbar /><ExportsCarsPages /><Footer /></>} />
+          <Route path="/motors/new-cars/" element={<><Navbar /><NewCarsPages /><Footer /></>} />
+          <Route path="/motors/used-cars/" element={<><Navbar /><MotorsPage /><Footer /></>} />
+          <Route path="/fullgallery" element={<><Navbar /><FullGallery /><Footer /></>} />
+          <Route path="/gallery" element={<><Navbar /><AllImagesGallery /><Footer /></>} />
+          <Route path="/en/property-for-rent/commercial/" element={<><Navbar /><CommercialPages /><Footer /></>} />
+          <Route path="/en/property-for-rent/short-term/" element={<><Navbar /><MonthlyPages /><Footer /></>} />
+          <Route path="/en/property-for-rent/" element={<><Navbar /><PropertyForRentPage /><Footer /></>} />
+          <Route path="/en/property-for-rent/rooms-for-rent-flatmates/" element={<><Navbar /><RoomsforRentPage /><Footer /></>} />
+          <Route path="/new-projects/residential/" element={<><Navbar /><LandForSalePage /><Footer /></>} />
+          <Route path="/en/property-for-sale/off-plan/residential/" element={<><Navbar /><OffPlanePage /><Footer /></>} />
+          <Route path="/jobs/accounting-finance/" element={<><Navbar /><AccountingPage /><Footer /></>} />
+          <Route path="/jobs/engineering/" element={<><Navbar /><EngineeringPage /><Footer /></>} />
+          <Route path="/jobs/sales-business-development/" element={<><Navbar /><BusinessDevelopmentPage /><Footer /></>} />
+          <Route path="/jobs/secretarial-front-office/" element={<><Navbar /><FrontOfficePage /><Footer /></>} />
+          <Route path="/classified/jewelry-watches/" element={<><Navbar /><WatchesPage /><Footer /></>} />
+          <Route path="/classified/computers-networking/" element={<><Navbar /><NetworkingPage /><Footer /></>} />
+          <Route path="/classified/clothing-accessories/" element={<><Navbar /><AccessoriesPages /><Footer /></>} />
+          <Route path="/classified/electronics/" element={<><Navbar /><ElectronicsPage /><Footer /></>} />
+          <Route path="/community/freelancers/" element={<><Navbar /><FreelancersPage /><Footer /></>} />
+          <Route path="/classified/business-industrial/businesses-for-sale/" element={<><Navbar /><BusinessesPage /><Footer /></>} />
+          <Route path="/settings/profile" element={<><Navbar /><Profile /><Footer /></>} />
+          <Route path="/settings/profile/my-address" element={<><Navbar /><MyAddresses /><Footer /></>} />
+          <Route path="/settings/account" element={<><Navbar /><PhoneNumber /><Footer /></>} />
+          <Route path="/settings/security" element={<><Navbar /><SecuritySettings /><Footer /></>} />
+          <Route path="/hc/en-us/requests/new" element={<><Navbar /><HelpPage /><Footer /></>} />
+          <Route path="/settings/security/password_edit/reset-password/:token" element={<><Navbar /><ChangePassword /><Footer /></>} />
+          <Route path="/settings/security/password_edit/en/user/auth/reset/:token" element={<><Navbar /><ForgotPassword /><Footer /></>} />
 
-					<Route path="/jobs/accounting-finance/" element={<AccountingPage />}></Route>
-					<Route path="/jobs/engineering/" element={<EngineeringPage />}></Route>
-					<Route path="/jobs/sales-business-development/" element={<BusinessDevelopmentPage />}></Route>
-					<Route path="/jobs/secretarial-front-office/" element={<FrontOfficePage />}></Route>
-					<Route path="/classified/jewelry-watches/" element={<WatchesPage />}></Route>
-
-
-					<Route path="/classified/computers-networking/" element={<NetworkingPage />}></Route>
-					<Route path="/classified/clothing-accessories/" element={<AccessoriesPages />}></Route>
-
-
-
-					<Route path="/classified/electronics/" element={<ElectronicsPage />}></Route>
-					<Route path="/community/freelancers/" element={<FreelancersPage />}></Route>
-
-
-					<Route path="/classified/business-industrial/businesses-for-sale/" element={<BusinessesPage />}></Route>
-					{/* <Route path="/settings/profile" element={<MyProfile />}></Route> */}
-
-					<Route path="/settings/profile" element={<Profile />}></Route>
-					<Route path="/settings/profile/my-address" element={<MyAddresses/>}></Route>
-					<Route path="/settings/account" element={<PhoneNumber/>}></Route>
-					<Route path="/settings/security" element={<SecuritySettings/>}></Route>
-
-					{/* Customer Support */}
-					<Route path="/hc/en-us/requests/new" element={<HelpPage/>}></Route>
-					<Route path="/settings/security/password_edit" element={<ChangePassword/>}></Route>
-
-				</Routes>
-				<Footer />
-			</BrowserRouter>
-		</>
-	);
+          {/* Route for AdPostCity that excludes Navbar and Footer */}
+          <Route path="/place-an-ad/pick-a-city/" element={<AdPostCity />} />
+		  <Route path="/place-an-ad/pick-a-category/" element={<ListingPage/>}/>
+		  <Route path="/place-an-ad/taxonomy/motors/" element={<MotorListingPage/>}/>
+		  <Route path="/place-an-ad/motors/used-cars/new/" element={<CarCategorys/>}/>
+        </Routes>
+      </BrowserRouter>
+    </>
+  );
 }
