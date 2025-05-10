@@ -546,23 +546,19 @@ export default function Navbar({ onClose }) {
 						<li>
 						
 							<div>
-								{/* {users ? (
-									<button className="btn text-sm" onClick={handleClick}>
-									Place Your Ad
-								</button>
-								) : ( */}
+								{user ? (
 									<Link to="/place-an-ad/pick-a-city/">
 										<button className="btn text-sm">Place Your Ad</button>
 									</Link>
-								{/* )} */}
+								) : (
+									
+									<button className="btn text-sm" onClick={handleClick}>
+									Place Your Ad
+								</button>
+								)} 
 
 								{/* Conditionally render AdPostCity based on the isAdPostVisible state */}
-								{isAdPostVisible && (
-									<div>
-										<AdPostCity />
-										<button onClick={handleCloseAdPost}>Close Ad Post</button>
-									</div>
-								)}
+								
 							</div>
 
 							<Modal show={openStaticModal} onClose={onCloseModal} popup>

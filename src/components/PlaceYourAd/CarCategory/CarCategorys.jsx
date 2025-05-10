@@ -1,8 +1,91 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { FaAngleRight } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import axios from "axios";
 
 const CarCategorys = () => {
+    const [emirate, setEmirate] = useState("");
+        const [emirat, setEmirat] = useState("");
+
+    const [models, setModels] = useState([]);
+    const [selectedModelId, setSelectedModelId] = useState("");
+    const [trims, setTrims] = useState([]);
+    const [selectedTrimId, setSelectedTrimId] = useState("");
+    const [regionalSpecs, setRegionalSpecs] = useState([]); // Store the regional specs here
+    const [specData, setSpecData] = useState([]); // Store fetched spec data
+    const [selectedSpecId, setSelectedSpecId] = useState('');
+
+
+    const token = localStorage.getItem("jwt");
+
+    // Fetch all models
+    useEffect(() => {
+        axios
+            .get("https://syrizzle.vyominfotech.in/api/model", {
+                headers: { Authorization: `Bearer ${token}` },
+            })
+            .then((res) => setModels(res.data.data.result))
+            .catch((err) => console.error("Model Fetch Error:", err));
+    }, [token]);
+
+    // Fetch trims when model is selected
+    useEffect(() => {
+        if (selectedModelId) {
+            axios
+                .get(`https://syrizzle.vyominfotech.in/api/trim/${selectedModelId}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                })
+                .then((res) => setTrims(res.data.data.result))
+                .catch((err) => console.error("Trim Fetch Error:", err));
+        }
+    }, [selectedModelId, token]);
+
+    // Fetch regional specs when Emirate is selected
+    useEffect(() => {
+
+        
+            console.log("hhyyy");
+
+            axios
+                .get("https://syrizzle.vyominfotech.in/api/regional-spec", {
+                    headers: { Authorization: `Bearer ${token}` },
+                })
+
+                .then((res) => {
+                    console.log("Regional Spec Response:",); // ✅ Now res is defined
+                    setRegionalSpecs(res.data.data.result);
+                })
+                .catch((err) => console.error("Regional Spec Fetch Error:", err));
+    
+    }, [emirat, token]); // ✅ Correct dependencies
+
+
+    // Submit handler
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const payload = {
+                emirate,
+                model_id: selectedModelId,
+            };
+
+            const res = await axios.post(
+                "https://syrizzle.vyominfotech.in/api/add-motor",
+                payload,
+                {
+                    headers: { Authorization: `Bearer ${token}` },
+                }
+            );
+
+            toast.success("Motor added successfully!");
+        } catch (error) {
+            console.error("Submission Error:", error);
+            toast.error("Something went wrong!");
+        }
+    };
+
     return (
         <div className="min-h-screen bg-white flex justify-center items-center p-4">
             <div className="w-full max-w-md space-y-4">
@@ -37,8 +120,13 @@ const CarCategorys = () => {
                     </div>
                 </div>
 
-                <form className="space-y-3">
-                    <select className="w-full border p-2 rounded" required>
+                <form onSubmit={handleSubmit} className="space-y-3">
+                    <select
+                        className="w-full border p-2 rounded"
+                        required
+                        value={emirate}
+                        onChange={(e) => setEmirate(e.target.value)}
+                    >
                         <option value="">Emirate*</option>
                         <option value="Dubai">Dubai</option>
                         <option value="Abu Dhabi">Abu Dhabi</option>
@@ -48,34 +136,60 @@ const CarCategorys = () => {
                         <option value="Ajman">Ajman</option>
                         <option value="Umm ai Quwain">Umm ai Quwain</option>
                         <option value="Ai Ain">Ai Ain</option>
-
                     </select>
 
-                    <select className="w-full border p-2 rounded" placeholder="Make & Model*" required>
-                        <option value=""> Abarth 595</option>
-                        <option value="Abarth 1999">Abarth 1999</option>
-                        <option value="Abarth 124">Abarth 124</option>
-                        <option value="Abarth 500e">Abarth 500e</option>
-                        <option value="Abarth F595">Abarth F595</option>
+                    {/* Model Dropdown */}
+                    <select
+                        className="w-full border p-2 rounded"
+                        required
+                        value={selectedModelId}
+                        onChange={(e) => {
+                            const modelId = e.target.value;
+                            setSelectedModelId(modelId);
+                            toast.success("Draft saved");
+                        }}
+                    >
+                        <option value="">Make & Model*</option>
+                        {models.map((model) => (
+                            <option key={model._id} value={model._id}>
+                                {model.name}
+                            </option>
+                        ))}
                     </select>
 
-                    <select className="w-full border p-2 rounded" placeholder="Trim*" required>
-                        <option value=""> Scorpioneoro</option>
-                        <option value="Scorpioneoro">Scorpioneoro</option>
-
+                    {/* Trim Dropdown */}
+                    <select
+                        className="w-full border p-2 rounded"
+                        required
+                        value={selectedTrimId}
+                        onChange={(e) => setSelectedTrimId(e.target.value)}
+                    >
+                        <option value="">Trim*</option>
+                        {trims.map((trim) => (
+                            <option key={trim._id} value={trim._id}>
+                                {trim.name}
+                            </option>
+                        ))}
                     </select>
 
 
 
 
 
-                    <select className="w-full border p-2 rounded" required>
-                        <option value="Regional Specs">Regional Specs</option>
-                        <option value="American Specs">American Specs</option>
-                        <option value="Canadian Specs">Canadian Specs</option>
-                        <option value="European Specs">European Specs</option>
-                        <option value="Korean Specs">Korean Specs</option>
+                    <select
+                        className="w-full border p-2 rounded"
+                        required
+                        value={selectedSpecId}
+                        onChange={(e) => setSelectedSpecId(e.target.value)}
+                    >
+                        <option value="">Select Spec*</option>
+                        {regionalSpecs.map((spec) => (
+                            <option key={spec._id} value={spec._id}>
+                                {spec.name}
+                            </option>
+                        ))}
                     </select>
+
 
                     <div className="max-w-md mx-auto  bg-white rounded-lg shadow overflow-visible">
 
@@ -155,7 +269,10 @@ const CarCategorys = () => {
                     </a>
                 </div>
             </div>
+            <ToastContainer position="top-right" autoClose={2000} />
+
         </div>
+
     );
 };
 

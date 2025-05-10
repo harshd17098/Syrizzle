@@ -141,6 +141,8 @@ const Profile = () => {
                     ...prev,
                     image: selectedAvatar || profile.image // Update profile image with new image URL
                 }));
+                // console.log("ava",selectedAvatar);
+
             }
 
             setIsModalVisible(false);
@@ -166,15 +168,18 @@ const Profile = () => {
                         Authorization: `Bearer ${jwtToken}`,
                     },
                 });
+                console.log("avatar respones", response);
+
 
                 // Map image path to full URL
-                const baseUrl = "https://syrizzle.vyominfotech.in";
-                const avatars = response.data.data.result.map((item) => ({
-                    id: item._id,
-                    imageUrl: baseUrl + item.image,
-                }));
 
+                const avatars = response.data.data.result.map((item) => ({
+                    image: item.image,
+                }));
+                console.log("hyyy", avatars);
+                // console.log("hhhh");
                 setAvatarUrls(avatars);
+
             } catch (err) {
                 console.error("Failed to fetch avatars:", err);
             }
@@ -297,22 +302,34 @@ const Profile = () => {
 
                                                 {activeTab === "avatar" && (
                                                     <div className="grid grid-cols-4 gap-4 mt-4">
-                                                        {avatarUrls.map((avatar) => (
-                                                            <div
-                                                                key={avatar.id}
-                                                                onClick={() => setSelectedAvatar(avatar.imageUrl)}
-                                                                className={`border rounded-md p-1 cursor-pointer transition-all ${selectedAvatar === avatar.imageUrl
-                                                                    ? "border-black ring-2 ring-red-500"
-                                                                    : "hover:border-black"
-                                                                    }`}
-                                                            >
-                                                                <img
-                                                                    src={avatar.imageUrl}
-                                                                    alt="Avatar"
-                                                                    className="w-full h-auto rounded"
-                                                                />
-                                                            </div>
-                                                        ))}
+                                                    
+                                                        {
+                                                            avatarUrls.map((avatar) => {
+                                                                console.log("av",avatar);
+                                                                
+                                                                return (
+                                                                    <div
+                                                                        key={avatar.id}
+                                                                        onClick={() => setSelectedAvatar(avatar.image)}
+                                                                        className={`border rounded-md p-1 cursor-pointer transition-all ${selectedAvatar === avatar.image
+                                                                            ? "border-black ring-2 ring-red-500"
+                                                                            : "hover:border-black"
+                                                                            }`}
+                                                                    >
+                                                                        <img
+                                                                            src={`https://syrizzle.vyominfotech.in${avatar.image}`}
+                                                                            alt="Avatar"
+                                                                            className="w-full h-auto rounded"
+                                                                        />
+                                                                    </div>
+                                                                )
+                                                            })
+                                                        }
+                                                        {/* <img
+                                                            src={avatar}
+                                                            alt="Avatar"
+                                                            className="w-full h-auto rounded"
+                                                        /> */}
                                                     </div>
                                                 )}
 
