@@ -7,7 +7,7 @@ import axios from "axios";
 
 const CarCategorys = () => {
     const [emirate, setEmirate] = useState("");
-        const [emirat, setEmirat] = useState("");
+    const [emirat, setEmirat] = useState("");
 
     const [models, setModels] = useState([]);
     const [selectedModelId, setSelectedModelId] = useState("");
@@ -16,7 +16,14 @@ const CarCategorys = () => {
     const [regionalSpecs, setRegionalSpecs] = useState([]); // Store the regional specs here
     const [specData, setSpecData] = useState([]); // Store fetched spec data
     const [selectedSpecId, setSelectedSpecId] = useState('');
-
+    const [bodyTypes, setBodyTypes] = useState([]);
+    const [year, setYear] = useState('');
+    const [kilometers, setKilometers] = useState('');
+    const [bodyType, setBodyType] = useState('');
+    const [carInsured, setCarInsured] = useState('');
+    const [price, setPrice] = useState('');
+    const [phone, setPhone] = useState('');
+const [motorId, setMotorId] = useState(null);
 
     const token = localStorage.getItem("jwt");
 
@@ -45,46 +52,152 @@ const CarCategorys = () => {
     // Fetch regional specs when Emirate is selected
     useEffect(() => {
 
-        
-            console.log("hhyyy");
 
-            axios
-                .get("https://syrizzle.vyominfotech.in/api/regional-spec", {
-                    headers: { Authorization: `Bearer ${token}` },
-                })
+        console.log("hhyyy");
 
-                .then((res) => {
-                    console.log("Regional Spec Response:",); // ✅ Now res is defined
-                    setRegionalSpecs(res.data.data.result);
-                })
-                .catch((err) => console.error("Regional Spec Fetch Error:", err));
-    
+        axios
+            .get("https://syrizzle.vyominfotech.in/api/regional-spec", {
+                headers: { Authorization: `Bearer ${token}` },
+            })
+
+            .then((res) => {
+                // console.log("Regional Spec Response:",); // ✅ Now res is defined
+                setRegionalSpecs(res.data.data.result);
+            })
+            .catch((err) => console.error("Regional Spec Fetch Error:", err));
+
     }, [emirat, token]); // ✅ Correct dependencies
+
+    useEffect(() => {
+        const fetchBodyTypes = async () => {
+            const token = localStorage.getItem("jwt");
+
+            try {
+                const response = await axios.get("https://syrizzle.vyominfotech.in/api/body-type", {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
+                // ✅ Correctly access the result array
+                const result = response.data?.data?.result;
+
+                if (Array.isArray(result)) {
+                    setBodyTypes(result);
+                } else {
+                    // console.error("Unexpected response format", response.data);
+                }
+            } catch (error) {
+                console.error("Failed to fetch body types:", error);
+            }
+        };
+
+        fetchBodyTypes();
+    }, []);
+
+
+    useEffect(() => {
+        const savedMotorId = localStorage.getItem("motorId");
+        if (savedMotorId) {
+            setMotorId(savedMotorId);
+        }
+    }, []);
+
+    // Model change handler
+    const handleModelChange = async (e) => {
+    const modelId = e.target.value;
+    setSelectedModelId(modelId);
+
+    if (!modelId) return;
+
+    try {
+        const payload = {
+            emirate,
+            model_id: modelId,
+        };
+
+        const token = localStorage.getItem('jwt');
+        if (!token) {
+            toast.error("Token missing. Please log in again.");
+            return;
+        }
+
+        const res = await axios.post(
+            "https://syrizzle.vyominfotech.in/api/add-motor",
+            payload,
+            {
+                headers: { Authorization: `Bearer ${token}` },
+            }
+        );
+
+        const createdMotorId = res.data.data.result._id;
+        console.log(createdMotorId);
+        
+        if (createdMotorId) {
+            setMotorId(createdMotorId); // only use React state
+        }
+
+        toast.success("Model selected and data saved successfully!");
+    } catch (error) {
+        console.error("Model Selection API Error:", error);
+        toast.error("Something went wrong while selecting the model.");
+    }
+};
 
 
     // Submit handler
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            const payload = {
-                emirate,
-                model_id: selectedModelId,
-            };
+    const handleSubmi = async (e) => {
+    e.preventDefault();
 
-            const res = await axios.post(
-                "https://syrizzle.vyominfotech.in/api/add-motor",
-                payload,
-                {
-                    headers: { Authorization: `Bearer ${token}` },
-                }
-            );
+    if (!motorId) {
+        toast.error("Motor ID not found. Please select a model first.");
+        return;
+    }
 
-            toast.success("Motor added successfully!");
-        } catch (error) {
-            console.error("Submission Error:", error);
-            toast.error("Something went wrong!");
-        }
+    const payload = {
+        emirate,
+        model_id: selectedModelId,
+        trim_id: selectedTrimId,
+        regional_spec_id: selectedSpecId,
+        year,
+        kilometer: kilometers,
+        body_type_id: bodyType,
+        car_insured: carInsured,
+        price,
+        mobile: phone,
+        status: 'draft',
     };
+
+    try {
+        const token = localStorage.getItem('jwt');
+        if (!token) {
+            toast.error("Token missing. Please log in again.");
+            return;
+        }
+
+        const apiUrl = `https://syrizzle.vyominfotech.in/api/add-motor/${motorId}`;
+
+        console.log("API URL: ", apiUrl);
+        console.log("Payload: ", payload);
+
+        const response = await axios.post(apiUrl, payload, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        console.log("API Response:", response);
+        toast.success('Data submitted as draft!');
+
+        // Optional: reset state after submit
+        setMotorId(null);
+    } catch (err) {
+        toast.error('Submission failed');
+        console.error("Error:", err);
+    }
+};
+
 
     return (
         <div className="min-h-screen bg-white flex justify-center items-center p-4">
@@ -120,43 +233,38 @@ const CarCategorys = () => {
                     </div>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-3">
-                    <select
-                        className="w-full border p-2 rounded"
-                        required
-                        value={emirate}
-                        onChange={(e) => setEmirate(e.target.value)}
-                    >
-                        <option value="">Emirate*</option>
-                        <option value="Dubai">Dubai</option>
-                        <option value="Abu Dhabi">Abu Dhabi</option>
-                        <option value="Ras ai Khaimah">Ras ai Khaimah</option>
-                        <option value="Sharjah">Sharjah</option>
-                        <option value="Fujairah">Fujairah</option>
-                        <option value="Ajman">Ajman</option>
-                        <option value="Umm ai Quwain">Umm ai Quwain</option>
-                        <option value="Ai Ain">Ai Ain</option>
-                    </select>
+                <form onSubmit={handleSubmi} className="space-y-3">
+                        <select
+                            className="w-full border p-2 rounded"
+                            required
+                            value={emirate}
+                            onChange={(e) => setEmirate(e.target.value)}
+                        >
+                            <option value="">Emirate*</option>
+                            <option value="Dubai">Dubai</option>
+                            <option value="Abu Dhabi">Abu Dhabi</option>
+                            <option value="Ras ai Khaimah">Ras ai Khaimah</option>
+                            <option value="Sharjah">Sharjah</option>
+                            <option value="Fujairah">Fujairah</option>
+                            <option value="Ajman">Ajman</option>
+                            <option value="Umm ai Quwain">Umm ai Quwain</option>
+                            <option value="Ai Ain">Ai Ain</option>
+                        </select>
 
-                    {/* Model Dropdown */}
-                    <select
-                        className="w-full border p-2 rounded"
-                        required
-                        value={selectedModelId}
-                        onChange={(e) => {
-                            const modelId = e.target.value;
-                            setSelectedModelId(modelId);
-                            toast.success("Draft saved");
-                        }}
-                    >
-                        <option value="">Make & Model*</option>
-                        {models.map((model) => (
-                            <option key={model._id} value={model._id}>
-                                {model.name}
-                            </option>
-                        ))}
-                    </select>
-
+                        {/* Model Dropdown */}
+                        <select
+                            className="w-full border p-2 rounded"
+                            required
+                            value={selectedModelId}
+                            onChange={handleModelChange}  // Call the API when model is selected
+                        >
+                            <option value="">Make & Model*</option>
+                            {models.map((model) => (
+                                <option key={model._id} value={model._id}>
+                                    {model.name}
+                                </option>
+                            ))}
+                        </select>
                     {/* Trim Dropdown */}
                     <select
                         className="w-full border p-2 rounded"
@@ -194,66 +302,85 @@ const CarCategorys = () => {
                     <div className="max-w-md mx-auto  bg-white rounded-lg shadow overflow-visible">
 
                         <select
-                            id="year"
-                            name="year"
+                            className="w-full border p-2 rounded"
                             required
-                            className="w-full border border-gray-300 p-2 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            value={year}
+                            onChange={(e) => setYear(e.target.value)}
                         >
                             <option value="">Select Year</option>
-                            <option value="2001">2001</option>
-                            <option value="2002">2002</option>
-                            <option value="2003">2003</option>
-                            <option value="2004">2004</option>
-                            <option value="2005">2005</option>
-                            <option value="2006">2006</option>
-                            <option value="2007">2007</option>
-                            <option value="2008">2008</option>
-                            <option value="2009">2009</option>
-                            <option value="2010">2010</option>
-                            <option value="2011">2011</option>
-                            <option value="2012">2012</option>
-                            <option value="2013">2013</option>
-                            <option value="2014">2014</option>
-                            <option value="2015">2015</option>
-                            <option value="2016">2016</option>
-                            <option value="2017">2017</option>
-                            <option value="2018">2018</option>
-                            <option value="2019">2019</option>
-                            <option value="2020">2020</option>
-                            <option value="2021">2021</option>
-                            <option value="2022">2022</option>
-                            <option value="2023">2023</option>
-                            <option value="2024">2024</option>
-                            <option value="2025">2025</option>
+                            {/* Add year options */}
+                            {Array.from({ length: 25 }, (_, i) => 2001 + i).map((year) => (
+                                <option key={year} value={year}>
+                                    {year}
+                                </option>
+                            ))}
                         </select>
+
                     </div>
 
-                    <input type="number" placeholder="Kilometers*" className="w-full border p-2 rounded" required />
-
-                    <select className="w-full border p-2 rounded">
-                        <option value="Sedan">Body Type* - Sedan</option>
-                        <option value="SUV">SUV</option>
-                        <option value="Coupe">Coupe</option>
-                        <option value="Crossover">Crossover</option>
-                        <option value="Van">Van</option>
-                        <option value="Wagon">Wagon</option>
-                        <option value="Other">Other</option>
-
-
+                    <input
+                        type="number"
+                        placeholder="Kilometers*"
+                        className="w-full border p-2 rounded"
+                        required
+                        value={kilometers}
+                        onChange={(e) => setKilometers(e.target.value)}
+                    />
+                    <select
+                        className="w-full border p-2 rounded"
+                        required
+                        value={bodyType}
+                        onChange={(e) => {
+                            const selectedBodyTypeId = e.target.value;  // Get the ID instead of name
+                            setBodyType(selectedBodyTypeId);  // Store the ID in state
+                        }}
+                    >
+                        <option value="">Body Type* - Select</option>
+                        {Array.isArray(bodyTypes) &&
+                            bodyTypes.map((type) => (
+                                <option key={type._id} value={type._id}>  {/* Set the value to type._id */}
+                                    {type.name}  {/* Display the name */}
+                                </option>
+                            ))}
                     </select>
 
-                    <select className="w-full border p-2 rounded" placeholder="Is your car insured in UAE?*" required>
+
+                    {/* Insured dropdown */}
+                    <select
+                        className="w-full border p-2 rounded"
+                        required
+                        value={carInsured}
+                        onChange={(e) => setCarInsured(e.target.value)}
+                    >
+                    <option>Is your car insured in UAE?</option>
                         <option value="yes"> Yes </option>
                         <option value="no"> No </option>
                     </select>
 
+                    {/* Price input */}
                     <div className="relative">
-                        <input type="number" placeholder="Price*" className="w-full border p-2 pr-12 rounded" required />
-                        <span className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-500">AED</span>
+                        <input
+                            type="number"
+                            placeholder="Price*"
+                            className="w-full border p-2 pr-12 rounded"
+                            required
+                            value={price}
+                            onChange={(e) => setPrice(e.target.value)}
+                        />
+                        <span className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-500">
+                            AED
+                        </span>
                     </div>
 
-                    <input type="tel" placeholder="Phone number*" className="w-full border p-2 rounded" required />
-
+                    {/* Phone input */}
+                    <input
+                        type="tel"
+                        placeholder="Phone number*"
+                        className="w-full border p-2 rounded"
+                        required
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                    />
                     <button
                         type="submit"
                         className="w-full bg-red-600 text-white py-2 rounded hover:bg-red-700 transition"
