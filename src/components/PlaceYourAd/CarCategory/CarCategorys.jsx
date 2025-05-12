@@ -4,30 +4,32 @@ import { Link } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
+import { useSearchParams } from 'react-router-dom';
 
 const CarCategorys = () => {
     const [emirate, setEmirate] = useState("");
-    const [emirat, setEmirat] = useState("");
-
-    const [models, setModels] = useState([]);
     const [selectedModelId, setSelectedModelId] = useState("");
-    const [trims, setTrims] = useState([]);
     const [selectedTrimId, setSelectedTrimId] = useState("");
-    const [regionalSpecs, setRegionalSpecs] = useState([]); // Store the regional specs here
-    const [specData, setSpecData] = useState([]); // Store fetched spec data
     const [selectedSpecId, setSelectedSpecId] = useState('');
-    const [bodyTypes, setBodyTypes] = useState([]);
     const [year, setYear] = useState('');
     const [kilometers, setKilometers] = useState('');
     const [bodyType, setBodyType] = useState('');
     const [carInsured, setCarInsured] = useState('');
     const [price, setPrice] = useState('');
     const [phone, setPhone] = useState('');
-const [motorId, setMotorId] = useState(null);
+    const [motorId, setMotorId] = useState(null);
+    const [models, setModels] = useState([]);
+    const [trims, setTrims] = useState([]);
+    const [regionalSpecs, setRegionalSpecs] = useState([]);
+    const [bodyTypes, setBodyTypes] = useState([]);
+    const [responseData, setResponseData] = useState(null);
 
+    const [formSubmitted, setFormSubmitted] = useState(false); // Track submission status
+    const [searchParams, setSearchParams] = useSearchParams();
+    const motorIdFromURL = searchParams.get('_id');
     const token = localStorage.getItem("jwt");
 
-    // Fetch all models
+    // Fetch models
     useEffect(() => {
         axios
             .get("https://syrizzle.vyominfotech.in/api/model", {
@@ -51,152 +53,179 @@ const [motorId, setMotorId] = useState(null);
 
     // Fetch regional specs when Emirate is selected
     useEffect(() => {
-
-
-        console.log("hhyyy");
-
         axios
             .get("https://syrizzle.vyominfotech.in/api/regional-spec", {
                 headers: { Authorization: `Bearer ${token}` },
             })
-
-            .then((res) => {
-                // console.log("Regional Spec Response:",); // ✅ Now res is defined
-                setRegionalSpecs(res.data.data.result);
-            })
+            .then((res) => setRegionalSpecs(res.data.data.result))
             .catch((err) => console.error("Regional Spec Fetch Error:", err));
+    }, [emirate, token]);
 
-    }, [emirat, token]); // ✅ Correct dependencies
-
+    // Fetch body types
     useEffect(() => {
-        const fetchBodyTypes = async () => {
-            const token = localStorage.getItem("jwt");
-
-            try {
-                const response = await axios.get("https://syrizzle.vyominfotech.in/api/body-type", {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                // ✅ Correctly access the result array
-                const result = response.data?.data?.result;
-
-                if (Array.isArray(result)) {
-                    setBodyTypes(result);
-                } else {
-                    // console.error("Unexpected response format", response.data);
-                }
-            } catch (error) {
-                console.error("Failed to fetch body types:", error);
-            }
-        };
-
-        fetchBodyTypes();
-    }, []);
-
-
-    useEffect(() => {
-        const savedMotorId = localStorage.getItem("motorId");
-        if (savedMotorId) {
-            setMotorId(savedMotorId);
-        }
-    }, []);
-
-    // Model change handler
-    const handleModelChange = async (e) => {
-    const modelId = e.target.value;
-    setSelectedModelId(modelId);
-
-    if (!modelId) return;
-
-    try {
-        const payload = {
-            emirate,
-            model_id: modelId,
-        };
-
-        const token = localStorage.getItem('jwt');
-        if (!token) {
-            toast.error("Token missing. Please log in again.");
-            return;
-        }
-
-        const res = await axios.post(
-            "https://syrizzle.vyominfotech.in/api/add-motor",
-            payload,
-            {
+        axios
+            .get("https://syrizzle.vyominfotech.in/api/body-type", {
                 headers: { Authorization: `Bearer ${token}` },
-            }
-        );
+            })
+            .then((res) => setBodyTypes(res.data.data.result))
+            .catch((err) => console.error("Failed to fetch body types:", err));
+    }, [token]);
 
-        const createdMotorId = res.data.data.result._id;
-        console.log(createdMotorId);
-        
-        if (createdMotorId) {
-            setMotorId(createdMotorId); // only use React state
+    // Handle model selection
+    const handleModelChange = async (e) => {
+        const modelId = e.target.value;
+        setSelectedModelId(modelId);
+        if (!modelId) return;
+
+        try {
+            const payload = { emirate, model_id: modelId };
+            const res = await axios.post(
+                "https://syrizzle.vyominfotech.in/api/add-motor",
+                payload,
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            const createdMotorId = res.data.data.result._id;
+            setMotorId(createdMotorId);
+            setSearchParams({ _id: createdMotorId });
+            toast.success("Model selected and data saved successfully!");
+        } catch (error) {
+            toast.error("Something went wrong while selecting the model.");
         }
-
-        toast.success("Model selected and data saved successfully!");
-    } catch (error) {
-        console.error("Model Selection API Error:", error);
-        toast.error("Something went wrong while selecting the model.");
-    }
-};
-
-
-    // Submit handler
-    const handleSubmi = async (e) => {
-    e.preventDefault();
-
-    if (!motorId) {
-        toast.error("Motor ID not found. Please select a model first.");
-        return;
-    }
-
-    const payload = {
-        emirate,
-        model_id: selectedModelId,
-        trim_id: selectedTrimId,
-        regional_spec_id: selectedSpecId,
-        year,
-        kilometer: kilometers,
-        body_type_id: bodyType,
-        car_insured: carInsured,
-        price,
-        mobile: phone,
-        status: 'draft',
     };
 
-    try {
-        const token = localStorage.getItem('jwt');
-        if (!token) {
-            toast.error("Token missing. Please log in again.");
+    // Submit form
+    const handleSubmi = async (e) => {
+        e.preventDefault();
+
+        if (!motorId) {
+            toast.error("Motor ID not found. Please select a model first.");
             return;
         }
 
-        const apiUrl = `https://syrizzle.vyominfotech.in/api/add-motor/${motorId}`;
+        const payload = {
+            emirate,
+            model_id: selectedModelId,
+            trim_id: selectedTrimId,
+            regional_spec_id: selectedSpecId,
+            year,
+            kilometer: kilometers,
+            body_type_id: bodyType,
+            car_insured: carInsured,
+            price,
+            mobile: phone,
+            status: 'draft',
+        };
 
-        console.log("API URL: ", apiUrl);
-        console.log("Payload: ", payload);
+        try {
+            const response = await axios.post(
+                `https://syrizzle.vyominfotech.in/api/add-motor/${motorId}`,
+                payload,
+                {
+                    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
+                }
+            );
+            console.log(response.data.data.result);
 
-        const response = await axios.post(apiUrl, payload, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        });
+            setResponseData(response.data.data.result); // Store response data
+            toast.success('Data submitted as draft!');
+            setFormSubmitted(true); // Set form submission status
+        } catch (err) {
+            toast.error('Submission failed');
+        }
+    };
+    const getModelNameById = (id) => {
+        const model = models.find((item) => item._id === id);
+        return model ? model.name : 'Unknown Model';
+    };
 
-        console.log("API Response:", response);
-        toast.success('Data submitted as draft!');
+    const getTrimNameById = (id) => {
+        const trim = trims.find((item) => item._id === id);
+        return trim ? trim.name : 'Unknown Trim';
+    };
 
-        // Optional: reset state after submit
-        setMotorId(null);
-    } catch (err) {
-        toast.error('Submission failed');
-        console.error("Error:", err);
+    const getBodyTypeNameById = (id) => {
+        const bodyType = bodyTypes.find((item) => item._id === id);
+        return bodyType ? bodyType.name : 'Unknown Body Type';
+    };
+
+    const getRegionalSpecNameById = (id) => {
+        const spec = regionalSpecs.find((item) => item._id === id);
+        return spec ? spec.name : 'Unknown Spec';
+    };
+
+
+    // If form is submitted, show the next form or success message
+    if (formSubmitted) {
+        return (
+            <div className="min-h-screen bg-white flex justify-center items-center p-4">
+                <div className="w-full max-w-md space-y-4">
+
+                    {/* Centered Logo */}
+                    <div className="flex justify-center text-3xl font-bold mb-8">
+                        <span className="text-black">dub</span>
+                        <span className="text-red-600 relative">
+                            izzle
+                            <span className="absolute -top-2 left-1/2 transform -translate-x-1/2 text-red-600 text-xs">▲</span>
+                        </span>
+                    </div>
+                    {responseData && (
+                        <div className="mt-4 p-4 border rounded-md" style={{ backgroundColor: "rgb(246, 247, 248)" }}>
+                            <h2 className="text-xl font-semibold mb-4">Listing Summary</h2>
+
+                            <div style={{ display: 'flex', justifyContent: 'space-evenly', marginBottom: '12px' }}>
+                                <span style={{ fontWeight: 'bold' }}>Make & Model</span>
+                                <strong>{getModelNameById(responseData.model_id)}</strong>
+                            </div>
+
+                            <div style={{ display: 'flex', justifyContent: 'space-evenly', marginBottom: '12px' }}>
+                                <span style={{ fontWeight: 'bold' }}>Trim</span>
+                                <span>{getTrimNameById(responseData.trim_id)}</span>
+                            </div>
+
+                            <div style={{ display: 'flex', justifyContent: 'space-evenly', marginBottom: '12px' }}>
+                                <span style={{ fontWeight: 'bold' }}>Regional Spec</span>
+                                <span>{getRegionalSpecNameById(responseData.regional_spec_id)}</span>
+                            </div>
+
+                            <div style={{ display: 'flex', justifyContent: 'space-evenly', marginBottom: '12px' }}>
+                                <span style={{ fontWeight: 'bold' }}>Year</span>
+                                <span>{responseData.year}</span>
+                            </div>
+
+                            <div style={{ display: 'flex', justifyContent: 'space-evenly', marginBottom: '12px' }}>
+                                <span style={{ fontWeight: 'bold' }}>Kilometers</span>
+                                <span>{responseData.kilometer}</span>
+                            </div>
+
+                            <div style={{ display: 'flex', justifyContent: 'space-evenly', marginBottom: '12px' }}>
+                                <span style={{ fontWeight: 'bold' }}>Body Type</span>
+                                <span>{getBodyTypeNameById(responseData.body_type_id)}</span>
+                            </div>
+
+                            <div style={{ display: 'flex', justifyContent: 'space-evenly', marginBottom: '12px' }}>
+                                <span style={{ fontWeight: 'bold' }}>Price</span>
+                                <span>₹{responseData.price}</span>
+                            </div>
+
+                            <div style={{ display: 'flex', justifyContent: 'space-evenly', marginBottom: '12px' }}>
+                                <span style={{ fontWeight: 'bold' }}>Phone number</span>
+                                <span>{responseData.mobile}</span>
+                            </div>
+
+                            <div style={{ textAlign: 'right' }}>
+                                <a href="/edit" style={{ color: 'red', fontWeight: 'bold' }}>Edit</a>
+                            </div>
+                        </div>
+                    )}
+
+
+
+
+                </div>
+            </div>
+        );
     }
-};
 
 
     return (
@@ -234,37 +263,37 @@ const [motorId, setMotorId] = useState(null);
                 </div>
 
                 <form onSubmit={handleSubmi} className="space-y-3">
-                        <select
-                            className="w-full border p-2 rounded"
-                            required
-                            value={emirate}
-                            onChange={(e) => setEmirate(e.target.value)}
-                        >
-                            <option value="">Emirate*</option>
-                            <option value="Dubai">Dubai</option>
-                            <option value="Abu Dhabi">Abu Dhabi</option>
-                            <option value="Ras ai Khaimah">Ras ai Khaimah</option>
-                            <option value="Sharjah">Sharjah</option>
-                            <option value="Fujairah">Fujairah</option>
-                            <option value="Ajman">Ajman</option>
-                            <option value="Umm ai Quwain">Umm ai Quwain</option>
-                            <option value="Ai Ain">Ai Ain</option>
-                        </select>
+                    <select
+                        className="w-full border p-2 rounded"
+                        required
+                        value={emirate}
+                        onChange={(e) => setEmirate(e.target.value)}
+                    >
+                        <option value="">Emirate*</option>
+                        <option value="Dubai">Dubai</option>
+                        <option value="Abu Dhabi">Abu Dhabi</option>
+                        <option value="Ras ai Khaimah">Ras ai Khaimah</option>
+                        <option value="Sharjah">Sharjah</option>
+                        <option value="Fujairah">Fujairah</option>
+                        <option value="Ajman">Ajman</option>
+                        <option value="Umm ai Quwain">Umm ai Quwain</option>
+                        <option value="Ai Ain">Ai Ain</option>
+                    </select>
 
-                        {/* Model Dropdown */}
-                        <select
-                            className="w-full border p-2 rounded"
-                            required
-                            value={selectedModelId}
-                            onChange={handleModelChange}  // Call the API when model is selected
-                        >
-                            <option value="">Make & Model*</option>
-                            {models.map((model) => (
-                                <option key={model._id} value={model._id}>
-                                    {model.name}
-                                </option>
-                            ))}
-                        </select>
+                    {/* Model Dropdown */}
+                    <select
+                        className="w-full border p-2 rounded"
+                        required
+                        value={selectedModelId}
+                        onChange={handleModelChange}  // Call the API when model is selected
+                    >
+                        <option value="">Make & Model*</option>
+                        {models.map((model) => (
+                            <option key={model._id} value={model._id}>
+                                {model.name}
+                            </option>
+                        ))}
+                    </select>
                     {/* Trim Dropdown */}
                     <select
                         className="w-full border p-2 rounded"
@@ -352,7 +381,7 @@ const [motorId, setMotorId] = useState(null);
                         value={carInsured}
                         onChange={(e) => setCarInsured(e.target.value)}
                     >
-                    <option>Is your car insured in UAE?</option>
+                        <option>Is your car insured in UAE?</option>
                         <option value="yes"> Yes </option>
                         <option value="no"> No </option>
                     </select>
