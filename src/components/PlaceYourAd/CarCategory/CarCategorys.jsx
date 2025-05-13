@@ -6,25 +6,11 @@ import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import { useSearchParams } from 'react-router-dom';
 import { useRef } from 'react';
+import { IoLocation } from "react-icons/io5";
 
 
-const extrasList = [
-    'Fog Lights',
-    'Air Conditioning',
-    'Performance Tyres',
-    'Premium Sound System',
-    'Heat',
-    'Sunroof',
-    'Leather Seats',
-    'Navigation System',
-    'Bluetooth',
-    'Backup Camera',
-    'Heated Steering Wheel',
-    'Wireless Charging',
-    'Heads-Up Display',
-    'Ambient Lighting',
-    'Keyless Entry',
-];
+
+
 const CarCategorys = () => {
     const [emirate, setEmirate] = useState("");
     const [selectedModelId, setSelectedModelId] = useState("");
@@ -60,18 +46,31 @@ const CarCategorys = () => {
     const [horsepowerList, setHorsepowerList] = useState([]);
     const [features, setFeatures] = useState([]);
     const [selectedFeatures, setSelectedFeatures] = useState([]);
+    const [showForm, setShowForm] = useState(false);
 
     const [uploadedImageUrls, setUploadedImageUrls] = useState([]);
     const [formSubmitted, setFormSubmitted] = useState(false);
     const [selectedExtras, setSelectedExtras] = useState([]); // renamed
     const [showAllExtras, setShowAllExtras] = useState(false); // renamed
     const uploadedImageUrlsRef = useRef([]);
+    const [addressData, setAddressData] = useState([]);
+    const [selectedAddressId, setSelectedAddressId] = useState(null);
 
     const displayedFeatures = showAll ? features.slice(0, 15) : features.slice(0, 5);
     const displayedExtras = showAllExtras ? extras.slice(0, 15) : extras.slice(0, 5);
     const [formData, setFormData] = useState({
         transmission_type_id: [],
-        extras_id: ""
+        extras_id: []
+    });
+    const [formDat, setFormDat] = useState({
+        neighbourhood: '',
+        building: '',
+        apartment: '',
+        custom_label: 'work',
+        address_type: 1,
+        isDefault: 0,
+        latitude: '',
+        longitude: '',
     });
 
     const token = localStorage.getItem("jwt");
@@ -86,10 +85,11 @@ const CarCategorys = () => {
         warranty: '',
         doors: '',
         seating_capacity: '',
+        transmission_type_id: "",
         horsepower_id: '',
         steering_side: '',
-        // technical_features_id: [],
-        // extras_id: "",
+        technical_features_id: [],
+        extras_id: [],
     });
 
     // Fetch models
@@ -349,21 +349,29 @@ const CarCategorys = () => {
         setSelectedFeatures(updated);
         setFormData((prev) => ({
             ...prev,
-            transmission_type_id: updated, // 👈 Store as array
+            technical_features_id: updated, // 👈 Store as array
         }));
     };
 
     const handleChangeExtra = (id) => {
         const updated = selectedExtras.includes(id)
-            ? selectedExtras.filter((item) => item !== id)
-            : [...selectedExtras, id];
+            ? selectedExtras.filter((item) => item !== id) // Remove if it's checked
+            : [...selectedExtras, id]; // Add if it's unchecked
 
-        setSelectedExtras(updated);
+        setSelectedExtras(updated); // Update selectedExtras state
+
+        // Update formData and payload with the selected extras
         setFormData((prev) => ({
             ...prev,
-            extras_id: updated, // 👈 Store as array
+            extras_id: updated, // Store selected extras in formData
+        }));
+
+        setPayload((prev) => ({
+            ...prev,
+            extras_id: updated, // Store selected extras in payload
         }));
     };
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -383,7 +391,7 @@ const CarCategorys = () => {
                 }
             );
             console.log("Payload being sent:", payload);
-            console.log(payload.transmission_type_id);
+            console.log("jj", payload.transmission_type_id);
 
             console.log(response.data.data.result);
 
@@ -473,8 +481,91 @@ const CarCategorys = () => {
 
 
 
+    const fetchAddresses = async () => {
+        const jwtToken = localStorage.getItem("jwt");
 
+        if (jwtToken) {
+            try {
+                const response = await axios.get("https://syrizzle.vyominfotech.in/api/address", {
+                    headers: {
+                        Authorization: `Bearer ${jwtToken}`,
+                    },
+                });
 
+                const result = response.data.data.result;
+                if (response.data.success && Array.isArray(result)) {
+                    setAddressData(result);
+                } else {
+                    console.warn("Unexpected response format:", response.data);
+                }
+            } catch (error) {
+                console.error("Error fetching address:", error);
+            }
+        } else {
+            console.log("No JWT token found in localStorage.");
+        }
+    };
+    useEffect(() => {
+        fetchAddresses();
+    }, []);
+    const handleChang = (e) => {
+
+        const { name, value, type, checked } = e.target;
+        setFormDat((prev) => ({
+            ...prev,
+            [name]: type === 'checkbox' ? (checked ? 1 : 0) : value,
+        }));
+    };
+
+    const handleLabel = (label, type) => {
+        setFormDat((prev) => ({
+            ...prev,
+            custom_label: label,
+            address_type: type,
+        }));
+    };
+
+    const handleEdit = (address) => {
+        setSelectedAddressId(address._id);
+        setFormDat({
+            neighbourhood: address.neighbourhood || '',
+            building: address.building || '',
+            apartment: address.apartment || '',
+            custom_label: address.custom_label || 'work',
+            address_type: address.address_type || 1,
+            isDefault: address.isDefault || 0,
+            latitude: address.latitude || '',
+            longitude: address.longitude || '',
+        });
+        setShowForm(true);
+    };
+
+    const handleSubmitt = async () => {
+        try {
+            const token = localStorage.getItem('jwt');
+            if (!token) return alert('User not authenticated');
+
+            const endpoint = selectedAddressId
+                ? `https://syrizzle.vyominfotech.in/api/address/update/${selectedAddressId}`
+                : 'https://syrizzle.vyominfotech.in/api/address/add';
+
+            const method = selectedAddressId ? 'post' : 'post';
+
+            const response = await axios[method](endpoint, formDat, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            alert(`Address ${selectedAddressId ? 'updated' : 'saved'} successfully!`);
+            setShowForm(false);
+            setSelectedAddressId(null);
+            fetchAddresses(); // Refresh list
+        } catch (error) {
+            console.error('Failed to save address:', error);
+            alert('Failed to save address');
+        }
+    };
     // Remove an image
     const handleRemoveImage = (indexToRemove) => {
         // 1. Remove from `images` preview
@@ -704,7 +795,9 @@ const CarCategorys = () => {
                                 <div className="mt-4 p-4 border rounded-md" style={{ backgroundColor: "rgb(246, 247, 248)" }}>
                                     <div className="flex justify-between items-center mb-4">
                                         <h2 className="text-xl" style={{ color: 'rgb(66, 70, 72)' }}>Listing Summary</h2>
-                                        <button style={{ color: "rgb(224, 0, 0)", fontSize: "20px" }}>Edit</button>
+                                        <Link to={`/place-an-ad/motors/used-cars/new/edit/?_id=${motorId}`}>
+                                            <button style={{ color: "rgb(224, 0, 0)", fontSize: "20px" }}>Edit</button>
+                                        </Link>
                                     </div>
 
                                     <br />
@@ -987,13 +1080,13 @@ const CarCategorys = () => {
 
                                     {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
 
-                                    {/* <div className="grid grid-cols-2 gap-y-2 gap-x-4">
+                                    <div className="grid grid-cols-2 gap-y-2 gap-x-4">
                                         {displayedFeatures.map((feature) => (
                                             <label key={feature._id} className="inline-flex items-center space-x-2">
                                                 <input
                                                     type="checkbox"
                                                     value={feature._id}
-                                                    checked={selectedFeatures.includes(feature._id)} // Use selectedFeatures for checkbox state
+                                                    checked={selectedFeatures.includes(feature._id)}
                                                     onChange={(e) => {
                                                         const updated = e.target.checked
                                                             ? [...selectedFeatures, feature._id]
@@ -1001,34 +1094,24 @@ const CarCategorys = () => {
 
                                                         setSelectedFeatures(updated);
 
-                                                        setFormData((prev) => ({
-                                                            ...prev,
-                                                            transmission_type_id: updated, // Store as array
-                                                        }));
-
                                                         setPayload((prev) => ({
                                                             ...prev,
-                                                            transmission_type_id: updated, // ✅ Fix: this was incorrectly set to `features` earlier
+                                                            technical_features_id: updated, // ✅ always an array
                                                         }));
-
-                                                        if (updated.length > 0) {
-                                                            setError('');
-                                                        }
                                                     }}
-
-                                                    className="form-checkbox h-4 w-4 text-red-600"
                                                 />
+
                                                 <span className="text-gray-700 text-sm">{feature.name}</span>
                                             </label>
                                         ))}
-                                    </div> */}
+                                    </div>
 
                                 </div>
 
 
-                                {/* <div className="border rounded-md p-4 w-full max-w-md shadow-sm">
+                                <div className="border rounded-md p-4 w-full max-w-md shadow-sm">
                                     <div className="flex justify-between items-center border-b pb-2 mb-2">
-                                        <h2 className="font-medium text-gray-800">Technical Features</h2>
+                                        <h2 className="font-medium text-gray-800">Extras</h2>
                                         {extras.length > 5 && (
                                             <button
                                                 onClick={() => setShowAllExtras((prev) => !prev)}
@@ -1047,15 +1130,147 @@ const CarCategorys = () => {
                                                 <input
                                                     type="checkbox"
                                                     value={extra._id}
-                                                    checked={selectedExtras.includes(extra._id)}
-                                                    onChange={() => handleChangeExtra(extra._id)}
+                                                    checked={selectedExtras.includes(extra._id)} // Use selectedExtras for checkbox state
+                                                    onChange={() => handleChangeExtra(extra._id)} // Handle checkbox change
                                                     className="form-checkbox h-4 w-4 text-red-600"
                                                 />
                                                 <span className="text-gray-700 text-sm">{extra.name}</span>
                                             </label>
                                         ))}
                                     </div>
-                                </div> */}
+                                </div>
+
+                                {addressData.map((addr) => (
+                                    <div
+                                        key={addr._id}
+                                        className="border p-4 rounded shadow-sm flex justify-between items-start"
+                                    >
+                                        <div>
+                                            <div className="flex items-center font-semibold">
+                                                <IoLocation className="mr-1" />
+                                                {addr.custom_label}
+                                            </div>
+
+                                            <p className="text-sm text-gray-600">
+                                                {[addr.apartment, addr.building, addr.neighbourhood].filter(Boolean).join(", ")}
+                                            </p>
+                                            <div >
+                                                <button
+                                                    className="mt-2 border border-blue-600 text-blue-600 text-sm px-3 py-1 rounded transition-all duration-300 hover:bg-blue-600 hover:text-white hover:scale-105"
+                                                    onClick={() => handleEdit(addr)}
+                                                    style={{ marginRight: "10px" }}
+                                                >
+                                                    Edit
+                                                </button>
+
+                                               
+
+                                            </div>
+                                        </div>
+                                        {addr.isDefault === 1 && (
+                                            <span className="text-xs px-2 py-1 bg-black text-white rounded">
+                                                Default
+                                            </span>
+                                        )}
+                                    </div>
+                                ))}{showForm && (
+                                    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                                        <div className="bg-white p-6 rounded-lg w-full max-w-md relative">
+                                            <button
+                                                onClick={() => {
+                                                    setShowForm(false);
+                                                    setSelectedAddressId(null);
+                                                }}
+                                                className="absolute top-2 right-2 text-gray-500 text-xl"
+                                            >
+                                                ✕
+                                            </button>
+
+                                            <h2 className="text-xl font-semibold mb-4">
+                                                {selectedAddressId ? 'Edit Address' : 'Location Details '}
+                                            </h2>
+
+                                            <input
+                                                type="text"
+                                                name="neighbourhood"
+                                                placeholder="Neighbourhood"
+                                                value={formDat.neighbourhood}
+                                                onChange={handleChang}
+                                                className="border w-full p-2 rounded mb-2"
+                                                required
+                                            />
+                                            <input
+                                                type="text"
+                                                name="building"
+                                                placeholder="Building"
+                                                value={formDat.building}
+                                                onChange={handleChang}
+                                                className="border w-full p-2 rounded mb-2"
+                                            />
+                                            <input
+                                                type="text"
+                                                name="apartment"
+                                                placeholder="Apartment"
+                                                value={formDat.apartment}
+                                                onChange={handleChang}
+                                                className="border w-full p-2 rounded mb-4"
+                                            />
+
+                                            <input
+                                                type="number"
+                                                name="latitude"
+                                                placeholder="Latitude"
+                                                value={formDat.latitude}
+                                                onChange={handleChang}
+                                                className="border w-full p-2 rounded mb-2"
+                                            />
+                                            <input
+                                                type="number"
+                                                name="longitude"
+                                                placeholder="Longitude"
+                                                value={formDat.longitude}
+                                                onChange={handleChang}
+                                                className="border w-full p-2 rounded mb-4"
+                                            />
+
+                                            <div className="mb-2 font-medium">Label this address:</div>
+                                            <div className="flex space-x-2 mb-4">
+                                                {[
+                                                    { label: 'Other', type: 3 },
+                                                    { label: 'Home', type: 2 },
+                                                    { label: 'Work', type: 1 }
+                                                ].map(({ label, type }) => (
+                                                    <button
+                                                        key={type}
+                                                        onClick={() => handleLabel(label.toLowerCase(), type)}
+                                                        className={`px-3 py-1 border rounded ${formDat.address_type === type ? 'bg-blue-100' : ''}`}
+                                                    >
+                                                        {label}
+                                                    </button>
+                                                ))}
+                                            </div>
+
+                                            <label className="inline-flex items-center mb-4">
+                                                <input
+                                                    type="checkbox"
+                                                    name="isDefault"
+                                                    checked={formDat.isDefault === 1}
+                                                    onChange={handleChang}
+                                                    className="mr-2"
+                                                />
+                                                Set as default
+                                            </label>
+
+                                            <button
+                                                onClick={handleSubmitt}
+                                                className="bg-blue-600 text-white w-full py-2 rounded"
+                                            >
+                                                {selectedAddressId ? 'Update Address' : 'Save Address'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+
                                 {/* Submit Button */}
                                 <button type="submit" className="w-full py-3 mt-8 text-white bg-red-600 rounded-md">
                                     Submit

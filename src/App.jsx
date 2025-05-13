@@ -37,6 +37,10 @@ import AdPostCity from "./components/PlaceYourAd/City/AdPostCity";
 import ListingPage from "./components/PlaceYourAd/listing/ListingPage";
 import MotorListingPage from "./components/PlaceYourAd/MotorListing/MotorListingPage";
 import CarCategorys from "./components/PlaceYourAd/CarCategory/CarCategorys";
+import CarEdit from "./components/PlaceYourAd/CarCategory/CarEdit";
+import CategoryMotorCycles from "./components/PlaceYourAd/Motorcycles/categoryMotorcycles/CategoryMotorcycles";
+import SportBike from "./components/PlaceYourAd/Motorcycles/SportBike/SportBike";
+import HyperSportsForm from "./components/PlaceYourAd/Motorcycles/SportBike/HyperSports/HyperSportsForm";
 
 export default function App() {
   return (
@@ -81,9 +85,17 @@ export default function App() {
 
           {/* Route for AdPostCity that excludes Navbar and Footer */}
           <Route path="/place-an-ad/pick-a-city/" element={<AdPostCity />} />
-		  <Route path="/place-an-ad/pick-a-category/" element={<ListingPage/>}/>
-		  <Route path="/place-an-ad/taxonomy/motors/" element={<MotorListingPage/>}/>
-		  <Route path="/place-an-ad/motors/used-cars/new/" element={<CarCategorys/>}/>
+          <Route path="/place-an-ad/pick-a-category/" element={<ListingPage />} />
+          <Route path="/place-an-ad/taxonomy/motors/" element={<MotorListingPage />} />
+          <Route path="/place-an-ad/motors/used-cars/new/" element={<CarCategorys />} />
+          <Route path="/place-an-ad/motors/used-cars/new/edit/" element={<CarEdit />} />
+
+          {/* MotorCycles */}
+          <Route path="/place-an-ad/taxonomy/motors/motorcycles/" element={<CategoryMotorCycles />} />
+          <Route path="/place-an-ad/taxonomy/motors/motorcycles/sport-bike/:categoryId" element={<SportBike />} />
+          <Route path="/place-an-ad/motors/motorcycles/sport-bike/hyper-sports/new/" element={<HyperSportsForm/>}/>
+
+
         </Routes>
       </BrowserRouter>
     </>

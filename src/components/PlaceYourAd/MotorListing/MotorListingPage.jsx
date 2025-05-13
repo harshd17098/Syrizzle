@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 const categories = [
   <Link to={"/place-an-ad/motors/used-cars/new/"}>Cars</Link>,
-  "Motorcycles",
+ <Link to={"/place-an-ad/taxonomy/motors/motorcycles/"}>Motorcycles</Link>,
   "Auto Accessories & Parts",
   "Heavy Vehicles",
   "Boats",
