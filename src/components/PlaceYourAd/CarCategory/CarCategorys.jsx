@@ -65,22 +65,12 @@ const CarCategorys = () => {
     const [formSubmitted, setFormSubmitted] = useState(false);
     const [selectedExtras, setSelectedExtras] = useState([]); // renamed
     const [showAllExtras, setShowAllExtras] = useState(false); // renamed
-    const [title, setTitle] = useState("");
-    const [tour360, setTour360] = useState("");
-    const [description, setDescription] = useState("");
-    const [fuelType, setFuelType] = useState("");
-    const [exteriorColor, setExteriorColor] = useState("");
-    const [interiorColors, setInteriorColors] = useState("");
-    const [warranty, setWarranty] = useState("");
-    const [doors, setDoors] = useState("");
-    const [transmissionType, setTransmissionType] = useState("");
-    const [seatingCapacity, setSeatingCapacity] = useState("");
-    const [horsepower, setHorsepower] = useState("");
-    const [steeringSide, setSteeringSide] = useState("");
+    const uploadedImageUrlsRef = useRef([]);
+
     const displayedFeatures = showAll ? features.slice(0, 15) : features.slice(0, 5);
     const displayedExtras = showAllExtras ? extras.slice(0, 15) : extras.slice(0, 5);
     const [formData, setFormData] = useState({
-        technical_features_id: "",
+        transmission_type_id: [],
         extras_id: ""
     });
 
@@ -95,13 +85,13 @@ const CarCategorys = () => {
         interior_color_id: '',
         warranty: '',
         doors: '',
-        transmission_type_id: '',
         seating_capacity: '',
         horsepower_id: '',
         steering_side: '',
-        // technical_features_id: "",
+        // technical_features_id: [],
         // extras_id: "",
     });
+
     // Fetch models
     useEffect(() => {
         axios
@@ -260,8 +250,7 @@ const CarCategorys = () => {
         const token = localStorage.getItem("jwt");
 
         if (!token) {
-            setError("JWT token not found in localStorage.");
-            return;
+            return <p className="text-red-500">No token found!</p>;
         }
 
         axios
@@ -313,7 +302,9 @@ const CarCategorys = () => {
         }
 
 
+
         const payload = {
+            images: uploadedImageUrlsRef.current,
             emirate,
             model_id: selectedModelId,
             trim_id: selectedTrimId,
@@ -335,6 +326,8 @@ const CarCategorys = () => {
                     headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
                 }
             );
+            console.log("Images to send:", uploadedImageUrlsRef.current);
+
             console.log(response.data.data.result);
 
             setResponseData(response.data.data.result);
@@ -356,7 +349,7 @@ const CarCategorys = () => {
         setSelectedFeatures(updated);
         setFormData((prev) => ({
             ...prev,
-            technical_features_id: updated, // 👈 Store as array
+            transmission_type_id: updated, // 👈 Store as array
         }));
     };
 
@@ -390,6 +383,7 @@ const CarCategorys = () => {
                 }
             );
             console.log("Payload being sent:", payload);
+            console.log(payload.transmission_type_id);
 
             console.log(response.data.data.result);
 
@@ -449,13 +443,9 @@ const CarCategorys = () => {
                     body: formData,
                 });
 
-                if (!response.ok) {
-                    throw new Error("Upload failed");
-                }
+                if (!response.ok) throw new Error("Upload failed");
 
                 const result = await response.json();
-                // console.log("Upload successful:", result);
-
                 const uploadedPath = result.data.result;
 
                 newImages.push({
@@ -463,44 +453,40 @@ const CarCategorys = () => {
                     url: previewUrl,
                     image: uploadedPath,
                 });
-                // console.log("hyy",newImages);
 
             } catch (error) {
                 console.error("Upload error:", error);
             }
         }
 
-        // Update image previews and uploaded URLs
+        const imagePaths = newImages.map((img) => img.image);
+
+        // Set preview images
         setImages((prev) => [...prev, ...newImages]);
-        setUploadedImageUrls((prev) => [...prev, ...newImages.map(img => img.uploadedUrl)]);
+
+        // Update payload.images
+        setPayload((prev) => ({
+            ...prev,
+            images: [...(prev.images || []), ...imagePaths],
+        }));
     };
+
+
+
 
 
     // Remove an image
-    const handleRemoveImage = (index) => {
-        setImages((prev) => {
-            const updated = [...prev];
-            URL.revokeObjectURL(updated[index].url);
-            updated.splice(index, 1);
-            return updated;
-        });
+    const handleRemoveImage = (indexToRemove) => {
+        // 1. Remove from `images` preview
+        const newImagePreviews = images.filter((_, idx) => idx !== indexToRemove);
+        setImages(newImagePreviews);
 
-        setUploadedImageUrls((prev) => {
-            const updated = [...prev];
-            updated.splice(index, 1);
-            return updated;
+        // 2. Remove from `payload.images` as well
+        setPayload((prev) => {
+            const newPaths = (prev.images || []).filter((_, idx) => idx !== indexToRemove);
+            return { ...prev, images: newPaths };
         });
     };
-
-
-
-
-
-    // If form is submitted, show the next form or success message
-
-
-
-
 
 
     return (
@@ -771,7 +757,11 @@ const CarCategorys = () => {
                                         <div className="space-y-4">
                                             {images.map((img, index) => (
                                                 <div key={index} className="relative inline-block">
-                                                    <img src={img.url} alt={`Preview ${index}`} className="w-40 h-40 object-contain border rounded" />
+                                                    <img
+                                                        src={img.url}
+                                                        alt={`Preview ${index}`}
+                                                        className="w-40 h-40 object-contain border rounded"
+                                                    />
                                                     <button
                                                         onClick={() => handleRemoveImage(index)}
                                                         className="absolute top-1 right-1 text-white bg-black/50 rounded-full w-6 h-6 flex items-center justify-center"
@@ -804,13 +794,20 @@ const CarCategorys = () => {
                                         onClick={handleButtonClick}
                                         className="w-full border border-red-600 text-red-600 py-3 rounded-md flex items-center justify-center gap-2 font-semibold"
                                     >
-                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                        <svg
+                                            className="w-5 h-5"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth="2"
+                                            viewBox="0 0 24 24"
+                                        >
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M3 7h4l1-2h8l1 2h4v13H3V7z" />
                                             <circle cx="12" cy="13" r="3" />
                                         </svg>
                                         Add Pictures
                                     </button>
                                 </div>
+
 
                                 {/* Title */}
                                 <input
@@ -973,7 +970,9 @@ const CarCategorys = () => {
                                     <option value="Left Hand">Left Hand</option>
                                     <option value="Right Hand">Right Hand</option>
                                 </select>
-                                {/* <div className="border rounded-md p-4 w-full max-w-md shadow-sm">
+
+
+                                <div className="border rounded-md p-4 w-full max-w-md shadow-sm">
                                     <div className="flex justify-between items-center border-b pb-2 mb-2">
                                         <h2 className="font-medium text-gray-800">Technical Features</h2>
                                         {features.length > 5 && (
@@ -988,21 +987,45 @@ const CarCategorys = () => {
 
                                     {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
 
-                                    <div className="grid grid-cols-2 gap-y-2 gap-x-4">
+                                    {/* <div className="grid grid-cols-2 gap-y-2 gap-x-4">
                                         {displayedFeatures.map((feature) => (
                                             <label key={feature._id} className="inline-flex items-center space-x-2">
                                                 <input
                                                     type="checkbox"
                                                     value={feature._id}
-                                                    checked={selectedFeatures.includes(feature._id)}
-                                                    onChange={() => handleChange(feature._id)}
+                                                    checked={selectedFeatures.includes(feature._id)} // Use selectedFeatures for checkbox state
+                                                    onChange={(e) => {
+                                                        const updated = e.target.checked
+                                                            ? [...selectedFeatures, feature._id]
+                                                            : selectedFeatures.filter((id) => id !== feature._id);
+
+                                                        setSelectedFeatures(updated);
+
+                                                        setFormData((prev) => ({
+                                                            ...prev,
+                                                            transmission_type_id: updated, // Store as array
+                                                        }));
+
+                                                        setPayload((prev) => ({
+                                                            ...prev,
+                                                            transmission_type_id: updated, // ✅ Fix: this was incorrectly set to `features` earlier
+                                                        }));
+
+                                                        if (updated.length > 0) {
+                                                            setError('');
+                                                        }
+                                                    }}
+
                                                     className="form-checkbox h-4 w-4 text-red-600"
                                                 />
                                                 <span className="text-gray-700 text-sm">{feature.name}</span>
                                             </label>
                                         ))}
-                                    </div>
-                                </div> */}
+                                    </div> */}
+
+                                </div>
+
+
                                 {/* <div className="border rounded-md p-4 w-full max-w-md shadow-sm">
                                     <div className="flex justify-between items-center border-b pb-2 mb-2">
                                         <h2 className="font-medium text-gray-800">Technical Features</h2>
