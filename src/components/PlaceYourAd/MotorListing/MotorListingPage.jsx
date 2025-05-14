@@ -36,20 +36,59 @@ const MotorListingPage = () => {
 
       {/* Category List */}
       <div className="w-full max-w-md border border-gray-200 rounded-sm divide-y divide-gray-200">
-        {categories.map((item, idx) => {
-          
-
-          return (
-            <Link
-              key={idx}
-             
+        
+        <div>
+          <Link
+            
+             to={"/place-an-ad/motors/used-cars/new/"}
               className="flex justify-between items-center px-5 py-4 hover:bg-gray-100"
             >
-              <span className="font-semibold text-sm text-gray-800">{item}</span>
-              <FaChevronRight className="text-gray-400 text-sm" />
+              <span className="font-semibold text-sm text-gray-800">Cars</span>
+            <FaChevronRight className="text-gray-400 text-sm" />
             </Link>
-          );
-        })}
+        </div>
+        <div>
+          <Link
+            
+           to={"/place-an-ad/taxonomy/motors/motorcycles/"}
+              className="flex justify-between items-center px-5 py-4 hover:bg-gray-100"
+            >
+              <span className="font-semibold text-sm text-gray-800">Motorcycles</span>
+            <FaChevronRight className="text-gray-400 text-sm" />
+            </Link>
+        </div>
+        <div>
+          <Link
+            className="flex justify-between items-center px-5 py-4 hover:bg-gray-100"
+            >
+              <span className="font-semibold text-sm text-gray-800">Auto Accessories & Parts</span>
+            <FaChevronRight className="text-gray-400 text-sm" />
+            </Link>
+        </div>
+        <div>
+          <Link
+            className="flex justify-between items-center px-5 py-4 hover:bg-gray-100"
+            >
+              <span className="font-semibold text-sm text-gray-800">Heavy Vehicles</span>
+            <FaChevronRight className="text-gray-400 text-sm" />
+            </Link>
+        </div>
+        <div>
+          <Link
+            className="flex justify-between items-center px-5 py-4 hover:bg-gray-100"
+            >
+              <span className="font-semibold text-sm text-gray-800">Boats</span>
+            <FaChevronRight className="text-gray-400 text-sm" />
+            </Link>
+        </div>
+        <div>
+          <Link
+            className="flex justify-between items-center px-5 py-4 hover:bg-gray-100"
+            >
+              <span className="font-semibold text-sm text-gray-800">Number Plates</span>
+            <FaChevronRight className="text-gray-400 text-sm" />
+            </Link>
+        </div>
       </div>
     </div>
   );

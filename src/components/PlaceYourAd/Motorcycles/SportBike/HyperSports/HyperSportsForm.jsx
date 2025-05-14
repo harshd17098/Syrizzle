@@ -4,24 +4,45 @@ import { toast } from "react-toastify";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from 'axios';
-
-
+import { useNavigate, useParams } from "react-router-dom";
+import API_BASE_URL from '../../../../../api/api';
 
 
 const HyperSportsForm = () => {
-    const [images, setImages] = useState([]);
     const [showInputs, setShowInputs] = useState(true);
     const mapContainer = useRef(null);
-    // hh
-    const [modelInput, setModelInput] = useState("");
+    const navigate = useNavigate();
+    const [error, setError] = useState(null);
+
+    const { categoryId, subCategoryId } = useParams(); // Extract categoryId and subCategoryId from the URL
+    const [motorId, setMotorId] = useState(null);
     const [selectedModelId, setSelectedModelId] = useState("");
+    const isValidObjectId = (id) => /^[a-f\d]{4}$/i.test(id);
+    const [title, setTitle] = useState(""); // State for the title input
+    const fileInputRef = useRef(null);
+    const [isLoading, setIsLoading] = useState(false); // To handle loading state
+    const [contactNumber, setContactNumber] = useState(""); // New state for contact number
+    const [price, setPrice] = useState(""); // New state for price
+    const [description, setDescription] = useState(""); // New state for description
+    const [selectedUsage, setSelectedUsage] = useState(""); // Selected value for usage
+    const [usageOptions, setUsageOptions] = useState([]); // State for usage options
+    const [kilometers, setKilometers] = useState("");
+    const [year, setYear] = useState("");
+    const [sellerType, setSellerType] = useState("");
+    const [warranty, setWarranty] = useState("");
+    const [finalDriveSystem, setFinalDriveSystem] = useState("");
+    const [wheels, setWheels] = useState("");
+    const [manufacturers, setManufacturers] = useState([]);
+    const [engineSizes, setEngineSizes] = useState([]);
 
-
+    const [images, setImages] = useState([]);
+    const [payload, setPayload] = useState({
+        images: [],
+    });
 
     const markerRef = useRef(null);
 
-
-
+    // Handle Image Change for uploading and preview
     const handleImageChange = (e) => {
         const selectedFiles = Array.from(e.target.files);
         const imagePreviews = selectedFiles.map((file) => ({
@@ -31,99 +52,237 @@ const HyperSportsForm = () => {
         setImages((prev) => [...prev, ...imagePreviews]);
     };
 
-    const removeImage = (indexToRemove) => {
+    // Remove image from preview and payload
+    const handleRemoveImage = (indexToRemove) => {
         setImages((prev) => prev.filter((_, index) => index !== indexToRemove));
+
+        setPayload((prev) => {
+            const newPaths = (prev.images || []).filter((_, idx) => idx !== indexToRemove);
+            return { ...prev, images: newPaths };
+        });
     };
 
-    const manufacturers = [
-        "Access Motor",
-        "Aprillia",
-        "Asiawing",
-        "BMW",
-        "Bajaj",
-        "Benelli",
-        "Buell",
-        "Can-am",
-        "Ducati",
-        "Fantic",
-        "Gas Gas",
-        "Harley Davidson",
-        "Hero",
-        "Honda",
-        "Husaberg",
-        "Husqvarna",
-        "indian",
-        "KTM",
-        "Kawasaki",
-        "MV Agusta",
-        "Moto Guzzi",
-        "Norton",
-        "Polaris",
-        "Royal Enfied",
-        "Sharmax",
-        "Suzuki",
-        "Triumph",
-        "Vespa",
-        "Victory",
-        "Yamaha",
-        "Other",
-    ];
-    const handleModelSelect = async () => {
-        if (!modelInput || modelInput.trim() === "") {
-            toast.error("Please enter a valid model ID.");
+    // Handle file upload logic and push to images state and payload
+    const handleFileChange = async (e) => {
+        const files = Array.from(e.target.files);
+        const jwtToken = localStorage.getItem("jwt");
+
+        if (!jwtToken) {
+            console.error("JWT token is missing");
             return;
         }
 
-        const token = localStorage.getItem("jwt");
-        if (!token) {
-            toast.error("Authentication token not found. Please log in again.");
-            return;
+        const newImages = [];
+
+        for (const file of files) {
+            const previewUrl = URL.createObjectURL(file);
+            const formData = new FormData();
+            formData.append("image", file);
+
+            try {
+                console.log("Uploading file:", file.name);
+                const response = await fetch("https://syrizzle.vyominfotech.in/api/upload-image", {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${jwtToken}`,
+                    },
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    console.error("Error: Upload failed with status", response.status);
+                    throw new Error("Upload failed");
+                }
+
+                const result = await response.json();
+                const uploadedPath = result.data.result;
+
+                newImages.push({
+                    file,
+                    url: previewUrl,
+                    image: uploadedPath,
+                });
+                // console.log("Uploaded image:", newImages);
+
+            } catch (error) {
+                console.error("Upload error:", error);
+            }
         }
 
-        try {
-            const modelId = modelInput.trim();
-            setSelectedModelId(modelId);
+        const imagePaths = newImages.map((img) => img.image);
 
-            const payload = {
-                model_id: modelInput.trim(),
-                emirate: "dubai", // <-- required?
+        setImages((prev) => [...prev, ...newImages]);
+        setPayload((prev) => ({
+            ...prev,
+            images: [...(prev.images || []), ...imagePaths],
+        }));
+    };
 
-                // Add more if needed
+
+    // Trigger file input click
+    const handleButtonClick = () => {
+        fileInputRef.current.click();
+    };
+
+    // Submit form data
+    useEffect(() => {
+        const submitData = async () => {
+            const token = localStorage.getItem("jwt");
+
+            if (!token) {
+                console.error("JWT token is missing");
+                return;
+            }
+
+            const finalPayload = {
+                sub_category_id: subCategoryId,
+                motor_type: 2, // Example value
+                title: title, // Title from the state
+                contact_number: contactNumber, // Added contact number to the payload
+                price: price, // Added price to the payload
+                description: description, // Added description to the payload
+                images: payload.images, // Include images in the payload
+                kilometers: kilometers, // Added kilometers to the payload
+                year: year, // Added year to the payload
+                seller_type: sellerType, // Added sellerType to the payload
+                warranty: warranty, // Added warranty to the payload
+                final_drive_system: finalDriveSystem, // Added finalDriveSystem to the payload
+                wheels: wheels, // Added wheels to the payload
             };
 
+            console.log("Payload being sent:", finalPayload);
 
-            const res = await axios.post(
-                "https://syrizzle.vyominfotech.in/api/add-motor",
-                payload,
-                {
+            setIsLoading(true);
+
+            try {
+                const response = await axios.post(
+                    `${API_BASE_URL}/add-motor`,
+                    finalPayload,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+                console.log("API Response:", response.data);
+            } catch (error) {
+                console.error("Error submitting form:", error.response ? error.response.data : error.message);
+                setError("Failed to submit data");
+            } finally {
+                setIsLoading(false); // Stop loading
+            }
+        };
+
+        // Submit only when necessary fields are available
+        if (subCategoryId && title && contactNumber && price && description) {
+            submitData();
+        }
+    }, [subCategoryId, title, contactNumber, price, description, payload.images]);
+
+
+    useEffect(() => {
+        // Fetch JWT from localStorage
+        const token = localStorage.getItem("jwt");
+
+        if (!token) {
+            console.error("JWT token is missing");
+            setError("JWT token is required");
+            return;
+        }
+
+        // Fetch usage options from the API
+        const fetchUsageOptions = async () => {
+            try {
+                const response = await axios.get(
+                    `${API_BASE_URL}/usage/motorcycles`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`, // Pass JWT in Authorization header
+                        }
+                    }
+                );
+                console.log("API Response:", response.data.data.result);
+
+                // Assuming the API returns an array of usage options
+                setUsageOptions(response.data.data.result); // Set the response to usageOptions state
+            } catch (error) {
+                console.error("Error fetching usage options:", error);
+                setError("Failed to fetch usage options");
+            }
+        };
+
+        fetchUsageOptions();
+    }, []); // Runs only once when the component mounts
+
+    useEffect(() => {
+        const fetchManufacturers = async () => {
+            const token = localStorage.getItem("jwt");
+
+            if (!token) {
+                console.error("JWT token is missing");
+                return;
+            }
+
+            try {
+                const response = await axios.get(
+                    `${API_BASE_URL}/manufacturer`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+                setManufacturers(response.data.data.result); // Assuming response.data is an array of manufacturers
+            } catch (err) {
+                console.error("Error fetching manufacturers:", err.response ? err.response.data : err.message);
+                setError("Failed to load manufacturers");
+            }
+        };
+
+        fetchManufacturers();
+    }, []);
+
+    useEffect(() => {
+        const fetchEngineSizes = async () => {
+            const token = localStorage.getItem("jwt");
+            if (!token) {
+                console.error("JWT token is missing");
+                return;
+            }
+
+            try {
+                const response = await axios.get(`${API_BASE_URL}/engine-size`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
-                }
-            );
-            console.log("API response:", res.data); // log the full response to debug
+                });
 
-            const createdMotorId = res.data?.data?.result?._id;
-            if (createdMotorId) {
-                setMotorId(createdMotorId);
-                setSearchParams({ _id: createdMotorId });
-                toast.success("Model selected and data saved successfully!");
-            } else {
-                toast.error("Failed to get motor ID from response.");
+                console.log("Engine size data:", response.data);
+
+                // Adjust based on actual structure
+                setEngineSizes(response.data.data.result); // if it's an array
+            } catch (err) {
+                console.error("Error fetching engine sizes:", err.message);
             }
-        } catch (error) {
-    console.error("Model selection error:", error);
-    if (error.response) {
-        console.log("Error Response Data:", error.response.data);
-        toast.error(error.response.data?.message || "Something went wrong on the server.");
-    } else {
-        toast.error("No response from the server.");
-    }
-}
+        };
 
+        fetchEngineSizes();
+    }, []);
+
+    // Handle selection change
+   const handleUsageChange = (e) => {
+  const selectedId = e.target.value;
+  const selectedOption = usageOptions.find(opt => opt._id === selectedId);
+  setSelectedUsage(selectedOption);
+};
+
+
+    const handleTitleChange = (e) => {
+        setTitle(e.target.value);
     };
-
-
+    const handleKilometersChange = (e) => {
+        setKilometers(e.target.value);
+    };
 
     return (
         <div className="flex flex-col items-center bg-white min-h-screen p-4">
@@ -136,7 +295,10 @@ const HyperSportsForm = () => {
                 Include as much details and pictures as possible!
             </p>
 
-            <form className="w-full max-w-md space-y-4">
+            <form
+                className="w-full max-w-md space-y-4"
+                onSubmit={(e) => e.preventDefault()} // Prevent default form submission for manual control
+            >
                 <p className="text-xs text-blue-600">
                     <a href="#" className="hover:underline">
                         Motorcycles
@@ -144,112 +306,145 @@ const HyperSportsForm = () => {
                     &gt; Adventure / Touring
                 </p>
 
-                <input
-                    type="text"
-                    value={modelInput}
-                    onChange={(e) => setModelInput(e.target.value)}
-                    onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                            e.preventDefault(); // prevent form submission
-                            handleModelSelect();
-                        }
-                    }}
-                    placeholder="Enter Model ID"
-                    className="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring"
-                />
+                <div>
+                    <input
+                        type="text"
+                        placeholder="Title"
+                        className="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring"
+                        value={title}
+                        onChange={handleTitleChange} // Capture input value
+                    />
+                </div>
 
+                {/* Image Upload Section */}
+                <div className="space-y-4">
+                    {images.length > 0 && (
+                        <div className="space-y-4">
+                            {images.map((img, index) => (
+                                <div key={index} className="relative inline-block">
+                                    <img
+                                        src={img.url}
+                                        alt={`Preview ${index}`}
+                                        className="w-40 h-40 object-contain border rounded"
+                                    />
+                                    <button
+                                        onClick={() => handleRemoveImage(index)}
+                                        className="absolute top-1 right-1 text-white bg-black/50 rounded-full w-6 h-6 flex items-center justify-center"
+                                    >
+                                        ✕
+                                    </button>
+                                    {index === 0 && (
+                                        <div className="text-sm text-center mt-2">
+                                            <span className="border px-2 py-1 rounded text-sm">Main photo</span>
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    )}
 
-
-
-                {/* Image Upload */}
-                <label className="w-full border border-red-500 text-red-600 py-2 rounded flex items-center justify-center gap-2 cursor-pointer hover:bg-red-50 transition">
-                    <span className="text-lg">
-                        <FaCameraRetro />
-                    </span>{" "}
-                    Add Pictures
+                    {/* Hidden File Input */}
                     <input
                         type="file"
-                        accept="image/*"
                         multiple
+                        accept="image/*"
+                        ref={fileInputRef}
+                        onChange={handleFileChange}
                         className="hidden"
-                        onChange={handleImageChange}
                     />
-                </label>
 
-                {/* Image Preview */}
-                {images.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                        {images.map((img, index) => (
-                            <div key={index} className="relative">
-                                <img
-                                    src={img.preview}
-                                    alt={`preview-${index}`}
-                                    className="h-20 w-20 object-cover rounded border"
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => removeImage(index)}
-                                    className="absolute -top-2 -right-2 bg-black text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hover:bg-red-600"
-                                >
-                                    ×
-                                </button>
-                            </div>
-                        ))}
-                    </div>
-                )}
+                    {/* Upload Button */}
+                    <button
+                        type="button"
+                        onClick={handleButtonClick}
+                        className="w-full border border-red-600 text-red-600 py-3 rounded-md flex items-center justify-center gap-2 font-semibold"
+                    >
+                        <svg
+                            className="w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            viewBox="0 0 24 24"
+                        >
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M3 7h4l1-2h8l1 2h4v13H3V7z" />
+                            <circle cx="12" cy="13" r="3" />
+                        </svg>
+                        Add Pictures
+                    </button>
+                </div>
 
-                <input
-                    type="text"
-                    placeholder="Contact number"
-                    className="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring"
-                />
 
+
+                {/* Contact Number */}
+                <div>
+                    <input
+                        type="text"
+                        placeholder="Contact number"
+                        className="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring"
+                        value={contactNumber}
+                        onChange={(e) => setContactNumber(e.target.value)} // Capture contact number
+                    />
+                </div>
+
+                {/* Price */}
                 <div className="relative">
                     <input
                         type="text"
                         placeholder="Price *"
                         className="w-full border border-gray-300 px-3 py-2 rounded pr-12 focus:outline-none focus:ring"
+                        value={price}
+                        onChange={(e) => setPrice(e.target.value)} // Capture price
                     />
-                    <span className="absolute right-3 top-2.5 text-gray-500 text-sm">
-                        AED
-                    </span>
+                    <span className="absolute right-3 top-2.5 text-gray-500 text-sm">AED</span>
                 </div>
 
+                {/* Description */}
                 <div className="relative">
                     <textarea
                         placeholder="Describe your motorcycle *"
                         className="w-full border border-gray-300 px-3 py-2 rounded h-32 resize-none focus:outline-none focus:ring"
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)} // Capture description
                         maxLength={16000}
                     ></textarea>
-                    <div className="text-xs text-gray-400 text-right pr-1">0/16000</div>
+                    <div className="text-xs text-gray-400 text-right pr-1">{description.length}/16000</div>
                 </div>
 
-                <select
-                    className="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring"
-                    required
-                >
-                    <option value="">Usage *</option>
-                    <option value="used-once">
-                        Only used once since it was purchased new
-                    </option>
-                    <option value="rarely-used">
-                        Used very rarely since it was purchased
-                    </option>
-                    <option value="weekly-use">
-                        Used once or twice a week since purchased
-                    </option>
-                    <option value="daily-use">
-                        Used as primary mode of transportation
-                    </option>
-                </select>
+                {/* Usage Dropdown */}
+                <div>
+                    <select
+  className="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring"
+  value={selectedUsage}
+  onChange={handleUsageChange}
+  required
+>
+  <option value="" disabled>Usage *</option>
+  {Array.isArray(usageOptions) &&
+    usageOptions.map((option) => (
+      <option key={option._id} value={option._id}>
+        {option.name}
+      </option>
+    ))}
+</select>
 
+                </div>
+
+                {/* Kilometers */}
                 <input
                     type="text"
                     placeholder="Kilometers"
                     className="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring"
+                    value={kilometers}
+                    onChange={(e) => setKilometers(e.target.value)}
                 />
 
-                <select className="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring">
+                {/* Year */}
+                <select
+                    className="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring"
+                    value={year}
+                    onChange={(e) => setYear(e.target.value)}
+                    required
+                >
                     <option value="">Year *</option>
                     {Array.from({ length: 2025 - 1921 + 1 }, (_, i) => {
                         const year = 2025 - i;
@@ -261,8 +456,11 @@ const HyperSportsForm = () => {
                     })}
                 </select>
 
+                {/* Seller Type */}
                 <select
                     className="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring"
+                    value={sellerType}
+                    onChange={(e) => setSellerType(e.target.value)}
                     required
                 >
                     <option value="">Seller Type *</option>
@@ -271,18 +469,23 @@ const HyperSportsForm = () => {
                     <option value="Dealership">Dealership/Certified Pre-Owned</option>
                 </select>
 
+                {/* Warranty */}
                 <select
                     className="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring"
+                    value={warranty}
+                    onChange={(e) => setWarranty(e.target.value)}
                     required
                 >
                     <option value="">Warranty *</option>
                     <option value="Yes">Yes</option>
                     <option value="No">No</option>
-                    {/* <option value="Does not apply">Does not apply</option> */}
                 </select>
 
+                {/* Final Drive System */}
                 <select
                     className="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring"
+                    value={finalDriveSystem}
+                    onChange={(e) => setFinalDriveSystem(e.target.value)}
                     required
                 >
                     <option value="">Final Drive System *</option>
@@ -292,23 +495,29 @@ const HyperSportsForm = () => {
                     <option value="Does not apply">Does not apply</option>
                 </select>
 
+                {/* Wheels */}
                 <select
                     className="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring"
+                    value={wheels}
+                    onChange={(e) => setWheels(e.target.value)}
                     required
                 >
-                    <option value="">wheels *</option>
+                    <option value="">Wheels *</option>
                     <option value="2 wheels">2 wheels</option>
                     <option value="3 wheels">3 wheels</option>
                     <option value="4 wheels">4 wheels</option>
                 </select>
 
+
                 <select className="w-full h-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring">
-                    <option value="">Manufacturer *</option>
-                    {manufacturers.map((name) => (
-                        <option key={name} value={name}>
-                            {name}
-                        </option>
-                    ))}
+                    <option value="" disabled>Manufacturer *</option>
+                    {Array.isArray(manufacturers) &&
+                        manufacturers.map((manufacturer) => (
+                            <option key={manufacturer} value={manufacturer}>
+                                {manufacturer.name}
+                            </option>
+                        ))}
+
                 </select>
 
 
@@ -317,15 +526,15 @@ const HyperSportsForm = () => {
                     className="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring"
                     required
                 >
-                    <option value="">Engine Size *</option>
-                    <option value="">Less than 250cc</option>
-                    <option value="">250cc - 499cc</option>
-                    <option value="">500cc- 599cc</option>
-                    <option value="">600cc-749cc</option>
-                    <option value="">750cc-999cc</option>
-                    <option value="">1000cc or more</option>
-                    <option value="">Does not apply</option>
+                    <option value="" disabled>Engine Size *</option>
+                    {Array.isArray(engineSizes) &&
+                        engineSizes.map((size) => (
+                            <option key={size} value={size}>
+                                {size.name}
+                            </option>
+                        ))}
                 </select>
+
 
                 <div className="max-w-md mx-auto p-4 border rounded shadow bg-white">
                     <h2 className="font-semibold text-lg mb-4 flex justify-between items-center">
@@ -398,6 +607,7 @@ const HyperSportsForm = () => {
 
                 <button
                     type="submit"
+                    onClick={() => submitData()} // Manually call submitData
                     className="bg-red-600 text-white w-full py-2 rounded hover:bg-red-700"
                 >
                     Next

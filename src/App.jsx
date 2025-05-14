@@ -93,7 +93,7 @@ export default function App() {
           {/* MotorCycles */}
           <Route path="/place-an-ad/taxonomy/motors/motorcycles/" element={<CategoryMotorCycles />} />
           <Route path="/place-an-ad/taxonomy/motors/motorcycles/sport-bike/:categoryId" element={<SportBike />} />
-          <Route path="/place-an-ad/motors/motorcycles/sport-bike/hyper-sports/new/" element={<HyperSportsForm/>}/>
+          <Route path="/place-an-ad/motors/motorcycles/sport-bike/hyper-sports/new/:subCategoryId" element={<HyperSportsForm/>}/>
 
 
         </Routes>

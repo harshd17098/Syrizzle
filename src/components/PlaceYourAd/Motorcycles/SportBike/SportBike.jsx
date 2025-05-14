@@ -5,8 +5,6 @@ import axios from "axios";
 
 const SportBike = () => {
   const { categoryId } = useParams(); // Use categoryId (lowercase 'c')
-//   console.log("CategoryId:", categoryId);
-
   const [subCategoryData, setSubCategoryData] = useState([]);
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -35,8 +33,6 @@ const SportBike = () => {
           },
         }
       );
-    //   console.log("Subcategories:", response.data);
-
       // Assuming the response has a 'data' field with subcategory information
       setSubCategoryData(response.data?.data?.result || []);
     } catch (error) {
@@ -80,9 +76,9 @@ const SportBike = () => {
       <div className="w-full max-w-md border border-gray-200 rounded-sm divide-y divide-gray-200">
         {subCategoryData.length > 0 ? (
           subCategoryData.map((item, idx) => (
-            <Link 
+            <Link
               key={idx}
-              to={`/place-an-ad/motors/motorcycles/sport-bike/hyper-sports/new/`}
+              to={`/place-an-ad/motors/motorcycles/sport-bike/hyper-sports/new/${item._id}`} // Pass the subcategory ID to the URL
               className="flex justify-between items-center px-5 py-4 hover:bg-gray-100"
             >
               <span className="font-semibold text-sm text-black">
