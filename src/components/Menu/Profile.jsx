@@ -4,6 +4,7 @@ import axios from 'axios';
 import { FaPen } from 'react-icons/fa';
 import { FaUpload } from 'react-icons/fa';
 import API_BASE_URL from '../../api/api';
+import { toast } from "react-toastify";
 
 
 const Profile = () => {
@@ -89,6 +90,8 @@ const Profile = () => {
     };
 
 
+
+
     const handleSubmit = async () => {
         const jwtToken = localStorage.getItem("jwt");
 
@@ -102,10 +105,8 @@ const Profile = () => {
                 ...profile,
                 image: selectedAvatar || profile.image, // Ensure selectedAvatar is part of the profile
                 country: profile.country || '' // Include the country in the updated profile
-
             };
             console.log(updatedProfile); // Check the updated profile object before sending it to the backend
-
 
             // Submit updated profile info (including avatar) first
             await axios.post(
@@ -121,9 +122,9 @@ const Profile = () => {
             // If a new image is selected, upload it to the profile-image API
             if (selectedFile) {
                 const formData = new FormData();
-                formData.append("image", selectedFile)
+                formData.append("image", selectedFile);
 
-                await axios.post(
+                const response = await axios.post(
                     `${API_BASE_URL}/profile-image`,
                     formData,
                     {
@@ -134,29 +135,55 @@ const Profile = () => {
                     }
                 );
 
-                // After successful image upload, update the profile with the new image URL
-                // Assuming the API returns the image URL or filename after upload
-                const uploadedImageUrl = '/path/to/updated/image.jpg'; // Update with actual image URL response if provided
+                // Get the actual image URL from the backend response
+                console.log("hyy");
+
+                const uploadedImageUrl = response.data.data.result.image; // Assuming the backend returns the image URL like { imageUrl: 'https://.../image.jpg' }
+                console.log("hhhh", response.data.data.result.image);
+
+                // Update the profile with the new image URL
                 setProfile((prev) => ({
                     ...prev,
-                    image: selectedAvatar || profile.image // Update profile image with new image URL
+                    image: uploadedImageUrl || selectedAvatar, // Update profile image with new image URL
                 }));
-                // console.log("ava",selectedAvatar);
 
+                useEffect(() => {
+                    setSelectedAvatar(uploadedImageUrl || selectedAvatar);
+                    setIsModalVisible(false);
+                }, [])
             }
 
             setIsModalVisible(false);
-            alert("Profile updated successfully!");
-
+            toast.success("Profile updated successfully!");
         } catch (error) {
             console.error("Error updating profile:", error);
             if (error.response) {
-                alert(`Failed to update profile. ${error.response.data.message || "Please try again."}`);
-            } else {
-                alert("Failed to update profile. Please check your connection and try again.");
-            }
+                toast.error(`Failed to update profile "Please try again."}`);
+            } 
         }
     };
+
+
+    useEffect(() => {
+        const updateProfileImage = async () => {
+            if (profile && profile.image || avatarUrls.image) {
+                try {
+                    console.log("Profile image updated: ", profile.image);
+
+                } catch (error) {
+                    console.error("Error handling updated profile image:", error);
+                }
+            }
+        };
+
+        updateProfileImage();
+        setIsModalVisible(false);
+
+    }, [profile.image, avatarUrls.image]); // This will trigger the effect whenever the profile image changes
+
+
+
+
     useEffect(() => {
         const fetchAvatars = async () => {
             const jwtToken = localStorage.getItem("jwt");
@@ -302,11 +329,11 @@ const Profile = () => {
 
                                                 {activeTab === "avatar" && (
                                                     <div className="grid grid-cols-4 gap-4 mt-4">
-                                                    
+
                                                         {
                                                             avatarUrls.map((avatar) => {
-                                                                console.log("av",avatar);
-                                                                
+                                                                console.log("av", avatar);
+
                                                                 return (
                                                                     <div
                                                                         key={avatar.id}

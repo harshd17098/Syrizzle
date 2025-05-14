@@ -34,6 +34,8 @@ const HyperSportsForm = () => {
     const [wheels, setWheels] = useState("");
     const [manufacturers, setManufacturers] = useState([]);
     const [engineSizes, setEngineSizes] = useState([]);
+    const [selectedManufacturer, setSelectedManufacturer] = useState("");
+    const [selectedEngineSize, setSelectedEngineSize] = useState("");
 
     const [images, setImages] = useState([]);
     const [payload, setPayload] = useState({
@@ -125,59 +127,54 @@ const HyperSportsForm = () => {
     };
 
     // Submit form data
-    useEffect(() => {
-        const submitData = async () => {
-            const token = localStorage.getItem("jwt");
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!title || !contactNumber || !price || !description) {
+            toast.error("Please fill all required fields.");
+            return;
+        }
 
-            if (!token) {
-                console.error("JWT token is missing");
-                return;
-            }
+        const token = localStorage.getItem("jwt");
+        if (!token) return console.error("JWT token is missing");
 
-            const finalPayload = {
-                sub_category_id: subCategoryId,
-                motor_type: 2, // Example value
-                title: title, // Title from the state
-                contact_number: contactNumber, // Added contact number to the payload
-                price: price, // Added price to the payload
-                description: description, // Added description to the payload
-                images: payload.images, // Include images in the payload
-                kilometers: kilometers, // Added kilometers to the payload
-                year: year, // Added year to the payload
-                seller_type: sellerType, // Added sellerType to the payload
-                warranty: warranty, // Added warranty to the payload
-                final_drive_system: finalDriveSystem, // Added finalDriveSystem to the payload
-                wheels: wheels, // Added wheels to the payload
-            };
-
-            console.log("Payload being sent:", finalPayload);
-
-            setIsLoading(true);
-
-            try {
-                const response = await axios.post(
-                    `${API_BASE_URL}/add-motor`,
-                    finalPayload,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    }
-                );
-                console.log("API Response:", response.data);
-            } catch (error) {
-                console.error("Error submitting form:", error.response ? error.response.data : error.message);
-                setError("Failed to submit data");
-            } finally {
-                setIsLoading(false); // Stop loading
-            }
+        const finalPayload = {
+            sub_category_id: subCategoryId,
+            motor_type: 2,
+            title,
+            contact_number: contactNumber,
+            price,
+            description,
+            images: payload.images,
+            kilometers,
+            year,
+            seller_type: sellerType,
+            warranty,
+            final_drive_system: finalDriveSystem,
+            wheels,
+            usage_id: selectedUsage, // ✅ include this
+            manufacturer_id: selectedManufacturer, // ✅ send ID to backend
+            engine_size_id: selectedEngineSize, // ✅ Add this
         };
 
-        // Submit only when necessary fields are available
-        if (subCategoryId && title && contactNumber && price && description) {
-            submitData();
+        setIsLoading(true);
+        try {
+            const response = await axios.post(`${API_BASE_URL}/add-motor`, finalPayload, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            toast.success("Listing submitted successfully!");
+            console.log("API Response:", response.data);
+            // navigate("/success-or-next-step"); // Redirect after success
+        } catch (error) {
+            console.error("Error submitting form:", error.response?.data || error.message);
+            setError("Failed to submit data");
+            toast.error("Submission failed.");
+        } finally {
+            setIsLoading(false);
         }
-    }, [subCategoryId, title, contactNumber, price, description, payload.images]);
+    };
+
 
 
     useEffect(() => {
@@ -270,11 +267,14 @@ const HyperSportsForm = () => {
     }, []);
 
     // Handle selection change
-   const handleUsageChange = (e) => {
-  const selectedId = e.target.value;
-  const selectedOption = usageOptions.find(opt => opt._id === selectedId);
-  setSelectedUsage(selectedOption);
-};
+    const handleUsageChange = (e) => {
+        const selectedId = e.target.value;
+        const selectedOption = usageOptions.find(opt => opt._id === selectedId);
+        // console.log("Selected Usage ID:", selectedId);
+        // console.log("Selected Option:", selectedOption);
+        setSelectedUsage(selectedId); // only store the ID if that's what your API needs
+    };
+
 
 
     const handleTitleChange = (e) => {
@@ -297,7 +297,7 @@ const HyperSportsForm = () => {
 
             <form
                 className="w-full max-w-md space-y-4"
-                onSubmit={(e) => e.preventDefault()} // Prevent default form submission for manual control
+                onSubmit={handleSubmit}
             >
                 <p className="text-xs text-blue-600">
                     <a href="#" className="hover:underline">
@@ -411,23 +411,22 @@ const HyperSportsForm = () => {
                 </div>
 
                 {/* Usage Dropdown */}
-                <div>
-                    <select
-  className="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring"
-  value={selectedUsage}
-  onChange={handleUsageChange}
-  required
->
-  <option value="" disabled>Usage *</option>
-  {Array.isArray(usageOptions) &&
-    usageOptions.map((option) => (
-      <option key={option._id} value={option._id}>
-        {option.name}
-      </option>
-    ))}
-</select>
+                <select
+                    className="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring"
+                    value={selectedUsage}
+                    onChange={handleUsageChange}
+                    required
+                >
+                    <option value="" disabled>Usage *</option>
+                    {Array.isArray(usageOptions) &&
+                        usageOptions.map((option) => (
+                            <option key={option._id} value={option._id}>
+                                {option.name}
+                            </option>
 
-                </div>
+                        ))}
+                </select>
+
 
                 {/* Kilometers */}
                 <input
@@ -508,32 +507,39 @@ const HyperSportsForm = () => {
                     <option value="4 wheels">4 wheels</option>
                 </select>
 
-
-                <select className="w-full h-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring">
+                {/* Manufactures */}
+                <select
+                    className="w-full h-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring"
+                    value={selectedManufacturer}
+                    onChange={(e) => setSelectedManufacturer(e.target.value)}
+                >
                     <option value="" disabled>Manufacturer *</option>
                     {Array.isArray(manufacturers) &&
                         manufacturers.map((manufacturer) => (
-                            <option key={manufacturer} value={manufacturer}>
+                            <option key={manufacturer._id} value={manufacturer._id}>
                                 {manufacturer.name}
                             </option>
                         ))}
-
                 </select>
+
 
 
 
                 <select
                     className="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring"
                     required
+                    value={selectedEngineSize}
+                    onChange={(e) => setSelectedEngineSize(e.target.value)}
                 >
                     <option value="" disabled>Engine Size *</option>
                     {Array.isArray(engineSizes) &&
                         engineSizes.map((size) => (
-                            <option key={size} value={size}>
+                            <option key={size._id || size.name} value={size._id}>
                                 {size.name}
                             </option>
                         ))}
                 </select>
+
 
 
                 <div className="max-w-md mx-auto p-4 border rounded shadow bg-white">
@@ -607,7 +613,6 @@ const HyperSportsForm = () => {
 
                 <button
                     type="submit"
-                    onClick={() => submitData()} // Manually call submitData
                     className="bg-red-600 text-white w-full py-2 rounded hover:bg-red-700"
                 >
                     Next

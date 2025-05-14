@@ -90,6 +90,7 @@ const CarCategorys = () => {
         steering_side: '',
         technical_features_id: [],
         extras_id: [],
+        address_id: '',
     });
 
     // Fetch models
@@ -430,6 +431,15 @@ const CarCategorys = () => {
         fileInputRef.current.click();
     };
 
+    const handleSelectAddress = (addr) => {
+    setSelectedAddressId(addr.address_id); // Visually highlight
+    setPayload(prev => ({
+        ...prev,
+        address_id: addr.address_id, // Store it in the payload
+    }));
+    toast.success("Address selected");
+};
+
     // Handle file selection and upload
     const handleFileChange = async (e) => {
         const files = Array.from(e.target.files);
@@ -481,30 +491,46 @@ const CarCategorys = () => {
 
 
 
-    const fetchAddresses = async () => {
-        const jwtToken = localStorage.getItem("jwt");
+   const fetchAddresses = async () => {
+    const jwtToken = localStorage.getItem("jwt");
 
-        if (jwtToken) {
-            try {
-                const response = await axios.get("https://syrizzle.vyominfotech.in/api/address", {
-                    headers: {
-                        Authorization: `Bearer ${jwtToken}`,
-                    },
-                });
+    if (!jwtToken) {
+        console.log("No JWT token found in localStorage.");
+        return;
+    }
 
-                const result = response.data.data.result;
-                if (response.data.success && Array.isArray(result)) {
-                    setAddressData(result);
-                } else {
-                    console.warn("Unexpected response format:", response.data);
-                }
-            } catch (error) {
-                console.error("Error fetching address:", error);
+    try {
+        const response = await axios.get("https://syrizzle.vyominfotech.in/api/address", {
+            headers: {
+                Authorization: `Bearer ${jwtToken}`,
+            },
+        });
+
+        const result = response.data.data.result;
+
+        if (response.data.success && Array.isArray(result)) {
+            setAddressData(result);
+
+            // ✅ Set default address_id in payload
+            const defaultAddr = result.find(addr => addr.isDefault === 1) || result[0];
+
+            if (defaultAddr?.address_id) {
+                setPayload(prev => ({
+                    ...prev,
+                    address_id: defaultAddr.address_id
+                }));
+            } else {
+                console.warn("No address_id found in fetched addresses.");
             }
         } else {
-            console.log("No JWT token found in localStorage.");
+            console.warn("Unexpected response format:", response.data);
         }
-    };
+    } catch (error) {
+        console.error("Error fetching address:", error);
+    }
+};
+
+
     useEffect(() => {
         fetchAddresses();
     }, []);
@@ -1163,7 +1189,7 @@ const CarCategorys = () => {
                                                     Edit
                                                 </button>
 
-                                               
+
 
                                             </div>
                                         </div>
@@ -1174,8 +1200,18 @@ const CarCategorys = () => {
                                         )}
                                     </div>
                                 ))}{showForm && (
-                                    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-                                        <div className="bg-white p-6 rounded-lg w-full max-w-md relative">
+                                    <div
+                                        className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50"
+                                        style={{ marginTop: "0px" }}
+                                        onClick={() => {
+                                            setShowForm(false);
+                                            setSelectedAddressId(null);
+                                        }}
+                                    >
+                                        <div
+                                            className="bg-white p-6 rounded-lg w-full max-w-md relative"
+                                            onClick={(e) => e.stopPropagation()} // ⛔ Stop click from bubbling out
+                                        >
                                             <button
                                                 onClick={() => {
                                                     setShowForm(false);

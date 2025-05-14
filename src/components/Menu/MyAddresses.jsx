@@ -3,7 +3,9 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { IoLocation } from "react-icons/io5";
 import API_BASE_URL from '../../api/api';
-
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from 'react-toastify';
 const MyAddresses = () => {
     const [showForm, setShowForm] = useState(false);
     const [addressData, setAddressData] = useState([]);
@@ -19,6 +21,7 @@ const MyAddresses = () => {
         latitude: '',
         longitude: '',
     });
+
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -68,71 +71,66 @@ const MyAddresses = () => {
                 },
             });
 
-            alert(`Address ${selectedAddressId ? 'updated' : 'saved'} successfully!`);
+            toast.success(`Address ${selectedAddressId ? 'updated' : 'saved'} successfully!`);
             setShowForm(false);
             setSelectedAddressId(null);
             fetchAddresses(); // Refresh list
         } catch (error) {
             console.error('Failed to save address:', error);
-            alert('Failed to save address');
+            toast.error('Failed to save address');
         }
     };
-   const handleDelete = async (addressId) => {
-    try {
-        const confirmDelete = window.confirm("Are you sure you want to delete this address?");
-        if (!confirmDelete) return;
-
-        const token = localStorage.getItem('jwt');
-        if (!token) return alert('User not authenticated');
-
-        const endpoint = `https://syrizzle.vyominfotech.in/api/address/delete/${addressId}`;
-
-        const response = await axios.delete(endpoint, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
-
-        console.log('Delete response:', response.data);
-
-        const { status, message } = response.data;
-
-        if (status === true) {
-            alert('Address deleted successfully!');
-            fetchAddresses(); // ✅ Refresh address list
-        } else {
-            alert(`Failed to delete address: ${message || 'Unknown error'}`);
-        }
-    } catch (error) {
-        console.error('Failed to delete address:', error);
-        const errorMsg = error.response?.data?.message || error.message || 'Unknown error';
-        alert(`Failed to delete address: ${errorMsg}`);
-    }
-};
-
-
     const fetchAddresses = async () => {
         const jwtToken = localStorage.getItem("jwt");
 
-        if (jwtToken) {
-            try {
-                const response = await axios.get("https://syrizzle.vyominfotech.in/api/address", {
-                    headers: {
-                        Authorization: `Bearer ${jwtToken}`,
-                    },
-                });
-
-                const result = response.data.data.result;
-                if (response.data.success && Array.isArray(result)) {
-                    setAddressData(result);
-                } else {
-                    console.warn("Unexpected response format:", response.data);
-                }
-            } catch (error) {
-                console.error("Error fetching address:", error);
-            }
-        } else {
+        if (!jwtToken) {
             console.log("No JWT token found in localStorage.");
+            return;
+        }
+
+        try {
+            const response = await axios.get("https://syrizzle.vyominfotech.in/api/address", {
+                headers: {
+                    Authorization: `Bearer ${jwtToken}`,
+                },
+            });
+
+            const result = response.data.data.result;
+            if (response.data.success && Array.isArray(result)) {
+                setAddressData(result);
+            } else {
+                console.warn("Unexpected response format:", response.data);
+            }
+        } catch (error) {
+            console.error("Error fetching address:", error);
+        }
+    };
+
+    const handleDelete = async (addressId) => {
+        const token = localStorage.getItem("jwt");
+        if (!token) return alert("User not authenticated");
+
+        try {
+            const endpoint = `https://syrizzle.vyominfotech.in/api/address/delete/${addressId}`;
+            const response = await axios.delete(endpoint, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            const status = response.data?.status;
+            console.log("Full delete response:", response.data);
+
+            if (status === true) {
+                toast.success("Address deleted successfully!");
+                await fetchAddresses(); // Re-fetch to update UI
+            } else {
+                toast.warn("Delete failed - Unexpected response");
+            }
+        } catch (error) {
+            console.error("Failed to delete address:", error);
+            const errorMsg = error.response?.data?.message || error.message;
+            toast.error(`Delete failed: ${errorMsg}`);
         }
     };
 
@@ -170,7 +168,7 @@ const MyAddresses = () => {
                         />
                     </div>
 
-                    <div className="max-w-md mx-auto space-y-4">
+                    <div className="max-w-md mx-auto space-y-4" >
                         {addressData.length > 0 ? (
                             <div className="space-y-4">
                                 <button
@@ -193,50 +191,61 @@ const MyAddresses = () => {
                                     Add New Address
                                 </button>
 
-                                {addressData.map((addr) => (
-                                    <div
-                                        key={addr._id}
-                                        className="border p-4 rounded shadow-sm flex justify-between items-start"
-                                    >
-                                        <div>
-                                            <div className="flex items-center font-semibold">
-                                                <IoLocation className="mr-1" />
-                                                {addr.custom_label}
+                                <div className="p-4">
+                                    {addressData.map((addr) => (
+                                        <div
+                                            key={addr._id}
+                                            className="border p-4 rounded shadow-sm flex justify-between items-start mb-4"
+                                        >
+                                            <div>
+                                                <div className="flex items-center font-semibold">
+                                                    <IoLocation className="mr-1" />
+                                                    {addr.custom_label}
+                                                </div>
+
+                                                <p className="text-sm text-gray-600">
+                                                    {[addr.apartment, addr.building, addr.neighbourhood].filter(Boolean).join(", ")}
+                                                </p>
+
+                                                <div className="mt-2">
+                                                    <button
+                                                        className="border border-blue-600 text-blue-600 text-sm px-3 py-1 rounded transition-all duration-300 hover:bg-blue-600 hover:text-white hover:scale-105 mr-2"
+                                                        onClick={() => handleEdit(addr)} // assuming handleEdit exists
+                                                    >
+                                                        Edit
+                                                    </button>
+
+                                                    <button
+                                                        className="border border-red-600 text-red-600 text-sm px-3 py-1 rounded transition-all duration-300 hover:bg-red-600 hover:text-white hover:scale-105"
+                                                        onClick={() => handleDelete(addr._id)}
+                                                    >
+                                                        Delete
+                                                    </button>
+                                                </div>
                                             </div>
 
-                                            <p className="text-sm text-gray-600">
-                                                {[addr.apartment, addr.building, addr.neighbourhood].filter(Boolean).join(", ")}
-                                            </p>
-                                            <div >
-                                                <button
-                                                    className="mt-2 border border-blue-600 text-blue-600 text-sm px-3 py-1 rounded transition-all duration-300 hover:bg-blue-600 hover:text-white hover:scale-105"
-                                                    onClick={() => handleEdit(addr)}
-                                                    style={{ marginRight: "10px" }}
-                                                >
-                                                    Edit
-                                                </button>
-
-                                                <button
-                                                    className="mt-2 border border-red-600 text-red-600 text-sm px-3 py-1 rounded transition-all duration-300 hover:bg-red-600 hover:text-white hover:scale-105"
-                                                    onClick={() => handleDelete(addr._id)} // Pass the address ID to handleDelete
-                                                    style={{ marginRight: "10px" }}
-                                                >
-                                                    Delete
-                                                </button>
-
-                                            </div>
+                                            {addr.isDefault === 1 && (
+                                                <span className="text-xs px-2 py-1 bg-black text-white rounded">
+                                                    Default
+                                                </span>
+                                            )}
                                         </div>
-                                        {addr.isDefault === 1 && (
-                                            <span className="text-xs px-2 py-1 bg-black text-white rounded">
-                                                Default
-                                            </span>
-                                        )}
-                                    </div>
-                                ))}
+                                    ))}
+                                </div>
 
                                 {showForm && (
-                                    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-                                        <div className="bg-white p-6 rounded-lg w-full max-w-md relative">
+                                    <div
+                                        className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50"
+                                        style={{ marginTop: "0px" }}
+                                        onClick={() => {
+                                            setShowForm(false);
+                                            setSelectedAddressId(null);
+                                        }}
+                                    >
+                                        <div
+                                            className="bg-white p-6 rounded-lg w-full max-w-md relative"
+                                            onClick={(e) => e.stopPropagation()} // ⛔ Stop click from bubbling out
+                                        >
                                             <button
                                                 onClick={() => {
                                                     setShowForm(false);
@@ -276,7 +285,6 @@ const MyAddresses = () => {
                                                 onChange={handleChange}
                                                 className="border w-full p-2 rounded mb-4"
                                             />
-
                                             <input
                                                 type="number"
                                                 name="latitude"
@@ -331,6 +339,7 @@ const MyAddresses = () => {
                                         </div>
                                     </div>
                                 )}
+
                             </div>
                         ) : (
                             <div className="border rounded px-4 py-2 flex justify-between items-center">
@@ -342,111 +351,7 @@ const MyAddresses = () => {
 
                                 </div>
 
-                                {/* Overlay Form Modal */}
-                                {showForm && (
-                                    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                                        <div className="bg-white p-6 rounded-lg w-full max-w-md relative">
-                                            <button
-                                                className="absolute top-2 right-2 text-gray-500"
-                                                onClick={() => setShowForm(false)}
-                                            >
-                                                ✕
-                                            </button>
 
-                                            <h2 className="text-xl font-semibold mb-4">Location Details</h2>
-
-                                            <input
-                                                type="text"
-                                                name="neighbourhood"
-                                                placeholder="Neighbourhood"
-                                                value={formData.neighbourhood}
-                                                onChange={handleChange}
-                                                className="border w-full p-2 rounded mb-2"
-                                                required
-                                            />
-                                            <input
-                                                type="text"
-                                                name="building"
-                                                placeholder="Building or Street name"
-                                                value={formData.building}
-                                                onChange={handleChange}
-                                                className="border w-full p-2 rounded mb-2"
-                                            />
-                                            <input
-                                                type="text"
-                                                name="apartment"
-                                                placeholder="Apartment or Villa number"
-                                                value={formData.apartment}
-                                                onChange={handleChange}
-                                                className="border w-full p-2 rounded mb-4"
-                                            />
-
-                                            {/* Map Placeholder */}
-                                            <div className="bg-gray-100 h-40 rounded mb-4 flex items-center justify-center">
-                                                <span className="text-gray-500">Map Placeholder</span>
-                                            </div>
-
-                                            <input
-                                                type="number"
-                                                name="latitude"
-                                                placeholder="Latitude"
-                                                value={formData.latitude}
-                                                onChange={handleChange}
-                                                className="border w-full p-2 rounded mb-2"
-                                            />
-                                            <input
-                                                type="number"
-                                                name="longitude"
-                                                placeholder="Longitude"
-                                                value={formData.longitude}
-                                                onChange={handleChange}
-                                                className="border w-full p-2 rounded mb-4"
-                                            />
-
-                                            <div className="mb-2 font-medium">Label this address:</div>
-                                            <div className="flex space-x-2 mb-4">
-                                                <button
-                                                    onClick={() => handleLabel('other', 3)}
-                                                    className={`px-3 py-1 border rounded ${formData.address_type === 3 ? 'bg-blue-100' : ''}`}
-                                                >
-                                                    Other
-                                                </button>
-                                                <button
-                                                    onClick={() => handleLabel('home', 2)}
-                                                    className={`px-3 py-1 border rounded ${formData.address_type === 2 ? 'bg-blue-100' : ''}`}
-                                                >
-                                                    Home
-                                                </button>
-                                                <button
-                                                    onClick={() => handleLabel('work', 1)}
-                                                    className={`px-3 py-1 border rounded ${formData.address_type === 1 ? 'bg-blue-100' : ''}`}
-                                                >
-                                                    Work
-                                                </button>
-                                            </div>
-
-                                            <div className="mb-4">
-                                                <label className="inline-flex items-center">
-                                                    <input
-                                                        type="checkbox"
-                                                        name="isDefault"
-                                                        checked={formData.isDefault === 1}
-                                                        onChange={handleChange}
-                                                        className="form-checkbox mr-2"
-                                                    />
-                                                    Set as default
-                                                </label>
-                                            </div>
-
-                                            <button
-                                                onClick={handleSubmit}
-                                                className="bg-blue-600 text-white w-full py-2 rounded"
-                                            >
-                                                Save Address
-                                            </button>
-                                        </div>
-                                    </div>
-                                )}
                             </div>
                         )}
 
@@ -474,8 +379,17 @@ const MyAddresses = () => {
                                 </button>
 
                                 {showForm && (
-                                    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-                                        <div className="bg-white p-6 rounded-lg w-full max-w-md relative">
+                                    <div
+                                        className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50" style={{ marginTop: "0px" }}
+                                        onClick={() => {
+                                            setShowForm(false);
+                                            setSelectedAddressId(null);
+                                        }}
+                                    >
+                                        <div
+                                            className="bg-white p-6 rounded-lg w-full max-w-md relative"
+                                            onClick={(e) => e.stopPropagation()} // 🛑 Stop clicks from closing modal
+                                        >
                                             <button
                                                 onClick={() => {
                                                     setShowForm(false);
@@ -515,7 +429,6 @@ const MyAddresses = () => {
                                                 onChange={handleChange}
                                                 className="border w-full p-2 rounded mb-4"
                                             />
-
                                             <input
                                                 type="number"
                                                 name="latitude"
@@ -570,6 +483,7 @@ const MyAddresses = () => {
                                         </div>
                                     </div>
                                 )}
+
                             </div>
                         </div>
                     </div>

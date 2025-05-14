@@ -45,7 +45,7 @@ const SportBike = () => {
     <div className="min-h-screen bg-white px-4 py-6 flex flex-col items-center">
       {/* Logo */}
       <div className="text-3xl font-bold mb-8">
-        <span className="text-black">dub</span>
+        <span className="text-black">Syr</span>
         <span className="text-red-600 relative">
           izzle
           <span className="absolute -top-2 left-1/2 transform -translate-x-1/2 text-red-600 text-xs">▲</span>
@@ -92,7 +92,6 @@ const SportBike = () => {
         )}
       </div>
 
-      {error && <p className="text-red-500 mt-4">{error}</p>}
     </div>
   );
 };

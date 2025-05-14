@@ -47,11 +47,25 @@ const AdPostCity = () => {
       </div>
 
       {/* Always Enabled Button */}
-      <Link to={"/place-an-ad/pick-a-category/"}><button
-        className="mt-6 px-6 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition duration-200"
-      >
-        Yalla
-      </button></Link>
+     <Link
+  to={city ? `/place-an-ad/pick-a-category/` : "#"}
+  onClick={(e) => {
+    if (!city) {
+      e.preventDefault(); // block navigation
+      alert("Please select a city before proceeding.");
+    }
+  }}
+>
+  <button
+    className={`mt-6 px-6 py-2 rounded transition duration-200 ${
+      city ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-gray-400 text-white cursor-not-allowed'
+    }`}
+    disabled={!city}
+  >
+    Yalla
+  </button>
+</Link>
+
     </div>
   );
 };

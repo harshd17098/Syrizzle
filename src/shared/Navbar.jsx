@@ -11,7 +11,7 @@ import message from "../assets/icons/message.svg";
 import profile from "../assets/icons/profile.svg";
 import ThemeSwitcher from "../components/ThemeSwitcher/ThemeSwitcher";
 import JoinUs from "../components/JoinUS/JoinUs";
-import React, { useState, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { IoIosArrowDown } from "react-icons/io";
 import { Button, Checkbox, Label, Modal, ModalBody, ModalHeader, TextInput } from "flowbite-react";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
@@ -35,6 +35,7 @@ import { Link } from "react-router-dom";
 import { MdEmail } from "react-icons/md"; // Red email icon
 import ForgotPasswordModal from "../components/ForgotPassword/ForgotPasswordModal"
 import AdPostCity from "../components/PlaceYourAd/City/AdPostCity";
+import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 
 const menuItems = [
 	"My Job Applications",
@@ -96,12 +97,15 @@ export default function Navbar({ onClose }) {
 	const [openStaticModal, setOpenStaticModal] = useState(false);
 	const navigate = useNavigate();
 	const [image, setImage] = useState(null);
+	const dropdownRef = useRef(null);
+	const [emailLoginVisible, setEmailLoginVisible] = useState(false);
 
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [loginTriggered, setLoginTriggered] = useState(false);
 	const [isAdPostVisible, setIsAdPostVisible] = useState(false);
 	const users = JSON.parse(localStorage.getItem("user"));
+	const [showPassword, setShowPassword] = useState(false);
 
 	const handleSocialLogin = async (googleData) => {
 		try {
@@ -141,13 +145,14 @@ export default function Navbar({ onClose }) {
 		};
 
 		fetchProfileImage();
-	}, []);
+	}, [image]);
 
 	useEffect(() => {
 		const userData = localStorage.getItem("user");
 		if (userData) {
 			setUser(JSON.parse(userData));
 		}
+
 	}, []);
 
 	const handleEmailLogin = async (e) => {
@@ -197,7 +202,7 @@ export default function Navbar({ onClose }) {
 			// Clear form & close modal
 			setEmail('');
 			setPassword('');
-			setOpenModal(false);
+			setEmailLoginVisible(false); // ✅ Close the email login modal
 			navigate('/');
 		} catch (error) {
 			console.error('Email login failed:', error?.response || error);
@@ -209,6 +214,23 @@ export default function Navbar({ onClose }) {
 	};
 
 
+	const toggleDropdown = () => {
+		setIsDropdownOpen((prev) => !prev);
+	};
+
+	// Close dropdown on outside click
+	useEffect(() => {
+		const handleClickOutside = (event) => {
+			if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+				setIsDropdownOpen(false);
+			}
+		};
+
+		document.addEventListener('mousedown', handleClickOutside);
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside);
+		};
+	}, []);
 
 	const handleClick = () => {
 		setIsAdPostVisible(true); // Show the AdPostCity when clicked
@@ -221,6 +243,7 @@ export default function Navbar({ onClose }) {
 		localStorage.removeItem('user');
 		localStorage.removeItem('jwt');
 		setUser(null);
+		navigate('/');
 		toast.info('Logged out successfully', { position: 'top-center' });
 	};
 
@@ -330,33 +353,73 @@ export default function Navbar({ onClose }) {
 						<li>
 							<div className="relative px-2 py-6 text-[#2B2D2E] dark:text-gray-200 text-[14px]">
 								<button
-									onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+									onClick={toggleDropdown}
 									className="flex items-center justify-between w-full"
 								>
 									{user ? (
+										<>
+											<div className="px-2  text-[#2B2D2E] dark:text-gray-200 text-[14px] flex items-center gap-2">
+												{image ? (
+													<img
+														src={`https://syrizzle.vyominfotech.in${image.image}`}
+														alt="Profile"
+														height={20}
+														width={20}
+														style={{ backgroundColor: "gray", borderRadius: "50%" }}
+													/>
+												) : (
+													<div
+														style={{
+															width: 40,
+															height: 40,
+															backgroundColor: "gray",
+															borderRadius: "50%",
+														}}
+													/>
+												)}
+												<span>Hello, {user.first_name}</span>
+											</div>
 
-										<div className="px-2  text-[#2B2D2E] dark:text-gray-200 text-[14px] flex items-center gap-2">
-											{image ? (
-												<img
-													src={`https://syrizzle.vyominfotech.in${image.image}`}
-													alt="Profile"
-													height={20}
-													width={20}
-													style={{ backgroundColor: "gray", borderRadius: "50%" }}
-												/>
-											) : (
-												<div
-													style={{
-														width: 40,
-														height: 40,
-														backgroundColor: "gray",
-														borderRadius: "50%",
-													}}
-												/>
-											)}
-											<span>Hello, {user.first_name}</span>
-										</div>
+											<div className="relative inline-block text-left" ref={dropdownRef}>
+												{/* <button
+													onClick={toggleDropdown}
+													className="px-4 py-2 border rounded hover:bg-gray-200"
+												>
+													Menu
+												</button> */}
+												<svg
+													onClick={toggleDropdown}
+													className={`w-4 h-4 ml-2 transition-transform `}
+													fill="none"
+													stroke="currentColor"
+													viewBox="0 0 24 24"
+												>
+													<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+												</svg>
 
+												{isDropdownOpen && (
+													<ul className="absolute left-[-125px] top-[25px] mt-2 w-48 bg-white dark:bg-gray-800 border dark:border-gray-700 rounded shadow-lg z-10">
+														<Link to="/settings/profile">
+															<li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
+																My Profile
+															</li>
+														</Link>
+														<li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
+															Option 2
+														</li>
+														<li>
+															<button
+																className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+																onClick={handleLogout}
+																style={{ fontSize: '14px', backgroundColor: 'white', color: 'black' }}
+															>
+																Logout
+															</button>
+														</li>
+													</ul>
+												)}
+											</div>
+										</>
 									) : (
 										<button
 											onClick={() => setOpenModal(true)}
@@ -365,42 +428,21 @@ export default function Navbar({ onClose }) {
 											Log in or sign up
 										</button>
 									)}
-									<svg
-										className={`w-4 h-4 ml-2 transition-transform ${isDropdownOpen ? 'rotate-180' : ''
-											}`}
-										fill="none"
-										stroke="currentColor"
-										viewBox="0 0 24 24"
-									>
-										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-									</svg>
+
 								</button>
 
-								{isDropdownOpen && (
-									<ul className="absolute left-0 mt-2 w-48 bg-white dark:bg-gray-800 border dark:border-gray-700 rounded shadow-lg z-10">
-										<Link to={"/settings/profile"}>	<li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
-											My Profile
-										</li></Link>
-										<li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
-											Option 2
-										</li>
-										<li>
-											<button
-												className="btn w-full"
-												onClick={handleLogout}
-												style={{ fontSize: "14px", backgroundColor: "white", color: "black" }}
-											>
-												Logout
-											</button>
-										</li>
-									</ul>
-								)}
+
 							</div>
 
 							<Modal show={openModal} onClose={onCloseModal} popup>
-								<div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-40 z-[9999]">
-									<div className="relative bg-white rounded-lg shadow-lg p-4" style={{ width: "466px" }}>
-										<ModalHeader
+								<div
+									className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-40 z-[9999]"
+									onClick={onCloseModal} // Close when clicking backdrop
+								>									<div
+									className="relative bg-white rounded-lg shadow-lg p-4"
+									style={{ width: "466px" }}
+									onClick={(e) => e.stopPropagation()} // <-- prevents modal content clicks from closing it
+								>										<ModalHeader
 											style={{ position: "absolute", top: "5px", left: "390px", color: "gray" }}
 										/>
 
@@ -437,62 +479,37 @@ export default function Navbar({ onClose }) {
 												</button>
 											</div>
 
-											{/* Email Login */}
-											<form onSubmit={handleEmailLogin} className="space-y-4 mb-4 w-full">
-												<input
-													type="email"
-													placeholder="Email"
-													className="border p-2 w-full rounded"
-													value={email}
-													onChange={(e) => setEmail(e.target.value)}
-													required
-												/>
-												<input
-													type="password"
-													placeholder="Password"
-													className="border p-2 w-full rounded"
-													value={password}
-													onChange={(e) => setPassword(e.target.value)}
-													required
-												/>
-												<button
-													type="submit"
-													className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
-												>
-													Login with Email
-												</button>
-											</form>
 
-											<div className="mt-6 p-3 rounded-md bg-red-50 hover:bg-red-100 transition cursor-pointer ">
-												<button
-													onClick={() => setIsModalOpen(true)}
-													className="text-red-600 font-semibold text-sm md:text-base w-full text-center"
-												>
-													Forgot Password?
-												</button>
 
-												<ForgotPasswordModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
-											</div>
-											<div className="my-4 text-center text-gray-500">OR</div>
+
 
 											{/* Social Buttons */}
-											<div className="flex flex-col items-center justify-center space-y-3">
-												<LoginSocialGoogle
-													client_id=""
-													onResolve={({ data }) => handleSocialLogin(data)}
-													onReject={(err) => console.log('Google login error', err)}
-												>
-													<GoogleLoginButton />
-												</LoginSocialGoogle>
-
+											<div className="flex flex-col items-center justify-center space-y-3  max-w-sm mx-auto">
+												{/* Facebook */}
 												<LoginSocialFacebook
 													appId="YOUR_FACEBOOK_APP_ID"
 													onResolve={({ data }) => handleSocialLogin('facebook', data)}
 													onReject={(err) => console.log('Facebook login error', err)}
 												>
-													<FacebookLoginButton />
+													<button className="flex items-center w-full justify-center border rounded px-4 py-2 hover:bg-gray-100 transition">
+														<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/facebook/facebook-original.svg" alt="Facebook" className="w-5 h-5 mr-2" />
+														Continue with Facebook
+													</button>
 												</LoginSocialFacebook>
 
+												{/* Google */}
+												<LoginSocialGoogle
+													client_id="YOUR_GOOGLE_CLIENT_ID"
+													onResolve={({ data }) => handleSocialLogin('google', data)}
+													onReject={(err) => console.log('Google login error', err)}
+												>
+													<button className="flex items-center w-full justify-center border rounded px-4 py-2 hover:bg-gray-100 transition">
+														<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg" alt="Google" className="w-5 h-5 mr-2" />
+														Continue with Google
+													</button>
+												</LoginSocialGoogle>
+
+												{/* Apple */}
 												<LoginSocialApple
 													client_id="YOUR_APPLE_CLIENT_ID"
 													scope="name email"
@@ -500,10 +517,27 @@ export default function Navbar({ onClose }) {
 													onResolve={({ data }) => handleSocialLogin('apple', data)}
 													onReject={(err) => console.log('Apple login error', err)}
 												>
-													<AppleLoginButton />
+													<button className="flex items-center w-full justify-center border rounded px-4 py-2 hover:bg-gray-100 transition">
+														<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/apple/apple-original.svg" alt="Apple" className="w-5 h-5 mr-2" />
+														Continue with Apple
+													</button>
 												</LoginSocialApple>
 
+												{/* Email */}
+												<button
+													type="button"
+													onClick={() => {
+														onCloseModal(); // Close main modal
+														setEmailLoginVisible(true); // Open email login modal
+													}}
+													className="flex items-center  justify-center border rounded px-4 py-2 hover:bg-gray-100 transition"
+												>
+													<img src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Mail_%28iOS%29.svg" alt="Email" className="w-5 h-5 mr-2" />
+													Continue with Email
+												</button>
 											</div>
+
+
 
 											{/* Create Account Prompt */}
 											<div
@@ -541,24 +575,88 @@ export default function Navbar({ onClose }) {
 									</div>
 								</div>
 							</Modal>
+							<ForgotPasswordModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+							<Modal show={emailLoginVisible} onClose={() => setEmailLoginVisible(false)} popup>
+								<div
+									className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-40 z-[9999]"
+									onClick={() => setEmailLoginVisible(false)} // ✅ Comment is now outside JSX, valid
+								>
+									<div
+										className="relative bg-white rounded-lg shadow-lg p-4"
+										style={{ width: "466px" }}
+										onClick={(e) => e.stopPropagation()}
+									>										<ModalHeader
+											style={{ position: "absolute", top: "5px", left: "390px", color: "gray" }}
+										/> <br />
+										<h2 style={{ display: "flex", justifyContent: "center", fontSize: "25px" }}>Log in with your email</h2>
+										<ModalBody className="p-6 md:p-8">
+											<form onSubmit={handleEmailLogin} className="space-y-4 mb-4 w-full">
+												<input
+													type="email"
+													placeholder="Email"
+													className="border p-2 w-full rounded"
+													value={email}
+													onChange={(e) => setEmail(e.target.value)}
+													required
+												/>
+												<div className="relative w-full">
+													<input
+														type={showPassword ? "text" : "password"}
+														placeholder="Password"
+														className="border p-2 w-full rounded pr-10"
+														value={password}
+														onChange={(e) => setPassword(e.target.value)}
+														required
+													/>
+													<span
+														className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xl cursor-pointer text-gray-500"
+														onClick={() => setShowPassword(!showPassword)}
+													>
+														{showPassword ? <AiFillEyeInvisible /> : <AiFillEye />}
+													</span>
+												</div>
+												<button
+													type="submit"
+													className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+												>
+													Login
+												</button>
+											</form>
+											<div className="mt-6 p-3 rounded-md bg-red-50 hover:bg-red-100 transition cursor-pointer">
+												<button
+													onClick={() => {
+														setEmailLoginVisible(false); // ✅ Close email login modal
+														setIsModalOpen(true);        // ✅ Open forgot password modal
+													}}
+													className="text-red-600 font-semibold text-sm md:text-base w-full text-center"
+												>
+													Forgot Password?
+												</button>
+
+											</div>
+										</ModalBody>
+									</div>
+								</div>
+							</Modal>
+
 						</li>
 
 						<li>
-						
+
 							<div>
 								{user ? (
 									<Link to="/place-an-ad/pick-a-city/">
 										<button className="btn text-sm">Place Your Ad</button>
 									</Link>
 								) : (
-									
-									<button className="btn text-sm" onClick={handleClick}>
-									Place Your Ad
-								</button>
-								)} 
+
+									<button className="btn text-sm" onClick={() => setOpenModal(true)}>
+										Place Your Ad
+									</button>
+								)}
 
 								{/* Conditionally render AdPostCity based on the isAdPostVisible state */}
-								
+
 							</div>
 
 							<Modal show={openStaticModal} onClose={onCloseModal} popup>

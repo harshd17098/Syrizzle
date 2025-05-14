@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { IoArrowBackSharp } from "react-icons/io5";
+import { IoArrowBackSharp, IoEye, IoEyeOff } from "react-icons/io5"; // Import eye icons
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
@@ -10,6 +10,7 @@ const SignUp = ({ onClose }) => {
 	const [password, setPassword] = useState("");
 	const [isPasswordValid, setIsPasswordValid] = useState(false);
 	const [isEmailValid, setIsEmailValid] = useState(false);
+	const [passwordVisible, setPasswordVisible] = useState(false); // State to toggle password visibility
 
 	const passwordRegex =
 		/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/;
@@ -72,9 +73,17 @@ const SignUp = ({ onClose }) => {
 		}
 	};
 
+	// Toggle password visibility
+	const togglePasswordVisibility = () => {
+		setPasswordVisible(!passwordVisible);
+	};
+
 	return (
-		<div className="fixed inset-0 z-50 flex justify-center items-center">
-			<div className="bg-white w-[466px] p-6 rounded-lg shadow-lg relative" style={{ height: "650px", padding: "60px" }}>
+		<div className="fixed inset-0 z-50 flex justify-center items-center bg-black bg-opacity-40">
+			<div
+				className="bg-white w-[466px] p-6 rounded-lg shadow-lg relative"
+				style={{ height: "650px", padding: "60px" }}
+			>
 				<button onClick={onClose} className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-2xl">
 					<IoArrowBackSharp />
 				</button>
@@ -96,13 +105,24 @@ const SignUp = ({ onClose }) => {
 						placeholder="Email"
 						className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 ${isEmailValid ? 'focus:ring-green-500' : 'focus:ring-red-500'}`}
 					/>
-					<input
-						type="password"
-						value={password}
-						onChange={handlePasswordChange}
-						placeholder="Password"
-						className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 ${isPasswordValid ? 'focus:ring-green-500' : 'focus:ring-red-500'}`}
-					/>
+
+					<div className="relative">
+						<input
+							type={passwordVisible ? "text" : "password"} // Toggle password visibility
+							value={password}
+							onChange={handlePasswordChange}
+							placeholder="Password"
+							className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 ${isPasswordValid ? 'focus:ring-green-500' : 'focus:ring-red-500'}`}
+						/>
+						<button
+							type="button"
+							onClick={togglePasswordVisibility}
+							className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+						>
+							{passwordVisible ? <IoEyeOff /> : <IoEye />} {/* Toggle eye icon */}
+						</button>
+					</div>
+
 					<button
 						type="submit"
 						className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
