@@ -41,6 +41,7 @@ import CarEdit from "./components/PlaceYourAd/CarCategory/CarEdit";
 import CategoryMotorCycles from "./components/PlaceYourAd/Motorcycles/categoryMotorcycles/CategoryMotorcycles";
 import SportBike from "./components/PlaceYourAd/Motorcycles/SportBike/SportBike";
 import HyperSportsForm from "./components/PlaceYourAd/Motorcycles/SportBike/HyperSports/HyperSportsForm";
+import CarProducts from "./components/PlaceYourAd/CarCategory/products/CarProducts";
 
 export default function App() {
   return (
@@ -94,6 +95,7 @@ export default function App() {
           <Route path="/place-an-ad/taxonomy/motors/motorcycles/" element={<CategoryMotorCycles />} />
           <Route path="/place-an-ad/taxonomy/motors/motorcycles/sport-bike/:categoryId" element={<SportBike />} />
           <Route path="/place-an-ad/motors/motorcycles/sport-bike/hyper-sports/new/:subCategoryId" element={<HyperSportsForm/>}/>
+          <Route path='/products/bundle/' element={<CarProducts/>}/>
 
 
         </Routes>

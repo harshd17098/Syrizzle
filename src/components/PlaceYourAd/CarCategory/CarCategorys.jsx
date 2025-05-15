@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { FaAngleRight } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import { useSearchParams } from 'react-router-dom';
 import { useRef } from 'react';
 import { IoLocation } from "react-icons/io5";
+import { useNavigate } from 'react-router-dom';
 
 
 
@@ -28,6 +29,7 @@ const CarCategorys = () => {
     const [regionalSpecs, setRegionalSpecs] = useState([]);
     const [bodyTypes, setBodyTypes] = useState([]);
     const [responseData, setResponseData] = useState(null);
+const navigate = useNavigate();
 
     const [searchParams, setSearchParams] = useSearchParams();
     const motorIdFromURL = searchParams.get('_id');
@@ -287,6 +289,7 @@ const CarCategorys = () => {
             const createdMotorId = res.data.data.result._id;
             setMotorId(createdMotorId);
             setSearchParams({ _id: createdMotorId });
+            
             toast.success("Model selected and data saved successfully!");
         } catch (error) {
             toast.error("Something went wrong while selecting the model.");
@@ -335,6 +338,7 @@ const CarCategorys = () => {
             setFormSubmitted(true); // Switch to next screen
             // Store response data
             toast.success('Data submitted as draft!');
+        navigate('/products/bundle/');
 
         } catch (err) {
             toast.error('Submission failed');

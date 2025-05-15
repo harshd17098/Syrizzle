@@ -68,6 +68,59 @@ const Profile = () => {
             });
     }, []);
 
+    useEffect(() => {
+        const updateProfileImage = async () => {
+            if (profile && profile.image || avatarUrls.image) {
+                try {
+                    console.log("Profile image updated: ", profile.image);
+
+                } catch (error) {
+                    console.error("Error handling updated profile image:", error);
+                }
+            }
+        };
+
+        updateProfileImage();
+        setIsModalVisible(false);
+
+    }, [profile.image, avatarUrls.image]); // This will trigger the effect whenever the profile image changes
+
+
+
+
+    useEffect(() => {
+        const fetchAvatars = async () => {
+            const jwtToken = localStorage.getItem("jwt");
+            if (!jwtToken) return;
+
+            try {
+                const response = await axios.get("https://syrizzle.vyominfotech.in/api/avatar", {
+                    headers: {
+                        Authorization: `Bearer ${jwtToken}`,
+                    },
+                });
+                console.log("avatar respones", response);
+
+
+                // Map image path to full URL
+
+                const avatars = response.data.data.result.map((item) => ({
+                    image: item.image,
+                }));
+                console.log("avatars", avatars);
+                // console.log("hhhh");
+                setAvatarUrls(avatars);
+
+            } catch (err) {
+                console.error("Failed to fetch avatars:", err);
+            }
+        };
+
+        if (activeTab === "avatar") {
+            fetchAvatars();
+        }
+    }, [activeTab]);
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setProfile((prev) => ({
@@ -164,58 +217,7 @@ const Profile = () => {
     };
 
 
-    useEffect(() => {
-        const updateProfileImage = async () => {
-            if (profile && profile.image || avatarUrls.image) {
-                try {
-                    console.log("Profile image updated: ", profile.image);
-
-                } catch (error) {
-                    console.error("Error handling updated profile image:", error);
-                }
-            }
-        };
-
-        updateProfileImage();
-        setIsModalVisible(false);
-
-    }, [profile.image, avatarUrls.image]); // This will trigger the effect whenever the profile image changes
-
-
-
-
-    useEffect(() => {
-        const fetchAvatars = async () => {
-            const jwtToken = localStorage.getItem("jwt");
-            if (!jwtToken) return;
-
-            try {
-                const response = await axios.get("https://syrizzle.vyominfotech.in/api/avatar", {
-                    headers: {
-                        Authorization: `Bearer ${jwtToken}`,
-                    },
-                });
-                console.log("avatar respones", response);
-
-
-                // Map image path to full URL
-
-                const avatars = response.data.data.result.map((item) => ({
-                    image: item.image,
-                }));
-                console.log("hyyy", avatars);
-                // console.log("hhhh");
-                setAvatarUrls(avatars);
-
-            } catch (err) {
-                console.error("Failed to fetch avatars:", err);
-            }
-        };
-
-        if (activeTab === "avatar") {
-            fetchAvatars();
-        }
-    }, [activeTab]);
+    
 
 
 

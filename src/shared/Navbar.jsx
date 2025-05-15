@@ -107,24 +107,8 @@ export default function Navbar({ onClose }) {
 	const users = JSON.parse(localStorage.getItem("user"));
 	const [showPassword, setShowPassword] = useState(false);
 
-	const handleSocialLogin = async (googleData) => {
-		try {
-			console.log("Google Data:", googleData);
 
-			const payload = {
-				login_type: "google",
-				idToken: googleData.credential, // This is the ID Token from Google One Tap
-				device_name: "web"
-			};
-
-			const response = await axios.post("https://syrizzle.vyominfotech.in/api/login", payload);
-			console.log("Login success", response.data);
-		} catch (error) {
-			console.error("Google login failed:", error.response?.data || error.message);
-		}
-	};
-
-	useEffect(() => {
+useEffect(() => {
 		const fetchProfileImage = async () => {
 			const token = localStorage.getItem("jwt");
 			if (!token) return;
@@ -147,13 +131,33 @@ export default function Navbar({ onClose }) {
 		fetchProfileImage();
 	}, [image]);
 
+
+	const handleSocialLogin = async (googleData) => {
+		try {
+			console.log("Google Data:", googleData);
+
+			const payload = {
+				login_type: "google",
+				idToken: googleData.credential, // This is the ID Token from Google One Tap
+				device_name: "web"
+			};
+
+			const response = await axios.post("https://syrizzle.vyominfotech.in/api/login", payload);
+			console.log("Login success", response.data);
+		} catch (error) {
+			console.error("Google login failed:", error.response?.data || error.message);
+		}
+	};
+
+	
+
 	useEffect(() => {
 		const userData = localStorage.getItem("user");
 		if (userData) {
 			setUser(JSON.parse(userData));
 		}
 
-	}, []);
+	},[]);
 
 	const handleEmailLogin = async (e) => {
 		e.preventDefault();
@@ -166,7 +170,7 @@ export default function Navbar({ onClose }) {
 					password,
 					login_type: 'email',
 					device_name: 'web',
-					image: ""
+					// image: ""
 				}
 			);
 
@@ -188,7 +192,7 @@ export default function Navbar({ onClose }) {
 				first_name: result.first_name,
 				last_name: result.last_name,
 				email: result.email,
-				image: result.image,
+				
 			};
 
 			localStorage.setItem('user', JSON.stringify(userData));

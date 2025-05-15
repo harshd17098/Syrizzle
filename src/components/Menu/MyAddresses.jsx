@@ -22,6 +22,10 @@ const MyAddresses = () => {
         longitude: '',
     });
 
+    useEffect(() => {
+        fetchAddresses();
+    }, []);
+
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -70,7 +74,6 @@ const MyAddresses = () => {
                     Authorization: `Bearer ${token}`,
                 },
             });
-
             toast.success(`Address ${selectedAddressId ? 'updated' : 'saved'} successfully!`);
             setShowForm(false);
             setSelectedAddressId(null);
@@ -107,6 +110,8 @@ const MyAddresses = () => {
     };
 
     const handleDelete = async (addressId) => {
+        console.log(addressId);
+        
         const token = localStorage.getItem("jwt");
         if (!token) return alert("User not authenticated");
 
@@ -118,10 +123,10 @@ const MyAddresses = () => {
                 },
             });
 
-            const status = response.data?.status;
+            const success = response.data?.success;
             console.log("Full delete response:", response.data);
 
-            if (status === true) {
+            if (success === true) {
                 toast.success("Address deleted successfully!");
                 await fetchAddresses(); // Re-fetch to update UI
             } else {
@@ -134,9 +139,7 @@ const MyAddresses = () => {
         }
     };
 
-    useEffect(() => {
-        fetchAddresses();
-    }, []);
+
 
     return (
         <div className="flex w-full">
