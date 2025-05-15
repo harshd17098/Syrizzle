@@ -29,7 +29,7 @@ const CarCategorys = () => {
     const [regionalSpecs, setRegionalSpecs] = useState([]);
     const [bodyTypes, setBodyTypes] = useState([]);
     const [responseData, setResponseData] = useState(null);
-const navigate = useNavigate();
+    const navigate = useNavigate();
 
     const [searchParams, setSearchParams] = useSearchParams();
     const motorIdFromURL = searchParams.get('_id');
@@ -289,8 +289,8 @@ const navigate = useNavigate();
             const createdMotorId = res.data.data.result._id;
             setMotorId(createdMotorId);
             setSearchParams({ _id: createdMotorId });
-            
-            toast.success("Model selected and data saved successfully!");
+
+            toast.success("Draft saved");
         } catch (error) {
             toast.error("Something went wrong while selecting the model.");
         }
@@ -337,8 +337,8 @@ const navigate = useNavigate();
             setResponseData(response.data.data.result);
             setFormSubmitted(true); // Switch to next screen
             // Store response data
-            toast.success('Data submitted as draft!');
-        navigate('/products/bundle/');
+            toast.success('Ad placed successfully');
+            navigate('/products/bundle/');
 
         } catch (err) {
             toast.error('Submission failed');
@@ -436,13 +436,13 @@ const navigate = useNavigate();
     };
 
     const handleSelectAddress = (addr) => {
-    setSelectedAddressId(addr.address_id); // Visually highlight
-    setPayload(prev => ({
-        ...prev,
-        address_id: addr.address_id, // Store it in the payload
-    }));
-    toast.success("Address selected");
-};
+        setSelectedAddressId(addr.address_id); // Visually highlight
+        setPayload(prev => ({
+            ...prev,
+            address_id: addr.address_id, // Store it in the payload
+        }));
+        toast.success("Address selected");
+    };
 
     // Handle file selection and upload
     const handleFileChange = async (e) => {
@@ -495,44 +495,44 @@ const navigate = useNavigate();
 
 
 
-   const fetchAddresses = async () => {
-    const jwtToken = localStorage.getItem("jwt");
+    const fetchAddresses = async () => {
+        const jwtToken = localStorage.getItem("jwt");
 
-    if (!jwtToken) {
-        console.log("No JWT token found in localStorage.");
-        return;
-    }
-
-    try {
-        const response = await axios.get("https://syrizzle.vyominfotech.in/api/address", {
-            headers: {
-                Authorization: `Bearer ${jwtToken}`,
-            },
-        });
-
-        const result = response.data.data.result;
-
-        if (response.data.success && Array.isArray(result)) {
-            setAddressData(result);
-
-            // ✅ Set default address_id in payload
-            const defaultAddr = result.find(addr => addr.isDefault === 1) || result[0];
-
-            if (defaultAddr?.address_id) {
-                setPayload(prev => ({
-                    ...prev,
-                    address_id: defaultAddr.address_id
-                }));
-            } else {
-                console.warn("No address_id found in fetched addresses.");
-            }
-        } else {
-            console.warn("Unexpected response format:", response.data);
+        if (!jwtToken) {
+            console.log("No JWT token found in localStorage.");
+            return;
         }
-    } catch (error) {
-        console.error("Error fetching address:", error);
-    }
-};
+
+        try {
+            const response = await axios.get("https://syrizzle.vyominfotech.in/api/address", {
+                headers: {
+                    Authorization: `Bearer ${jwtToken}`,
+                },
+            });
+
+            const result = response.data.data.result;
+
+            if (response.data.success && Array.isArray(result)) {
+                setAddressData(result);
+
+                // ✅ Set default address_id in payload
+                const defaultAddr = result.find(addr => addr.isDefault === 1) || result[0];
+
+                if (defaultAddr?.address_id) {
+                    setPayload(prev => ({
+                        ...prev,
+                        address_id: defaultAddr.address_id
+                    }));
+                } else {
+                    console.warn("No address_id found in fetched addresses.");
+                }
+            } else {
+                console.warn("Unexpected response format:", response.data);
+            }
+        } catch (error) {
+            console.error("Error fetching address:", error);
+        }
+    };
 
 
     useEffect(() => {
@@ -617,11 +617,11 @@ const navigate = useNavigate();
 
                     {/* Centered Logo */}
                     <div className="flex justify-center text-3xl font-bold mb-8">
-                        <span className="text-black">dub</span>
+                      <a href="/">   <span className="text-black">Syr</span>
                         <span className="text-red-600 relative">
                             izzle
                             <span className="absolute -top-2 left-1/2 transform -translate-x-1/2 text-red-600 text-xs">▲</span>
-                        </span>
+                        </span></a>
                     </div>
 
                     {/* Heading */}
@@ -786,7 +786,7 @@ const navigate = useNavigate();
 
                         {/* Phone input */}
                         <input
-                            type="tel"
+                            type="number"
                             placeholder="Phone number*"
                             className="w-full border p-2 rounded"
                             required
@@ -813,14 +813,13 @@ const navigate = useNavigate();
                     <div className="w-full max-w-md space-y-4">
                         <form onSubmit={handleSubmit}>
                             {/* Centered Logo */}
-                            <div className="flex justify-center text-3xl font-bold mb-8">
-                                <span className="text-black">dub</span>
-                                <span className="text-red-600 relative">
-                                    izzle
-                                    <span className="absolute -top-2 left-1/2 transform -translate-x-1/2 text-red-600 text-xs">▲</span>
-                                </span>
-                            </div>
-
+                           <a href="/">   <div className="flex justify-center text-3xl font-bold mb-8">
+                        <span className="text-black">Syr</span>
+                        <span className="text-red-600 relative">
+                            izzle
+                            <span className="absolute -top-2 left-1/2 transform -translate-x-1/2 text-red-600 text-xs">▲</span>
+                        </span>
+                    </div></a>
                             {responseData && (
                                 <div className="mt-4 p-4 border rounded-md" style={{ backgroundColor: "rgb(246, 247, 248)" }}>
                                     <div className="flex justify-between items-center mb-4">

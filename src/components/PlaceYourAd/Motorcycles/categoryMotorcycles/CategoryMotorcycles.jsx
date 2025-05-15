@@ -40,39 +40,42 @@ const CategoryMotorCycles = () => {
 
   // Handle category click
   const handleCategoryClick = async (category_id) => {
-    const token = localStorage.getItem('jwt');
+  const token = localStorage.getItem('jwt');
 
-    if (!token) {
-      console.error('No token found');
-      return;
-    }
+  if (!token) {
+    console.error('No token found');
+    return;
+  }
 
-    // Create the payload with extra data
-    const payload = {
-      category_id,      // existing category_id
-      motor_type: 2,
-    };
+  // Store category_id in localStorage
+  localStorage.setItem('category_id', category_id);
 
-    try {
-      // Sending the payload in the POST request
-      const response = await axios.post(
-        'https://syrizzle.vyominfotech.in/api/add-motor',
-        payload,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      console.log('Motor added successfully:', response.data);
-
-      // Navigate on success and pass category_id in the URL
-      navigate(`/place-an-ad/taxonomy/motors/motorcycles/sport-bike/${category_id}`);
-    } catch (error) {
-      console.error('Error posting motor:', error.response?.data || error.message);
-    }
+  // Create the payload with extra data
+  const payload = {
+    category_id,
+    motor_type: 2,
   };
+
+  try {
+    const response = await axios.post(
+      'https://syrizzle.vyominfotech.in/api/add-motor',
+      payload,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    console.log('Motor added successfully:', response.data);
+
+    // Navigate on success and pass category_id in the URL
+    navigate(`/place-an-ad/taxonomy/motors/motorcycles/sport-bike/${category_id}`);
+  } catch (error) {
+    console.error('Error posting motor:', error.response?.data || error.message);
+  }
+};
+
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
@@ -81,11 +84,11 @@ const CategoryMotorCycles = () => {
     <div className="min-h-screen bg-white px-4 py-6 flex flex-col items-center">
       {/* Logo */}
       <div className="text-3xl font-bold mb-8">
-        <span className="text-black">Syr</span>
+     <a href="/">    <span className="text-black">Syr</span>
         <span className="text-red-600 relative">
           izzle
           <span className="absolute -top-2 left-1/2 transform -translate-x-1/2 text-red-600 text-xs">▲</span>
-        </span>
+        </span></a>
       </div>
 
       {/* Heading */}

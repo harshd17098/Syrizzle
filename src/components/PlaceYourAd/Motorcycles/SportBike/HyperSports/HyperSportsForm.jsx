@@ -6,6 +6,7 @@ import "react-toastify/dist/ReactToastify.css";
 import axios from 'axios';
 import { useNavigate, useParams } from "react-router-dom";
 import API_BASE_URL from '../../../../../api/api';
+import { IoLocation } from "react-icons/io5";
 
 
 const HyperSportsForm = () => {
@@ -36,12 +37,25 @@ const HyperSportsForm = () => {
     const [engineSizes, setEngineSizes] = useState([]);
     const [selectedManufacturer, setSelectedManufacturer] = useState("");
     const [selectedEngineSize, setSelectedEngineSize] = useState("");
+    const [addressData, setAddressData] = useState([]);
+    const [showForm, setShowForm] = useState(false);
+    const [selectedAddressId, setSelectedAddressId] = useState(null);
+    const [addressId, setAddressId] = useState(null);
 
     const [images, setImages] = useState([]);
     const [payload, setPayload] = useState({
         images: [],
     });
-
+    const [formDat, setFormDat] = useState({
+        neighbourhood: '',
+        building: '',
+        apartment: '',
+        custom_label: 'work',
+        address_type: 1,
+        isDefault: 0,
+        latitude: '',
+        longitude: '',
+    });
     const markerRef = useRef(null);
 
     // Handle Image Change for uploading and preview
@@ -121,6 +135,119 @@ const HyperSportsForm = () => {
     };
 
 
+    const fetchAddresses = async () => {
+        const jwtToken = localStorage.getItem("jwt");
+
+        if (!jwtToken) {
+            console.log("No JWT token found in localStorage.");
+            return;
+        }
+
+        try {
+            const response = await axios.get("https://syrizzle.vyominfotech.in/api/address", {
+                headers: {
+                    Authorization: `Bearer ${jwtToken}`,
+                },
+            });
+
+            const result = response.data.data.result;
+
+            if (response.data.success && Array.isArray(result)) {
+                setAddressData(result);
+
+                const defaultAddr = result.find(addr => addr.isDefault === 1) || result[0];
+
+                if (defaultAddr?._id) {
+                    setAddressId(defaultAddr._id);
+
+                    setPayload(prev => ({
+                        ...prev,
+                        address_id: defaultAddr._id
+
+                    }));
+
+                    // ✅ Set latitude and longitude in formDat
+                    setFormDat(prev => ({
+                        ...prev,
+                        latitude: defaultAddr.latitude || '',
+                        longitude: defaultAddr.longitude || ''
+
+                    }));
+
+
+                } else {
+                    console.warn("No address_id found in fetched addresses.");
+                }
+            } else {
+                console.warn("Unexpected response format:", response.data);
+            }
+        } catch (error) {
+            console.error("Error fetching address:", error);
+        }
+    };
+
+
+    useEffect(() => {
+        fetchAddresses();
+    }, []);
+    const handleChang = (e) => {
+
+        const { name, value, type, checked } = e.target;
+        setFormDat((prev) => ({
+            ...prev,
+            [name]: type === 'checkbox' ? (checked ? 1 : 0) : value,
+        }));
+    };
+
+    const handleLabel = (label, type) => {
+        setFormDat((prev) => ({
+            ...prev,
+            custom_label: label,
+            address_type: type,
+        }));
+    };
+
+    const handleEdit = (address) => {
+        setSelectedAddressId(address._id);
+        setFormDat({
+            neighbourhood: address.neighbourhood || '',
+            building: address.building || '',
+            apartment: address.apartment || '',
+            custom_label: address.custom_label || 'work',
+            address_type: address.address_type || 1,
+            isDefault: address.isDefault || 0,
+            latitude: address.latitude || '',
+            longitude: address.longitude || '',
+        });
+        setShowForm(true);
+    };
+
+    const handleSubmitt = async () => {
+        try {
+            const token = localStorage.getItem('jwt');
+            if (!token) return alert('User not authenticated');
+
+            const endpoint = selectedAddressId
+                ? `https://syrizzle.vyominfotech.in/api/address/update/${selectedAddressId}`
+                : 'https://syrizzle.vyominfotech.in/api/address/add';
+
+            const method = selectedAddressId ? 'post' : 'post';
+
+            const response = await axios[method](endpoint, formDat, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            alert(`Address ${selectedAddressId ? 'updated' : 'saved'} successfully!`);
+            setShowForm(false);
+            setSelectedAddressId(null);
+            fetchAddresses(); // Refresh list
+        } catch (error) {
+            console.error('Failed to save address:', error);
+            alert('Failed to save address');
+        }
+    };
     // Trigger file input click
     const handleButtonClick = () => {
         fileInputRef.current.click();
@@ -128,52 +255,72 @@ const HyperSportsForm = () => {
 
     // Submit form data
     const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (!title || !contactNumber || !price || !description) {
-            toast.error("Please fill all required fields.");
-            return;
-        }
+    e.preventDefault();
 
-        const token = localStorage.getItem("jwt");
-        if (!token) return console.error("JWT token is missing");
+    if (!title || !contactNumber || !price || !description) {
+        toast.error("Please fill all required fields.");
+        return;
+    }
 
-        const finalPayload = {
-            sub_category_id: subCategoryId,
-            motor_type: 2,
-            title,
-            contact_number: contactNumber,
-            price,
-            description,
-            images: payload.images,
-            kilometers,
-            year,
-            seller_type: sellerType,
-            warranty,
-            final_drive_system: finalDriveSystem,
-            wheels,
-            usage_id: selectedUsage, // ✅ include this
-            manufacturer_id: selectedManufacturer, // ✅ send ID to backend
-            engine_size_id: selectedEngineSize, // ✅ Add this
-        };
+    const token = localStorage.getItem("jwt");
+    if (!token) return console.error("JWT token is missing");
 
-        setIsLoading(true);
-        try {
-            const response = await axios.post(`${API_BASE_URL}/add-motor`, finalPayload, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-            toast.success("Listing submitted successfully!");
-            console.log("API Response:", response.data);
-            // navigate("/success-or-next-step"); // Redirect after success
-        } catch (error) {
-            console.error("Error submitting form:", error.response?.data || error.message);
-            setError("Failed to submit data");
-            toast.error("Submission failed.");
-        } finally {
-            setIsLoading(false);
-        }
+    // ✅ Get category_id from localStorage
+    const categoryId = localStorage.getItem("category_id");
+
+    if (!categoryId) {
+        toast.error("Category ID is missing.");
+        return;
+    }
+
+    const finalPayload = {
+        category_id: categoryId, // ✅ Add category_id to payload
+        sub_category_id: subCategoryId,
+        motor_type: 2,
+        title,
+        contact_number: contactNumber,
+        price,
+        description,
+        images: payload.images,
+        kilometers,
+        year,
+        seller_type: sellerType,
+        warranty,
+        final_drive_system: finalDriveSystem,
+        wheels,
+        usage_id: selectedUsage,
+        manufacturer_id: selectedManufacturer,
+        engine_size_id: selectedEngineSize,
+        address_id: addressId,
+        latitude: formDat.latitude,
+        longitude: formDat.longitude
     };
+// console.log(finalPayload);
+
+    setIsLoading(true);
+    try {
+        const response = await axios.post(`${API_BASE_URL}/add-motor`, finalPayload, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        toast.success("Listing submitted successfully!");
+        console.log("API Response:", response.data);
+
+        // ✅ Remove category_id from localStorage after success
+        localStorage.removeItem("category_id");
+
+        // navigate("/success-or-next-step");
+    } catch (error) {
+        console.error("Error submitting form:", error.response?.data || error.message);
+        setError("Failed to submit data");
+        toast.error("Submission failed.");
+    } finally {
+        setIsLoading(false);
+    }
+};
+
 
 
 
@@ -286,8 +433,13 @@ const HyperSportsForm = () => {
 
     return (
         <div className="flex flex-col items-center bg-white min-h-screen p-4">
-            <img src="/logo.svg" alt="dubizzle logo" className="h-10 my-4" />
-
+            <div className="flex justify-center text-3xl font-bold mb-8">
+              <a href="/">   <span className="text-black">Syr</span>
+                <span className="text-red-600 relative">
+                    izzle
+                    <span className="absolute -top-2 left-1/2 transform -translate-x-1/2 text-red-600 text-xs">▲</span>
+                </span></a>
+            </div>
             <h2 className="text-lg font-bold text-center text-red-700">
                 You’re almost there!
             </h2>
@@ -542,73 +694,148 @@ const HyperSportsForm = () => {
 
 
 
-                <div className="max-w-md mx-auto p-4 border rounded shadow bg-white">
-                    <h2 className="font-semibold text-lg mb-4 flex justify-between items-center">
-                        Select Location
-                        {showInputs && (
-                            <button
-                                onClick={() => setShowInputs(false)}
-                                className="text-gray-500 hover:text-black text-xl font-bold"
-                                aria-label="Close"
-                            >
-                                ×
-                            </button>
+
+
+                {addressData.map((addr) => (
+                    <div
+                        key={addr._id}
+                        className="border p-4 rounded shadow-sm flex justify-between items-start"
+                    >
+                        <div>
+                            <div className="flex items-center font-semibold">
+                                <IoLocation className="mr-1" />
+                                {addr.custom_label}
+                            </div>
+
+                            <p className="text-sm text-gray-600">
+                                {[addr.apartment, addr.building, addr.neighbourhood].filter(Boolean).join(", ")}
+                            </p>
+                            <div >
+                                <button
+                                    className="mt-2 border border-blue-600 text-blue-600 text-sm px-3 py-1 rounded transition-all duration-300 hover:bg-blue-600 hover:text-white hover:scale-105"
+                                    onClick={() => handleEdit(addr)}
+                                    style={{ marginRight: "10px" }}
+                                >
+                                    Edit
+                                </button>
+
+
+
+                            </div>
+                        </div>
+                        {addr.isDefault === 1 && (
+                            <span className="text-xs px-2 py-1 bg-black text-white rounded">
+                                Default
+                            </span>
                         )}
-                    </h2>
-
-                    {showInputs && (
-                        <div className="space-y-2">
-                            <input
-                                type="text"
-                                placeholder="Locate your motorcycle"
-                                className="w-full border border-gray-300 rounded p-2"
-                            />
-                            <input
-                                type="text"
-                                placeholder="Building or Street name"
-                                className="w-full border border-gray-300 rounded p-2"
-                            />
-                        </div>
-                    )}
-
-                    <div className="mt-4">
-                        <h3 className="text-sm font-semibold text-gray-700 mb-2">
-                            Is the pin in the right location?
-                        </h3>
-                        <p className="text-xs text-gray-500 mb-2">
-                            Click and drag the pin to the exact spot. Users are more likely to respond to ads that are correctly shown on the map.
-                        </p>
-                        <div ref={mapContainer} className="h-64 w-full rounded overflow-hidden border" />
-                        <button className="mt-2 bg-white text-black text-sm border border-gray-300 px-3 py-1 rounded shadow hover:bg-gray-100">
-                            📍 Locate Me
-                        </button>
                     </div>
-
-                    <div className="mt-4">
-                        <p className="text-sm font-semibold mb-1">
-                            Choose how you want to label your location <span className="text-gray-400">(Optional)</span>
-                        </p>
-                        <div className="flex gap-2">
-                            <button className="bg-red-500 text-white px-4 py-1 rounded text-sm">+ New Location</button>
+                ))}{showForm && (
+                    <div
+                        className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50"
+                        style={{ marginTop: "0px" }}
+                        onClick={() => {
+                            setShowForm(false);
+                            setSelectedAddressId(null);
+                        }}
+                    >
+                        <div
+                            className="bg-white p-6 rounded-lg w-full max-w-md relative"
+                            onClick={(e) => e.stopPropagation()} // ⛔ Stop click from bubbling out
+                        >
                             <button
-                                className="bg-gray-200 px-4 py-1 rounded text-sm"
-                                onClick={() => setShowInputs(!showInputs)}
+                                onClick={() => {
+                                    setShowForm(false);
+                                    setSelectedAddressId(null);
+                                }}
+                                className="absolute top-2 right-2 text-gray-500 text-xl"
                             >
-                                Home
+                                ✕
+                            </button>
+
+                            <h2 className="text-xl font-semibold mb-4">
+                                {selectedAddressId ? 'Edit Address' : 'Location Details '}
+                            </h2>
+
+                            <input
+                                type="text"
+                                name="neighbourhood"
+                                placeholder="Neighbourhood"
+                                value={formDat.neighbourhood}
+                                onChange={handleChang}
+                                className="border w-full p-2 rounded mb-2"
+                                required
+                            />
+                            <input
+                                type="text"
+                                name="building"
+                                placeholder="Building"
+                                value={formDat.building}
+                                onChange={handleChang}
+                                className="border w-full p-2 rounded mb-2"
+                            />
+                            <input
+                                type="text"
+                                name="apartment"
+                                placeholder="Apartment"
+                                value={formDat.apartment}
+                                onChange={handleChang}
+                                className="border w-full p-2 rounded mb-4"
+                            />
+
+                            <input
+                                type="number"
+                                name="latitude"
+                                placeholder="Latitude"
+                                value={formDat.latitude}
+                                onChange={handleChang}
+                                className="border w-full p-2 rounded mb-2"
+                            />
+                            <input
+                                type="number"
+                                name="longitude"
+                                placeholder="Longitude"
+                                value={formDat.longitude}
+                                onChange={handleChang}
+                                className="border w-full p-2 rounded mb-4"
+                            />
+
+                            <div className="mb-2 font-medium">Label this address:</div>
+                            <div className="flex space-x-2 mb-4">
+                                {[
+                                    { label: 'Other', type: 3 },
+                                    { label: 'Home', type: 2 },
+                                    { label: 'Work', type: 1 }
+                                ].map(({ label, type }) => (
+                                    <button
+                                        key={type}
+                                        onClick={() => handleLabel(label.toLowerCase(), type)}
+                                        className={`px-3 py-1 border rounded ${formDat.address_type === type ? 'bg-blue-100' : ''}`}
+                                    >
+                                        {label}
+                                    </button>
+                                ))}
+                            </div>
+
+                            <label className="inline-flex items-center mb-4">
+                                <input
+                                    type="checkbox"
+                                    name="isDefault"
+                                    checked={formDat.isDefault === 1}
+                                    onChange={handleChang}
+                                    className="mr-2"
+                                />
+                                Set as default
+                            </label>
+
+                            <button
+                                onClick={handleSubmitt}
+                                className="bg-blue-600 text-white w-full py-2 rounded"
+                            >
+                                {selectedAddressId ? 'Update Address' : 'Save Address'}
                             </button>
                         </div>
                     </div>
-
-                    <div className="mt-6 text-xs text-gray-500 border-t pt-3 space-y-2">
-                        <p>
-                            Your ad will be rejected if it does not comply with our{" "}
-                            <a href="#" className="text-blue-600 underline">posting guidelines</a>. Got questions? <a href="#" className="text-blue-600 underline">email us</a>.
-                        </p>
-                        <p>
-                            By proceeding, I confirm that I have reviewed the information provided above and confirm that such information is complete and accurate. <a href="#" className="text-blue-600 underline">Terms & conditions</a>.
-                        </p>
-                    </div>
-                </div>
+                )}
 
 
                 <button

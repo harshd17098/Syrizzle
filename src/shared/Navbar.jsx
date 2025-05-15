@@ -106,9 +106,10 @@ export default function Navbar({ onClose }) {
 	const [isAdPostVisible, setIsAdPostVisible] = useState(false);
 	const users = JSON.parse(localStorage.getItem("user"));
 	const [showPassword, setShowPassword] = useState(false);
+	const [loading, setLoading] = useState(false); // Add this at the top of your component
 
 
-useEffect(() => {
+	useEffect(() => {
 		const fetchProfileImage = async () => {
 			const token = localStorage.getItem("jwt");
 			if (!token) return;
@@ -131,6 +132,34 @@ useEffect(() => {
 		fetchProfileImage();
 	}, [image]);
 
+	useEffect(() => {
+		const storedUser = localStorage.getItem('user');
+		if (storedUser) {
+			setUser(JSON.parse(storedUser));
+		}
+	}, []);
+
+	useEffect(() => {
+		const userData = localStorage.getItem("user");
+		if (userData) {
+			setUser(JSON.parse(userData));
+		}
+
+	}, []);
+
+	useEffect(() => {
+		const handleClickOutside = (event) => {
+			if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+				setIsDropdownOpen(false);
+			}
+		};
+
+		document.addEventListener('mousedown', handleClickOutside);
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside);
+		};
+	}, []);
+
 
 	const handleSocialLogin = async (googleData) => {
 		try {
@@ -149,18 +178,13 @@ useEffect(() => {
 		}
 	};
 
-	
 
-	useEffect(() => {
-		const userData = localStorage.getItem("user");
-		if (userData) {
-			setUser(JSON.parse(userData));
-		}
 
-	},[]);
+
 
 	const handleEmailLogin = async (e) => {
 		e.preventDefault();
+		setLoading(true); // Start loading before API call
 
 		try {
 			const response = await axios.post(
@@ -170,50 +194,48 @@ useEffect(() => {
 					password,
 					login_type: 'email',
 					device_name: 'web',
-					// image: ""
 				}
 			);
 
-			const result = response.data?.data?.result;
+			const result = response.data?.data?.token;
+			console.log(response.data.data.token);
 
-			if (!result || !result.login_devices?.length) {
+
+			// Optional null check
+			if (!result || !result) {
 				toast.warn('Login successful but no token found.', {
 					position: 'top-center',
 				});
+				setLoading(false);
 				return;
 			}
 
-			// Store JWT
-			const jwt = result.login_devices[0].token;
+			const jwt = result;
 			localStorage.setItem('jwt', jwt);
+			// console.log(jwt);
 
-			// Prepare and store user data
+			const res = response.data.data.result
 			const userData = {
-				first_name: result.first_name,
-				last_name: result.last_name,
-				email: result.email,
-				
+				first_name: res.first_name,
+				last_name: res.last_name,
+				email: res.email,
 			};
 
 			localStorage.setItem('user', JSON.stringify(userData));
 			setUser(userData);
 
-			// Notify success and navigate
-			toast.success('Email login successful!', {
-				position: 'top-center',
-			});
-
 			// Clear form & close modal
 			setEmail('');
 			setPassword('');
 			setEmailLoginVisible(false); // ✅ Close the email login modal
-			navigate('/');
+			toast.success("Loging success fully")
 		} catch (error) {
 			console.error('Email login failed:', error?.response || error);
-			toast.error(
-				error?.response?.data?.message || 'Email login failed. Please check your credentials.',
-				{ position: 'top-center' }
-			);
+			toast.error('Email login failed. Please check your credentials.', {
+				position: 'top-center',
+			});
+		} finally {
+			setLoading(false); // Always stop loading
 		}
 	};
 
@@ -223,18 +245,7 @@ useEffect(() => {
 	};
 
 	// Close dropdown on outside click
-	useEffect(() => {
-		const handleClickOutside = (event) => {
-			if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-				setIsDropdownOpen(false);
-			}
-		};
 
-		document.addEventListener('mousedown', handleClickOutside);
-		return () => {
-			document.removeEventListener('mousedown', handleClickOutside);
-		};
-	}, []);
 
 	const handleClick = () => {
 		setIsAdPostVisible(true); // Show the AdPostCity when clicked
@@ -257,12 +268,7 @@ useEffect(() => {
 		setEmail("");
 		setOpenStaticModal(false)
 	}
-	useEffect(() => {
-		const storedUser = localStorage.getItem('user');
-		if (storedUser) {
-			setUser(JSON.parse(storedUser));
-		}
-	}, []);
+
 
 
 	if (showSignUp) return <SignUp onClose={() => setShowSignUp(false)} />;
@@ -623,7 +629,10 @@ useEffect(() => {
 													type="submit"
 													className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
 												>
-													Login
+													Login{loading && (
+														<div className="text-center text-gray-600 mt-2">Please wait, logging in...</div>
+													)}
+
 												</button>
 											</form>
 											<div className="mt-6 p-3 rounded-md bg-red-50 hover:bg-red-100 transition cursor-pointer">

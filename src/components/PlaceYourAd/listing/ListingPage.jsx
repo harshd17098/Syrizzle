@@ -11,7 +11,27 @@ const ListingPage = () => {
     { title: "Community", icon: <FaUsers size={40} className="text-red-600" /> },
     { title: "Classifieds", icon: <FaCouch size={40} className="text-red-600" /> },
   ];
+const getMotorById = async (id) => {
+  const token = localStorage.getItem("jwt");
 
+  if (!token) {
+    console.error("JWT token is missing");
+    return;
+  }
+
+  try {
+    const response = await axios.post(`https://syrizzle.vyominfotech.in/api/add-motor/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    console.log("Fetched motor data:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching motor data:", error.response?.data || error.message);
+  }
+};
   return (
     <div className="min-h-screen flex flex-col items-center justify-start py-10 bg-white text-center">
       <h1 className="text-2xl font-semibold mb-1">Hello, what are you listing today?</h1>
