@@ -43,6 +43,7 @@ import SportBike from "./components/PlaceYourAd/Motorcycles/SportBike/SportBike"
 import HyperSportsForm from "./components/PlaceYourAd/Motorcycles/SportBike/HyperSports/HyperSportsForm";
 import CarProducts from "./components/PlaceYourAd/CarCategory/products/CarProducts";
 import MyAds from "./shared/MyAds/MyAds";
+import DetailPageCar from "./pages/cars/DetailPageCars/DetailPageCar";
 
 export default function App() {
   return (
@@ -84,7 +85,7 @@ export default function App() {
           <Route path="/hc/en-us/requests/new" element={<><Navbar /><HelpPage /><Footer /></>} />
           <Route path="/settings/security/password_edit/reset-password/:token" element={<><Navbar /><ChangePassword /><Footer /></>} />
           <Route path="/settings/security/password_edit/en/user/auth/reset/:token" element={<><Navbar /><ForgotPassword /><Footer /></>} />
-
+          <Route path="/motors/used-cars/maserati/levante/" element={<><Navbar /><DetailPageCar/><Footer /></>}/>
           {/* Route for AdPostCity that excludes Navbar and Footer */}
           <Route path="/place-an-ad/pick-a-city/" element={<AdPostCity />} />
           <Route path="/place-an-ad/pick-a-category/" element={<ListingPage />} />

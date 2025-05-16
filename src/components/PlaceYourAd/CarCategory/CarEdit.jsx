@@ -339,7 +339,6 @@ const CarEdit = () => {
 
 
         const payload = {
-            images: uploadedImageUrlsRef.current,
             emirate,
             model_id: selectedModelId,
             trim_id: selectedTrimId,
@@ -369,6 +368,7 @@ const CarEdit = () => {
             setFormSubmitted(true); // Switch to next screen
             // Store response data
             toast.success('Data submitted as draft!');
+navigate(`/place-an-ad/motors/used-cars/new/?_Id=${motorId}`);
 
         } catch (err) {
             toast.error('Submission failed');

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { FaAngleRight } from "react-icons/fa";
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate, useLocation  } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
@@ -13,6 +13,13 @@ import { useNavigate } from 'react-router-dom';
 
 
 const CarCategorys = () => {
+
+    const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const id = params.get('_Id');
+
+      const dataReceived = location.state;
+    //   console.log("dataReceived++++++++++++++++++++++++------------------", id);
     const [emirate, setEmirate] = useState("");
     const [selectedModelId, setSelectedModelId] = useState("");
     const [selectedTrimId, setSelectedTrimId] = useState("");
@@ -23,7 +30,7 @@ const CarCategorys = () => {
     const [carInsured, setCarInsured] = useState('');
     const [price, setPrice] = useState('');
     const [phone, setPhone] = useState('');
-    const [motorId, setMotorId] = useState(null);
+    // const [motorId, setMotorId] = useState(null);
     const [models, setModels] = useState([]);
     const [trims, setTrims] = useState([]);
     const [regionalSpecs, setRegionalSpecs] = useState([]);
@@ -49,6 +56,7 @@ const CarCategorys = () => {
     const [features, setFeatures] = useState([]);
     const [selectedFeatures, setSelectedFeatures] = useState([]);
     const [showForm, setShowForm] = useState(false);
+    const [addressId, setAddressId] = useState(null);
 
     const [uploadedImageUrls, setUploadedImageUrls] = useState([]);
     const [formSubmitted, setFormSubmitted] = useState(false);
@@ -57,6 +65,10 @@ const CarCategorys = () => {
     const uploadedImageUrlsRef = useRef([]);
     const [addressData, setAddressData] = useState([]);
     const [selectedAddressId, setSelectedAddressId] = useState(null);
+        const [searchParam] = useSearchParams();
+
+    const motorId = searchParams.get("_Id");
+    const modelIdFromQuery = searchParams.get("_Id");
 
     const displayedFeatures = showAll ? features.slice(0, 15) : features.slice(0, 5);
     const displayedExtras = showAllExtras ? extras.slice(0, 15) : extras.slice(0, 5);
@@ -92,7 +104,9 @@ const CarCategorys = () => {
         steering_side: '',
         technical_features_id: [],
         extras_id: [],
-        address_id: '',
+         address_id: addressId,
+        latitude: formDat.latitude,
+        longitude: formDat.longitude
     });
 
     // Fetch models
@@ -273,39 +287,22 @@ const CarCategorys = () => {
 
 
     // Handle model selection
-    const handleModelChange = async (e) => {
-        const modelId = e.target.value;
-        setSelectedModelId(modelId);
-        if (!modelId) return;
-
-        try {
-            const payload = { emirate, model_id: modelId };
-            const res = await axios.post(
-                "https://syrizzle.vyominfotech.in/api/add-motor",
-                payload,
-                { headers: { Authorization: `Bearer ${token}` } }
-            );
-
-            const createdMotorId = res.data.data.result._id;
-            setMotorId(createdMotorId);
-            setSearchParams({ _id: createdMotorId });
-
-            toast.success("Draft saved");
-        } catch (error) {
-            toast.error("Something went wrong while selecting the model.");
+    useEffect(() => {
+        if (modelIdFromQuery) {
+            setSelectedModelId(modelIdFromQuery);
+            // toast.success("Model loaded from URL!");
         }
-    };
+    }, [modelIdFromQuery]);
 
     // Submit form
     const handleSubmi = async (e) => {
         e.preventDefault();
+        console.log("motorId",motorId);
 
         if (!motorId) {
             toast.error("Motor ID not found. Please select a model first.");
             return;
         }
-
-
 
         const payload = {
             images: uploadedImageUrlsRef.current,
@@ -319,12 +316,12 @@ const CarCategorys = () => {
             car_insured: carInsured,
             price,
             mobile: phone,
-            status: 'draft',
+            status: 'drafts',
         };
 
         try {
             const response = await axios.post(
-                `https://syrizzle.vyominfotech.in/api/add-motor/${motorId}`,
+                `https://syrizzle.vyominfotech.in/api/add-motor/${id}`,
                 payload,
                 {
                     headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
@@ -335,10 +332,10 @@ const CarCategorys = () => {
             console.log(response.data.data.result);
 
             setResponseData(response.data.data.result);
+            console.log(setResponseData,"hyyy");
+            
             setFormSubmitted(true); // Switch to next screen
-            // Store response data
             toast.success('Ad placed successfully');
-           
 
         } catch (err) {
             toast.error('Submission failed');
@@ -378,41 +375,39 @@ const CarCategorys = () => {
     };
 
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+   const handleSubmit = async (e) => {
+    e.preventDefault();
 
-        if (!motorId) {
-            toast.error("Motor ID not found. Please select a model first.");
-            return;
-        }
+    if (!motorId) {
+        toast.error("Motor ID not found. Please select a model first.");
+        return;
+    }
 
+    try {
+        const response = await axios.post(
+            `https://syrizzle.vyominfotech.in/api/add-motor/${motorId}`,
+            payload,
+            {
+                headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
+            }
+        );
 
-        try {
-            const response = await axios.post(
-                `https://syrizzle.vyominfotech.in/api/add-motor/${motorId}`,
-                payload,
-                {
-                    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
-                }
-            );
-            console.log("Payload being sent:", payload);
-            console.log("jj", payload.transmission_type_id);
+        console.log("Payload being sent:", payload);
+        console.log("Transmission Type ID:", payload.transmission_type_id);
+        console.log("API Response:", response.data.data.result);
 
-            console.log(response.data.data.result);
-
-            setResponseData(response.data.data.result);
-            setFormSubmitted(true); // Switch to next screen
-            // Store response data
-            toast.success('Data submitted as draft!');
-
-        } catch (err) {
-            console.log(err.response ? err.response.data : err);
-            toast.error('Submission failed');
-        }
-
-    };
+        setResponseData(response.data.data.result);
+        setFormSubmitted(true); // Move to next screen
+        toast.success('Data submitted as draft!');
+    } catch (err) {
+        console.error(err.response ? err.response.data : err);
+        toast.error('Submission failed');
+    }
+};
     const getModelNameById = (id) => {
         const model = models.find((item) => item._id === id);
+        console.log(model);
+        
         return model ? model.name : 'Unknown Model';
     };
 
@@ -515,14 +510,26 @@ const CarCategorys = () => {
             if (response.data.success && Array.isArray(result)) {
                 setAddressData(result);
 
-                // ✅ Set default address_id in payload
                 const defaultAddr = result.find(addr => addr.isDefault === 1) || result[0];
 
-                if (defaultAddr?.address_id) {
+                if (defaultAddr?._id) {
+                    setAddressId(defaultAddr._id);
+
                     setPayload(prev => ({
                         ...prev,
-                        address_id: defaultAddr.address_id
+                        address_id: defaultAddr._id
+
                     }));
+
+                    // ✅ Set latitude and longitude in formDat
+                    setFormDat(prev => ({
+                        ...prev,
+                        latitude: defaultAddr.latitude || '',
+                        longitude: defaultAddr.longitude || ''
+
+                    }));
+
+
                 } else {
                     console.warn("No address_id found in fetched addresses.");
                 }
@@ -617,11 +624,11 @@ const CarCategorys = () => {
 
                     {/* Centered Logo */}
                     <div className="flex justify-center text-3xl font-bold mb-8">
-                      <a href="/">   <span className="text-black">Syr</span>
-                        <span className="text-red-600 relative">
-                            izzle
-                            <span className="absolute -top-2 left-1/2 transform -translate-x-1/2 text-red-600 text-xs">▲</span>
-                        </span></a>
+                        <a href="/">   <span className="text-black">Syr</span>
+                            <span className="text-red-600 relative">
+                                izzle
+                                <span className="absolute -top-2 left-1/2 transform -translate-x-1/2 text-red-600 text-xs">▲</span>
+                            </span></a>
                     </div>
 
                     {/* Heading */}
@@ -668,7 +675,11 @@ const CarCategorys = () => {
                             className="w-full border p-2 rounded"
                             required
                             value={selectedModelId}
-                            onChange={handleModelChange}  // Call the API when model is selected
+                            onChange={(e) => {
+                                const modelId = e.target.value;
+                                setSelectedModelId(modelId);
+                                toast.success("Draft saved successfully!");
+                            }}
                         >
                             <option value="">Make & Model*</option>
                             {models.map((model) => (
@@ -677,6 +688,8 @@ const CarCategorys = () => {
                                 </option>
                             ))}
                         </select>
+
+
                         {/* Trim Dropdown */}
                         <select
                             className="w-full border p-2 rounded"
@@ -691,6 +704,7 @@ const CarCategorys = () => {
                                 </option>
                             ))}
                         </select>
+
 
 
 
@@ -813,13 +827,13 @@ const CarCategorys = () => {
                     <div className="w-full max-w-md space-y-4">
                         <form onSubmit={handleSubmit}>
                             {/* Centered Logo */}
-                           <a href="/">   <div className="flex justify-center text-3xl font-bold mb-8">
-                        <span className="text-black">Syr</span>
-                        <span className="text-red-600 relative">
-                            izzle
-                            <span className="absolute -top-2 left-1/2 transform -translate-x-1/2 text-red-600 text-xs">▲</span>
-                        </span>
-                    </div></a>
+                            <a href="/">   <div className="flex justify-center text-3xl font-bold mb-8">
+                                <span className="text-black">Syr</span>
+                                <span className="text-red-600 relative">
+                                    izzle
+                                    <span className="absolute -top-2 left-1/2 transform -translate-x-1/2 text-red-600 text-xs">▲</span>
+                                </span>
+                            </div></a>
                             {responseData && (
                                 <div className="mt-4 p-4 border rounded-md" style={{ backgroundColor: "rgb(246, 247, 248)" }}>
                                     <div className="flex justify-between items-center mb-4">
