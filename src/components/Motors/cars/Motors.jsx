@@ -342,39 +342,31 @@ const Motors = () => {
                         </button>
 
                         {/* Page Numbers */}
-                        {[...Array(totalPages)].map((_, index) => {
-                            const pageNum = index + 1;
-                            return (
-                                <button
-                                    key={pageNum}
-                                    onClick={() => goToPage(pageNum)}
-                                    className={`w-10 h-10 rounded border text-sm font-medium transition-colors ${currentPage === pageNum
-                                        ? 'bg-gray-900 text-white'
-                                        : 'bg-white text-gray-900 border-gray-300 hover:bg-gray-100'
-                                        }`}
-                                >
-                                    {pageNum}
-                                </button>
-                            );
-                        })}
+{Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+    <button
+        key={page}
+        className={`px-3 py-1 rounded border text-sm ${currentPage === page ? 'bg-blue-500 text-white border-blue-500' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'}`}
+        onClick={() => goToPage(page)}
+    >
+        {page}
+    </button>
+))}
 
-                        {/* Next & Last */}
-                        <button
-                            className={`${arrowBtnBase} ${currentPage === totalPages ? disabledArrowStyle : activeArrowStyle
-                                }`}
-                            onClick={() => goToPage(currentPage + 1)}
-                            disabled={currentPage === totalPages}
-                        >
-                            <ChevronRight size={16} />
-                        </button>
-                        <button
-                            className={`${arrowBtnBase} ${currentPage === totalPages ? disabledArrowStyle : activeArrowStyle
-                                }`}
-                            onClick={() => goToPage(totalPages)}
-                            disabled={currentPage === totalPages}
-                        >
-                            <ChevronsRight size={16} />
-                        </button>
+{/* Next & Last */}
+<button
+    className={`${arrowBtnBase} ${currentPage === totalPages ? disabledArrowStyle : activeArrowStyle}`}
+    onClick={() => goToPage(currentPage + 1)}
+    disabled={currentPage === totalPages}
+>
+    <ChevronRight size={16} />
+</button>
+<button
+    className={`${arrowBtnBase} ${currentPage === totalPages ? disabledArrowStyle : activeArrowStyle}`}
+    onClick={() => goToPage(totalPages)}
+    disabled={currentPage === totalPages}
+>
+    <ChevronsRight size={16} />
+</button>
                     </div>
                 </div>
             </section>

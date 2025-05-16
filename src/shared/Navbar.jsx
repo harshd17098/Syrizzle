@@ -4,6 +4,7 @@ import notification from "../assets/notificaion.svg";
 import search from "../assets/search.svg";
 import favorite from "../assets/favorite.svg";
 import chat from "../assets/chat.svg";
+import MyAds from "../assets/myads.svg"
 import home from "../assets/icons/home.svg";
 import homeSearch from "../assets/icons/home-search.svg";
 import pluse from "../assets/icons/pluse.svg";
@@ -36,23 +37,9 @@ import { MdEmail } from "react-icons/md"; // Red email icon
 import ForgotPasswordModal from "../components/ForgotPassword/ForgotPasswordModal"
 import AdPostCity from "../components/PlaceYourAd/City/AdPostCity";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
+import { useLocation } from 'react-router-dom';
 
-const menuItems = [
-	"My Job Applications",
-	"My Profile",
-	"My Job Profile",
-	"My Public Profile",
-	"My Ads",
-	"Get Verified ✅",
-	"Chats",
-	"Favorites",
-	"My Searches",
-	"Car Appointments 🆕",
-	"Car Inspections 🆕",
-	"My Bookmarks",
-	"Account Settings",
-	"Sign out",
-];
+
 
 const CITIES = [
 	"All Cities (UAE)",
@@ -107,7 +94,9 @@ export default function Navbar({ onClose }) {
 	const users = JSON.parse(localStorage.getItem("user"));
 	const [showPassword, setShowPassword] = useState(false);
 	const [loading, setLoading] = useState(false); // Add this at the top of your component
+	const location = useLocation();
 
+	const isActive = location.pathname === '/mylistings/';
 
 	useEffect(() => {
 		const fetchProfileImage = async () => {
@@ -283,12 +272,12 @@ export default function Navbar({ onClose }) {
 						<div className="flex items-center space-x-3 py-3">
 							{/* Logo or Site Name */}
 							<div>
-								<a href="#">
-									{/* Replace with your image if needed */}
-									<div style={{ border: "1px solid black", borderRadius: "25px" }}>
+								<div style={{ border: "1px solid black", borderRadius: "25px" }}>
+									<Link to={"/"}>
 										<span style={{ width: "111px", height: "36px", color: "black", padding: "25px" }}>Syrizzle</span>
-									</div>
-								</a>
+									</Link>
+								</div>
+
 							</div>
 
 							{/* Theme Switcher */}
@@ -361,6 +350,20 @@ export default function Navbar({ onClose }) {
 							</a>
 						</li>
 						<li>
+							<a
+								className={`flex flex-col items-center py-3 ${isActive ? 'text-black font-bold' : 'text-gray-700 font-normal'}`}
+
+								href="/mylistings/"
+							>
+								<img
+									src={MyAds}
+									alt=""
+									className={`${isActive ? 'text-black' : 'text-gray-700'} w-6 h-6`}
+								/>
+								<span style={{ fontSize: '13px' }}>My Ads</span>
+							</a>
+						</li>
+						<li>
 							<div className="relative px-2 py-6 text-[#2B2D2E] dark:text-gray-200 text-[14px]">
 								<button
 									onClick={toggleDropdown}
@@ -368,7 +371,7 @@ export default function Navbar({ onClose }) {
 								>
 									{user ? (
 										<>
-											<div className="px-2  text-[#2B2D2E] dark:text-gray-200 text-[14px] flex items-center gap-2">
+											<div className="px-2 text-[#2B2D2E] dark:text-gray-200 text-[14px] flex items-center gap-2">
 												{image ? (
 													<img
 														src={`https://syrizzle.vyominfotech.in${image.image}`}
@@ -391,20 +394,19 @@ export default function Navbar({ onClose }) {
 											</div>
 
 											<div className="relative inline-block text-left" ref={dropdownRef}>
-												{/* <button
-													onClick={toggleDropdown}
-													className="px-4 py-2 border rounded hover:bg-gray-200"
-												>
-													Menu
-												</button> */}
 												<svg
 													onClick={toggleDropdown}
-													className={`w-4 h-4 ml-2 transition-transform `}
+													className={`w-4 h-4 ml-2 transition-transform`}
 													fill="none"
 													stroke="currentColor"
 													viewBox="0 0 24 24"
 												>
-													<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+													<path
+														strokeLinecap="round"
+														strokeLinejoin="round"
+														strokeWidth={2}
+														d="M19 9l-7 7-7-7"
+													/>
 												</svg>
 
 												{isDropdownOpen && (
@@ -421,7 +423,7 @@ export default function Navbar({ onClose }) {
 															<button
 																className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
 																onClick={handleLogout}
-																style={{ fontSize: '14px', backgroundColor: 'white', color: 'black' }}
+																style={{ fontSize: "14px", backgroundColor: "white", color: "black" }}
 															>
 																Logout
 															</button>
@@ -431,15 +433,16 @@ export default function Navbar({ onClose }) {
 											</div>
 										</>
 									) : (
-										<button
+										<div
+											role="button"
 											onClick={() => setOpenModal(true)}
 											className="cursor-pointer px-2 py-6 text-[#2B2D2E] border-x border-transparent hover:border-[#EEF0F1] dark:text-gray-200 text-[14px] transition-colors duration-200"
 										>
 											Log in or sign up
-										</button>
+										</div>
 									)}
-
 								</button>
+
 
 
 							</div>

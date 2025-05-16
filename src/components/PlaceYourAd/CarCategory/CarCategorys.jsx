@@ -338,7 +338,7 @@ const CarCategorys = () => {
             setFormSubmitted(true); // Switch to next screen
             // Store response data
             toast.success('Ad placed successfully');
-            navigate('/products/bundle/');
+           
 
         } catch (err) {
             toast.error('Submission failed');
