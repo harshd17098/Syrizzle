@@ -3,9 +3,12 @@ import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
 import './index.css'
 import 'swiper/css';
+import { OptionsProvider } from './context/Options.jsx';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
+  // <React.StrictMode>
+  <OptionsProvider>
     <App />
-  </React.StrictMode>,
+  </OptionsProvider>
+  // </React.StrictMode>,
 )
