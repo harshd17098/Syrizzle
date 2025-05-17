@@ -209,19 +209,24 @@ const ListingPage = () => {
           <>
 
             {drafts.slice(0, visibleCount).map((draft) => (
-              // <li key={draft._id}>{draft.emirate}</li> 
-              <div className="flex items-center justify-between  border rounded-lg hover:shadow-md hover:text-red-500 transition cursor-pointer" style={{width:"450px",marginBottom:'15px'}}>
+              <div
+                key={draft._id}
+                onClick={() => window.location.href = `/place-an-ad/motors/used-cars/new/edit/?_id=${draft._id}`}
+                className="flex items-center justify-between border rounded-lg hover:shadow-md hover:text-red-500 transition cursor-pointer"
+                style={{ width: "450px", marginBottom: '15px' }}
+              >
                 {/* Left Image */}
                 <img
                   src={draft.images && draft.images.length > 0
-                    ? `https://syrizzle.vyominfotech.in${draft.images[0]}` // ✅ notice no extra `/` after api
+                    ? `https://syrizzle.vyominfotech.in${draft.images[0]}`
                     : 'https://static.dubizzle.com/frontend-web/static-resources/assets/images/placeholder.png'
                   }
                   alt="No image"
                   className="w-20 h-20 object-cover rounded-md"
                 />
+
                 {/* Middle Text */}
-                <div className="flex-1 mx-4 text-left hover:text-red-500">
+                <div className="flex-1 mx-4 text-left">
                   <p className="text-sm font-medium text-gray-800">
                     {motorTypeLabels[draft.motor_type] || 'Unknown Type'}
                   </p>
@@ -233,7 +238,6 @@ const ListingPage = () => {
                   </p>
                 </div>
 
-
                 {/* Right Chevron Icon */}
                 <img
                   src="https://static.dubizzle.com/frontend-web/static-resources/assets/images/chevron-right.svg"
@@ -242,6 +246,7 @@ const ListingPage = () => {
                 />
               </div>
             ))}
+
 
             {visibleCount < drafts.length && (
               <button

@@ -1,19 +1,35 @@
 import React, { useState, useRef, useEffect } from "react";
 import { MdArrowForwardIos } from "react-icons/md";
+import { FaSpinner } from "react-icons/fa";
+import axios from "axios";
 
-const tabs = [
-  "All Ads (1)",
-  "Live (0)",
-  "Drafts (1)",
-  "Payment Pending (0)",
-  "Under Review (0)",
-  "Rejected (0)",
-  "Expired (0)",
+const tabTypes = [
+  { key: 'all', label: 'All Ads' },
+  { key: 'live', label: 'Live' },
+  { key: 'drafts', label: 'Drafts' },
+  { key: 'pending', label: 'Payment Pending' },
+  { key: 'review', label: 'Under Review' },
+  { key: 'rejected', label: 'Rejected' },
+  { key: 'expired', label: 'Expired' },
 ];
 
 const MyAds = () => {
-  const [activeTab, setActiveTab] = useState("All Ads (1)");
+  const [activeTab, setActiveTab] = useState('all');
   const [isOpen, setIsOpen] = useState(false);
+  const [adsData, setAdsData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [tabCounts, setTabCounts] = useState({
+    all: 0,
+    live: 0,
+    drafts: 0,
+    pending: 0,
+    review: 0,
+    rejected: 0,
+    expired: 0
+  });
+  const [motorCount, setMotorCount] = useState(0);
+  
   const openPopup = () => setIsOpen(true);
   const closePopup = () => setIsOpen(false);
 
@@ -34,6 +50,93 @@ const MyAds = () => {
     };
   }, [isOpen]);
 
+
+// Fetch ads data based on active tab
+  const fetchAdsData = async (status) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const token = localStorage.getItem('jwt');
+      if (!token) {
+        setError('Authentication token not found. Please login.');
+        setLoading(false);
+        return;
+      }
+      
+      // Determine the status parameter based on active tab
+      let statusParam = '';
+      if (status === 'drafts') {
+        statusParam = 'drafts';
+      } else if (status === 'live') {
+        statusParam = 'live';
+      } else if (status === 'pending') {
+  statusParam = 'pending';  // ✅ fix here
+}
+ else if (status === 'review') {
+        statusParam = 'under_review';
+      } else if (status === 'rejected') {
+        statusParam = 'rejected';
+      } else if (status === 'expired') {
+        statusParam = 'expired';
+      } else {
+        // All Ads - don't specify status to get all
+        statusParam = '';
+      }
+      
+      const url = `https://syrizzle.vyominfotech.in/api/my-place${statusParam ? `?status=${statusParam}` : ''}`;
+      console.log("hyyy",url);
+      
+      
+      const response = await axios.get(url, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      console.log('API Response:', response.data);
+      
+      if (response.data && response.data.data && response.data.data.result) {
+        const adsResult = response.data.data.result;
+        setAdsData(adsResult);
+        
+        // Count the number of motors ads
+        // This assumes the API returns a category field or similar to identify motors
+        // Adjust this logic based on your actual API response structure
+        const motorsAds = adsResult.filter(ad => ad.category === 'motors' || ad.category_id === 'motors');
+        setMotorCount(motorsAds.length || adsResult.length); // If no category field, assume all are motors
+        
+        // Update tab counts based on the response
+        if (response.data.data.counts) {
+          const counts = response.data.data.counts;
+          setTabCounts({
+            all: counts.all || 0,
+            live: counts.live || 0,
+            drafts: counts.drafts || 0,
+            pending: counts.payment_pending || 0,
+            review: counts.under_review || 0,
+            rejected: counts.rejected || 0,
+            expired: counts.expired || 0
+          });
+        }
+      } else {
+        setAdsData([]);
+        setMotorCount(0);
+      }
+    } catch (err) {
+      console.error('Error fetching ads:', err);
+      setError(err.response?.data?.message || 'Failed to fetch ads data');
+      setAdsData([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // Effect to fetch data when tab changes
+  useEffect(() => {
+    fetchAdsData(activeTab);
+  }, [activeTab]);
+
   const handleGetVerified = () => {
     alert("Go to verification flow");
     // You can extend this to open another modal or route to verification page
@@ -47,20 +150,22 @@ const MyAds = () => {
 
         {/* Filter Tabs */}
         <div className="flex flex-wrap gap-2 mb-6">
-          {tabs.map((tab) => (
+          {tabTypes.map((tab) => (
             <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
               className={`px-4 py-2 rounded-full border text-sm font-medium transition-colors duration-200 ${
-                activeTab === tab
+                activeTab === tab.key
                   ? "bg-black text-white border-black"
                   : "bg-white text-black border-gray-400 hover:bg-gray-200"
               }`}
             >
-              {tab}
+              {tab.label} 
             </button>
           ))}
         </div>
+        
+        
 
         {/* Banners */}
         <div className="my-ads-banner-container flex flex-col md:flex-row gap-4">
@@ -252,33 +357,90 @@ const MyAds = () => {
           </div>
         </div>
 
-        {/* Motors Category */}
-        <div className="mb-2 font-bold text-sm text-gray-700">Motors (1)</div>
-        <div className="mb-4 text-sm text-gray-500 ml-4">Cars</div>
+        {/* Loading Spinner */}
+        {loading && (
+          <div className="flex justify-center items-center py-8">
+            <FaSpinner className="animate-spin text-red-600 text-3xl" />
+            <span className="ml-2 text-gray-600">Loading your ads...</span>
+          </div>
+        )}
+        
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            <p>{error}</p>
+          </div>
+        )}
 
-        {/* Draft Ad */}
-        <div className="flex items-start bg-gray-100 p-4 rounded shadow-sm">
-          <input type="checkbox" className="mr-4 mt-2" />
-
-          <div className="flex items-center bg-white p-4 rounded w-full">
-            <div className="w-24 h-24 bg-gray-200 flex items-center justify-center rounded">
-              <span className="text-gray-400 text-sm">No Image</span>
-            </div>
-
-            <div className="ml-4 flex-1">
-              <div className="flex items-center gap-2">
-                <span className="bg-gray-300 text-gray-800 text-xs px-2 py-0.5 rounded">Draft</span>
-                <span className="font-semibold">Untitled Used Car Draft</span>
+        {/* Ads Display Section */}
+        {!loading && !error && adsData?.length > 0 && (
+          <>
+            {/* Motors Category - Dynamic based on data */}
+            <div className="mb-2 font-bold text-sm text-gray-700 mt-5">Motors ({motorCount})</div>
+            <div className="mb-4 text-sm text-gray-500 ml-4">Cars</div>
+            
+            {/* Ads List */}
+            {adsData.map((ad) => (
+              <div key={ad._id} className="flex items-start bg-gray-100 p-4 rounded shadow-sm mb-4">
+                <input type="checkbox" className="mr-4 mt-2" />
+                
+                <div className="flex items-center bg-white p-4 rounded w-full">
+                  <div className="w-24 h-24 bg-gray-200 flex items-center justify-center rounded">
+                    {ad.images && ad.images.length > 0 ? (
+                      <img 
+                        src={`https://syrizzle.vyominfotech.in${ad.images[0]}`} 
+                        alt={ad.title || 'Car image'} 
+                        className="w-full h-full object-cover rounded"
+                      />
+                    ) : (
+                      <span className="text-gray-400 text-sm">No Image</span>
+                    )}
+                  </div>
+                  
+                  <div className="ml-4 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className={`text-xs px-2 py-0.5 rounded ${ad.status === 'draft' ? 'bg-gray-300 text-gray-800' : ad.status === 'live' ? 'bg-green-200 text-green-800' : 'bg-yellow-200 text-yellow-800'}`}>
+                        {ad.status ? ad.status.charAt(0).toUpperCase() + ad.status.slice(1) : 'Unknown'}
+                      </span>
+                      <span className="font-semibold">{ad.title || `Untitled ${ad.make || 'Used'} Car ${ad.status === 'draft' ? 'Draft' : ''}`}</span>
+                    </div>
+                    <p className="text-sm text-gray-600 mt-1">
+                      Last Updated: {new Date(ad.updatedAt).toLocaleDateString('en-US', {month: 'short', day: 'numeric'})}
+                    </p>
+                    {ad.expiryDate && (
+                      <p className="text-sm text-gray-600">
+                        Ad expires in {Math.max(0, Math.floor((new Date(ad.expiryDate) - new Date()) / (1000 * 60 * 60 * 24)))} days
+                      </p>
+                    )}
+                    {ad.price && (
+                      <p className="text-sm font-semibold text-gray-800 mt-1">
+                        AED {ad.price.toLocaleString()}
+                      </p>
+                    )}
+                  </div>
+                  
+                  <button 
+                    className="bg-red-600 text-white px-4 py-2 rounded text-sm ml-auto"
+                    onClick={() => window.location.href = `/place-an-ad/motors/used-cars/new/edit/?_id=${ad._id}`}
+                  >
+                    {ad.status === 'draft' ? 'Continue Posting Ad' : 'Edit Ad'}
+                  </button>
+                </div>
               </div>
-              <p className="text-sm text-gray-600 mt-1">Last Updated: May 08</p>
-              <p className="text-sm text-gray-600">Ad expires in 29 days</p>
-            </div>
-
-            <button className="bg-red-600 text-white px-4 py-2 rounded text-sm ml-auto">
-              Continue Posting Ad
+            ))}
+          </>
+        )}
+        
+        {/* No Ads Found */}
+        {!loading && !error && adsData.length === 0 && (
+          <div className="text-center py-8 border border-gray-200 rounded-md mt-5">
+            <p className="text-gray-600 mb-2">No ads found</p>
+            <p className="text-sm text-gray-500">You don't have any ads in this category yet</p>
+            <button className="mt-4 bg-red-600 text-white px-6 py-2 rounded-md">
+              Post an Ad
             </button>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
