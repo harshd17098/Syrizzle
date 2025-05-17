@@ -8,6 +8,7 @@ import { useSearchParams } from "react-router-dom";
 import { useRef } from "react";
 import { IoLocation } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
+import API_BASE_URL from "../../../api/api";
 
 const CarCategorys = () => {
     const location = useLocation();
@@ -15,11 +16,11 @@ const CarCategorys = () => {
     const id = params.get("_Id");
 
     const dataReceived = location.state;
-    console.log(
-        "dataReceived++++++++++++++++++++++++------------------",
-        id,
-        dataReceived
-    );
+    // console.log(
+    //     "dataReceived++++++++++++++++++++++++------------------",
+    //     id,
+    //     dataReceived
+    // );
 
     // Check if we have form submission data from CarEdit
     const [formSubmitted, setFormSubmitted] = useState(
@@ -118,7 +119,7 @@ const CarCategorys = () => {
 
     useEffect(() => {
         axios
-            .get("https://syrizzle.vyominfotech.in/api/model", {
+            .get(`${API_BASE_URL}/model`, {
                 headers: { Authorization: `Bearer ${token}` },
             })
             .then((res) => setModels(res.data.data.result))
@@ -128,7 +129,7 @@ const CarCategorys = () => {
     useEffect(() => {
         if (selectedModelId) {
             axios
-                .get(`https://syrizzle.vyominfotech.in/api/trim/${selectedModelId}`, {
+                .get(`${API_BASE_URL}/trim/${selectedModelId}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 })
                 .then((res) => setTrims(res.data.data.result))
@@ -138,7 +139,7 @@ const CarCategorys = () => {
 
     useEffect(() => {
         axios
-            .get("https://syrizzle.vyominfotech.in/api/regional-spec", {
+            .get(`${API_BASE_URL}/regional-spec`, {
                 headers: { Authorization: `Bearer ${token}` },
             })
             .then((res) => setRegionalSpecs(res.data.data.result))
@@ -147,7 +148,7 @@ const CarCategorys = () => {
 
     useEffect(() => {
         axios
-            .get("https://syrizzle.vyominfotech.in/api/body-type", {
+            .get(`${API_BASE_URL}/body-type`, {
                 headers: { Authorization: `Bearer ${token}` },
             })
             .then((res) => setBodyTypes(res.data.data.result))
@@ -161,7 +162,7 @@ const CarCategorys = () => {
         }
 
         axios
-            .get("https://syrizzle.vyominfotech.in/api/exterior-color", {
+            .get(`${API_BASE_URL}/exterior-color`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -183,7 +184,7 @@ const CarCategorys = () => {
         }
 
         axios
-            .get("https://syrizzle.vyominfotech.in/api/interior-color", {
+            .get(`${API_BASE_URL}/interior-color`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -207,7 +208,7 @@ const CarCategorys = () => {
         }
 
         axios
-            .get("https://syrizzle.vyominfotech.in/api/transmission-type", {
+            .get(`${API_BASE_URL}/transmission-type`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -231,7 +232,7 @@ const CarCategorys = () => {
         }
 
         axios
-            .get("https://syrizzle.vyominfotech.in/api/horsepower", {
+            .get(`${API_BASE_URL}/horsepower`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -255,7 +256,7 @@ const CarCategorys = () => {
         }
 
         axios
-            .get("https://syrizzle.vyominfotech.in/api/extras", {
+            .get(`${API_BASE_URL}/extras`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -276,7 +277,7 @@ const CarCategorys = () => {
         }
 
         axios
-            .get("https://syrizzle.vyominfotech.in/api/technical-features", {
+            .get(`${API_BASE_URL}/technical-features`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -326,7 +327,7 @@ const CarCategorys = () => {
 
         try {
             const response = await axios.post(
-                `https://syrizzle.vyominfotech.in/api/add-motor/${id}`,
+                `${API_BASE_URL}/add-motor/${id}`,
                 payload,
                 {
                     headers: {
@@ -389,7 +390,7 @@ const CarCategorys = () => {
 
         try {
             const response = await axios.post(
-                `https://syrizzle.vyominfotech.in/api/add-motor/${motorId}`,
+                `${API_BASE_URL}/add-motor/${motorId}`,
                 payload,
                 {
                     headers: {
@@ -458,7 +459,7 @@ const CarCategorys = () => {
 
             try {
                 const response = await fetch(
-                    "https://syrizzle.vyominfotech.in/api/upload-image",
+                    `${API_BASE_URL}/upload-image`,
                     {
                         method: "POST",
                         headers: {
@@ -506,7 +507,7 @@ const CarCategorys = () => {
 
         try {
             const response = await axios.get(
-                "https://syrizzle.vyominfotech.in/api/address",
+                `${API_BASE_URL}/address`,
                 {
                     headers: {
                         Authorization: `Bearer ${jwtToken}`,
