@@ -353,7 +353,7 @@ const CarEdit = () => {
         <div className="flex items-center justify-center h-screen bg-gray-50">
             <div className="w-full max-w-md space-y-4">
                 <div className="flex justify-center text-3xl font-bold mb-8">
-                    <span className="text-black">dub</span>
+                    <span className="text-black">Syr</span>
                     <span className="text-red-600 relative">
                         izzle
                         <span className="absolute -top-2 left-1/2 transform -translate-x-1/2 text-red-600 text-xs">▲</span>

@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { MdArrowForwardIos } from "react-icons/md";
 import { FaSpinner } from "react-icons/fa";
 import axios from "axios";
+import { toast } from 'react-toastify'; // optional for notifications
 
 const tabTypes = [
   { key: 'all', label: 'All Ads' },
@@ -29,11 +30,16 @@ const MyAds = () => {
     expired: 0
   });
   const [motorCount, setMotorCount] = useState(0);
-  
+  const [isOpe, setIsOpe] = useState(false);
+  const menuRef = useRef(null);
   const openPopup = () => setIsOpen(true);
   const closePopup = () => setIsOpen(false);
 
   const modalRef = useRef(null);
+  const toggleMenu = () => {
+    setIsOpe(!isOpen);
+  };
+
 
   // Close popup on outside click
   useEffect(() => {
@@ -50,12 +56,61 @@ const MyAds = () => {
     };
   }, [isOpen]);
 
+  // Close menu on outside click
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsOpe(false);
+      }
+    };
 
-// Fetch ads data based on active tab
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const handleDelete = async (id) => {
+  const token = localStorage.getItem('jwt');
+
+  if (!token) {
+    console.error('No JWT token found');
+    toast.error('Please login first');
+    return;
+  }
+
+  try {
+    const response = await axios.post(
+      `https://syrizzle.vyominfotech.in/api/my-place/${id}`,
+      {}, // <-- empty body because API expects POST
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      }
+    );
+
+    console.log('Deleted:', response.data);
+
+    if (response.data.success) {
+      toast.success('Ad deleted successfully!');
+      fetchAdsData(); // refresh list
+    } else {
+      toast.error('Failed to delete ad');
+    }
+
+  } catch (error) {
+    console.error('Error deleting ad:', error.response?.data || error.message);
+    toast.error('Failed to delete ad');
+  }
+};
+
+
+  // Fetch ads data based on active tab
   const fetchAdsData = async (status) => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const token = localStorage.getItem('jwt');
       if (!token) {
@@ -63,7 +118,7 @@ const MyAds = () => {
         setLoading(false);
         return;
       }
-      
+
       // Determine the status parameter based on active tab
       let statusParam = '';
       if (status === 'drafts') {
@@ -71,9 +126,9 @@ const MyAds = () => {
       } else if (status === 'live') {
         statusParam = 'live';
       } else if (status === 'pending') {
-  statusParam = 'pending';  // ✅ fix here
-}
- else if (status === 'review') {
+        statusParam = 'pending';
+      }
+      else if (status === 'review') {
         statusParam = 'under_review';
       } else if (status === 'rejected') {
         statusParam = 'rejected';
@@ -83,11 +138,11 @@ const MyAds = () => {
         // All Ads - don't specify status to get all
         statusParam = '';
       }
-      
+
       const url = `https://syrizzle.vyominfotech.in/api/my-place${statusParam ? `?status=${statusParam}` : ''}`;
-      console.log("hyyy",url);
-      
-      
+      console.log("hyyy", url);
+
+
       const response = await axios.get(url, {
         headers: {
           Authorization: `Bearer ${token}`
@@ -95,17 +150,17 @@ const MyAds = () => {
       });
 
       console.log('API Response:', response.data);
-      
+
       if (response.data && response.data.data && response.data.data.result) {
         const adsResult = response.data.data.result;
         setAdsData(adsResult);
-        
+
         // Count the number of motors ads
         // This assumes the API returns a category field or similar to identify motors
         // Adjust this logic based on your actual API response structure
         const motorsAds = adsResult.filter(ad => ad.category === 'motors' || ad.category_id === 'motors');
         setMotorCount(motorsAds.length || adsResult.length); // If no category field, assume all are motors
-        
+
         // Update tab counts based on the response
         if (response.data.data.counts) {
           const counts = response.data.data.counts;
@@ -131,7 +186,7 @@ const MyAds = () => {
       setLoading(false);
     }
   };
-  
+
   // Effect to fetch data when tab changes
   useEffect(() => {
     fetchAdsData(activeTab);
@@ -154,18 +209,17 @@ const MyAds = () => {
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`px-4 py-2 rounded-full border text-sm font-medium transition-colors duration-200 ${
-                activeTab === tab.key
-                  ? "bg-black text-white border-black"
-                  : "bg-white text-black border-gray-400 hover:bg-gray-200"
-              }`}
+              className={`px-4 py-2 rounded-full border text-sm font-medium transition-colors duration-200 ${activeTab === tab.key
+                ? "bg-black text-white border-black"
+                : "bg-white text-black border-gray-400 hover:bg-gray-200"
+                }`}
             >
-              {tab.label} 
+              {tab.label}
             </button>
           ))}
         </div>
-        
-        
+
+
 
         {/* Banners */}
         <div className="my-ads-banner-container flex flex-col md:flex-row gap-4">
@@ -364,7 +418,7 @@ const MyAds = () => {
             <span className="ml-2 text-gray-600">Loading your ads...</span>
           </div>
         )}
-        
+
         {/* Error Message */}
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
@@ -378,25 +432,25 @@ const MyAds = () => {
             {/* Motors Category - Dynamic based on data */}
             <div className="mb-2 font-bold text-sm text-gray-700 mt-5">Motors ({motorCount})</div>
             <div className="mb-4 text-sm text-gray-500 ml-4">Cars</div>
-            
+
             {/* Ads List */}
             {adsData.map((ad) => (
               <div key={ad._id} className="flex items-start bg-gray-100 p-4 rounded shadow-sm mb-4">
                 <input type="checkbox" className="mr-4 mt-2" />
-                
+
                 <div className="flex items-center bg-white p-4 rounded w-full">
                   <div className="w-24 h-24 bg-gray-200 flex items-center justify-center rounded">
                     {ad.images && ad.images.length > 0 ? (
-                      <img 
-                        src={`https://syrizzle.vyominfotech.in${ad.images[0]}`} 
-                        alt={ad.title || 'Car image'} 
+                      <img
+                        src={`https://syrizzle.vyominfotech.in${ad.images[0]}`}
+                        alt={ad.title || 'Car image'}
                         className="w-full h-full object-cover rounded"
                       />
                     ) : (
                       <span className="text-gray-400 text-sm">No Image</span>
                     )}
                   </div>
-                  
+
                   <div className="ml-4 flex-1">
                     <div className="flex items-center gap-2">
                       <span className={`text-xs px-2 py-0.5 rounded ${ad.status === 'draft' ? 'bg-gray-300 text-gray-800' : ad.status === 'live' ? 'bg-green-200 text-green-800' : 'bg-yellow-200 text-yellow-800'}`}>
@@ -405,7 +459,7 @@ const MyAds = () => {
                       <span className="font-semibold">{ad.title || `Untitled ${ad.make || 'Used'} Car ${ad.status === 'draft' ? 'Draft' : ''}`}</span>
                     </div>
                     <p className="text-sm text-gray-600 mt-1">
-                      Last Updated: {new Date(ad.updatedAt).toLocaleDateString('en-US', {month: 'short', day: 'numeric'})}
+                      Last Updated: {new Date(ad.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                     </p>
                     {ad.expiryDate && (
                       <p className="text-sm text-gray-600">
@@ -418,19 +472,59 @@ const MyAds = () => {
                       </p>
                     )}
                   </div>
-                  
-                  <button 
-                    className="bg-red-600 text-white px-4 py-2 rounded text-sm ml-auto"
-                    onClick={() => window.location.href = `/place-an-ad/motors/used-cars/new/edit/?_id=${ad._id}`}
-                  >
-                    {ad.status === 'draft' ? 'Continue Posting Ad' : 'Edit Ad'}
-                  </button>
+                  <div className="flex flex-col items-end gap-2 relative">
+                    {/* 3-dot menu */}
+                    <div className="relative inline-block text-left" ref={menuRef}>
+                      <button
+                        onClick={toggleMenu}
+                        className="p-2 rounded-full hover:bg-gray-100 focus:outline-none"
+                      >
+                        <svg
+                          className="w-5 h-5 text-gray-700"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path d="M10 6a1.5 1.5 0 110-3 1.5 1.5 0 010 3zm0 2a1.5 1.5 0 110 3 1.5 1.5 0 010-3zm0 5a1.5 1.5 0 110 3 1.5 1.5 0 010-3z" />
+                        </svg>
+                      </button>
+
+                      {/* Dropdown */}
+                      {isOpe && (
+                        <div className="absolute right-0 mt-2 w-32 bg-white border rounded-md shadow-lg z-10" style={{ top: "-10px" }}>
+                          <button
+                            onClick={() => handleDelete(ad._id)}
+                            className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          >
+                            <svg
+                              className="w-4 h-4 mr-2"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              viewBox="0 0 24 24"
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M19 7L5 7M6 7V19a2 2 0 002 2h8a2 2 0 002-2V7M10 11v6M14 11v6M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3" />
+                            </svg>
+                            Delete
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Edit button */}
+                    <button
+                      className="bg-red-600 text-white px-4 py-2 rounded text-sm"
+                      onClick={() => window.location.href = `/place-an-ad/motors/used-cars/new/edit/?_id=${ad._id}`}
+                    >
+                      {ad.status === 'draft' ? 'Continue Posting Ad' : 'Edit Ad'}
+                    </button>
+                  </div>
+
                 </div>
               </div>
             ))}
           </>
         )}
-        
+
         {/* No Ads Found */}
         {!loading && !error && adsData.length === 0 && (
           <div className="text-center py-8 border border-gray-200 rounded-md mt-5">

@@ -139,48 +139,7 @@ const ListingPage = () => {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 justify-items-center mt-10">
 
-        {/* <Link to="/place-an-ad/taxonomy/motors/">
-          <div className="w-48 h-48 bg-white shadow-md rounded-lg flex flex-col items-center justify-center transition duration-300 hover:shadow-lg border">
-            <FaCar size={40} className="text-red-600 mb-4" />
-            <div className="text-lg font-medium text-gray-800">Motors</div>
-          </div>
-        </Link>
-
-        <Link to="/place-an-ad/taxonomy/jobs/">
-          <div className="w-48 h-48 bg-white shadow-md rounded-lg flex flex-col items-center justify-center transition duration-300 hover:shadow-lg border">
-            <FaBriefcase size={40} className="text-red-600 mb-4" />
-            <div className="text-lg font-medium text-gray-800">Jobs</div>
-          </div>
-        </Link>
-
-        <Link to="/place-an-ad/taxonomy/property-sale/">
-          <div className="w-48 h-48 bg-white shadow-md rounded-lg flex flex-col items-center justify-center transition duration-300 hover:shadow-lg border">
-            <FaHome size={40} className="text-red-600 mb-4" />
-            <div className="text-lg font-medium text-gray-800">Property for Sale</div>
-          </div>
-        </Link>
-
-        <Link to="/place-an-ad/taxonomy/property-rent/">
-          <div className="w-48 h-48 bg-white shadow-md rounded-lg flex flex-col items-center justify-center transition duration-300 hover:shadow-lg border">
-            <FaBuilding size={40} className="text-red-600 mb-4" />
-            <div className="text-lg font-medium text-gray-800">Property for Rent</div>
-          </div>
-        </Link>
-
-        <Link to="/place-an-ad/taxonomy/community/">
-          <div className="w-48 h-48 bg-white shadow-md rounded-lg flex flex-col items-center justify-center transition duration-300 hover:shadow-lg border">
-            <FaUsers size={40} className="text-red-600 mb-4" />
-            <div className="text-lg font-medium text-gray-800">Community</div>
-          </div>
-        </Link>
-
-        <Link to="/place-an-ad/taxonomy/classifieds/">
-          <div className="w-48 h-48 bg-white shadow-md rounded-lg flex flex-col items-center justify-center transition duration-300 hover:shadow-lg border">
-            <FaCouch size={40} className="text-red-600 mb-4" />
-            <div className="text-lg font-medium text-gray-800">Classifieds</div>
-          </div>
-        </Link> */}
-
+       
 
         {categories.map((type, index) => {
           const category = getCategoryData(type);

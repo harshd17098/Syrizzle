@@ -4,12 +4,15 @@ import { toast } from "react-toastify";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from 'axios';
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import API_BASE_URL from '../../../../../api/api';
 import { IoLocation } from "react-icons/io5";
 
 
 const HyperSportsForm = () => {
+     const location = useLocation();
+      const dataReceived = location.state;
+      console.log("dataReceived++++++++++++++++++++++++", dataReceived);
     const [showInputs, setShowInputs] = useState(true);
     const mapContainer = useRef(null);
     const navigate = useNavigate();
@@ -740,7 +743,7 @@ const HyperSportsForm = () => {
                     >
                         <div
                             className="bg-white p-6 rounded-lg w-full max-w-md relative"
-                            onClick={(e) => e.stopPropagation()} // ⛔ Stop click from bubbling out
+                            onClick={(e) => e.stopPropagation()} 
                         >
                             <button
                                 onClick={() => {

@@ -1,5 +1,5 @@
 import { FaAngleRight, FaChevronRight, FaHome } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 
@@ -8,6 +8,13 @@ const CategoryMotorCycles = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
+  // Get the query param _Id from URL
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const _Id = queryParams.get('_Id');
+
+  console.log(_Id, "kkkk"); 
 
   // Fetch motorcycle categories
   useEffect(() => {
@@ -40,41 +47,41 @@ const CategoryMotorCycles = () => {
 
   // Handle category click
   const handleCategoryClick = async (category_id) => {
-  const token = localStorage.getItem('jwt');
+    const token = localStorage.getItem('jwt');
 
-  if (!token) {
-    console.error('No token found');
-    return;
-  }
+    if (!token) {
+      console.error('No token found');
+      return;
+    }
 
-  // Store category_id in localStorage
-  localStorage.setItem('category_id', category_id);
+    // Store category_id in localStorage
+    localStorage.setItem('category_id', category_id);
 
-  // Create the payload with extra data
-  const payload = {
-    category_id,
-    motor_type: 2,
+    // Create the payload with extra data
+    const payload = {
+      category_id,
+      motor_type: 2,
+    };
+
+    try {
+      const response = await axios.post(
+        'https://syrizzle.vyominfotech.in/api/add-motor',
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      console.log('Motor added successfully:', response.data);
+
+      // Navigate on success and pass category_id in the URL
+      navigate(`/place-an-ad/taxonomy/motors/motorcycles/sport-bike/${category_id}`);
+    } catch (error) {
+      console.error('Error posting motor:', error.response?.data || error.message);
+    }
   };
-
-  try {
-    const response = await axios.post(
-      'https://syrizzle.vyominfotech.in/api/add-motor',
-      payload,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-    console.log('Motor added successfully:', response.data);
-
-    // Navigate on success and pass category_id in the URL
-    navigate(`/place-an-ad/taxonomy/motors/motorcycles/sport-bike/${category_id}`);
-  } catch (error) {
-    console.error('Error posting motor:', error.response?.data || error.message);
-  }
-};
 
 
   if (loading) return <p>Loading...</p>;
@@ -84,11 +91,11 @@ const CategoryMotorCycles = () => {
     <div className="min-h-screen bg-white px-4 py-6 flex flex-col items-center">
       {/* Logo */}
       <div className="text-3xl font-bold mb-8">
-     <a href="/">    <span className="text-black">Syr</span>
-        <span className="text-red-600 relative">
-          izzle
-          <span className="absolute -top-2 left-1/2 transform -translate-x-1/2 text-red-600 text-xs">▲</span>
-        </span></a>
+        <a href="/">    <span className="text-black">Syr</span>
+          <span className="text-red-600 relative">
+            izzle
+            <span className="absolute -top-2 left-1/2 transform -translate-x-1/2 text-red-600 text-xs">▲</span>
+          </span></a>
       </div>
 
       {/* Heading */}
@@ -113,7 +120,7 @@ const CategoryMotorCycles = () => {
             onClick={() => handleCategoryClick(item._id)} // use _id or category_id based on actual API
             className="w-full flex justify-between items-center px-5 py-4 hover:bg-gray-100 text-left"
           >
-      <Link to={"/place-an-ad/taxonomy/motors/motorcycles/sport-bike/:categoryId"}>      <span className="font-semibold text-sm text-black">{item.name}</span></Link>
+            <Link to={"/place-an-ad/taxonomy/motors/motorcycles/sport-bike/:categoryId"}>      <span className="font-semibold text-sm text-black">{item.name}</span></Link>
             <FaChevronRight className="text-gray-400 text-sm" />
           </button>
         ))}

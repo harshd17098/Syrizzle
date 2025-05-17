@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
+
 const SportBike = () => {
   const { categoryId } = useParams(); // Use categoryId (lowercase 'c')
   const [subCategoryData, setSubCategoryData] = useState([]);

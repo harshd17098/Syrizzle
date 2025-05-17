@@ -9,6 +9,8 @@ const MotorListingPage = () => {
   const queryString = dataReceived
     ? `?${new URLSearchParams({ _Id: dataReceived }).toString()}`
     : "";
+    console.log(queryString);
+    
 
   return (
     <div className="min-h-screen bg-white px-4 py-6 flex flex-col items-center">

@@ -381,37 +381,37 @@ const CarCategorys = () => {
     };
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
+    e.preventDefault();
 
-        if (!motorId) {
-            toast.error("Motor ID not found. Please select a model first.");
-            return;
-        }
+    if (!motorId) {
+        toast.error("Motor ID not found. Please select a model first.");
+        return;
+    }
 
-        try {
-            const response = await axios.post(
-                `${API_BASE_URL}/add-motor/${motorId}`,
-                payload,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "application/json",
-                    },
-                }
-            );
+    try {
+        const response = await axios.post(
+            `${API_BASE_URL}/add-motor/${motorId}`,
+            payload,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+            }
+        );
 
-            // console.log("Payload being sent:", payload);
-            // console.log("Transmission Type ID:", payload.transmission_type_id);
-            // console.log("API Response:", response.data.data.result);
+        setResponseData(response.data.data.result);
+        setFormSubmitted(true);
+        toast.success("Data submitted as draft!");
 
-            setResponseData(response.data.data.result);
-            setFormSubmitted(true); // Move to next screen
-            toast.success("Data submitted as draft!");
-        } catch (err) {
-            console.error(err.response ? err.response.data : err);
-            toast.error("Submission failed");
-        }
-    };
+        // ✅ Redirect after success
+        navigate("/place-an-ad/pick-a-category/");
+
+    } catch (err) {
+        console.error(err.response ? err.response.data : err);
+        toast.error("Submission failed");
+    }
+};
     const getModelNameById = (id) => {
         const model = models.find((item) => item._id === id);
         return model ? model.name : "Unknown Model";
