@@ -4,6 +4,7 @@ import notification from "../assets/notificaion.svg";
 import search from "../assets/search.svg";
 import favorite from "../assets/favorite.svg";
 import chat from "../assets/chat.svg";
+import MyAds from "../assets/myads.svg"
 import home from "../assets/icons/home.svg";
 import homeSearch from "../assets/icons/home-search.svg";
 import pluse from "../assets/icons/pluse.svg";
@@ -36,23 +37,9 @@ import { MdEmail } from "react-icons/md"; // Red email icon
 import ForgotPasswordModal from "../components/ForgotPassword/ForgotPasswordModal"
 import AdPostCity from "../components/PlaceYourAd/City/AdPostCity";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
+import { useLocation } from 'react-router-dom';
 
-const menuItems = [
-	"My Job Applications",
-	"My Profile",
-	"My Job Profile",
-	"My Public Profile",
-	"My Ads",
-	"Get Verified ✅",
-	"Chats",
-	"Favorites",
-	"My Searches",
-	"Car Appointments 🆕",
-	"Car Inspections 🆕",
-	"My Bookmarks",
-	"Account Settings",
-	"Sign out",
-];
+
 
 const CITIES = [
 	"All Cities (UAE)",
@@ -107,7 +94,9 @@ export default function Navbar({ onClose }) {
 	const users = JSON.parse(localStorage.getItem("user"));
 	const [showPassword, setShowPassword] = useState(false);
 	const [loading, setLoading] = useState(false); // Add this at the top of your component
+	const location = useLocation();
 
+	const isActive = location.pathname === '/mylistings/';
 
 	useEffect(() => {
 		const fetchProfileImage = async () => {
@@ -283,12 +272,12 @@ export default function Navbar({ onClose }) {
 						<div className="flex items-center space-x-3 py-3">
 							{/* Logo or Site Name */}
 							<div>
-								<a href="#">
-									{/* Replace with your image if needed */}
-									<div style={{ border: "1px solid black", borderRadius: "25px" }}>
+								<div style={{ border: "1px solid black", borderRadius: "25px" }}>
+									<Link to={"/"}>
 										<span style={{ width: "111px", height: "36px", color: "black", padding: "25px" }}>Syrizzle</span>
-									</div>
-								</a>
+									</Link>
+								</div>
+
 							</div>
 
 							{/* Theme Switcher */}
@@ -314,7 +303,7 @@ export default function Navbar({ onClose }) {
 						<div className="hidden group-hover:block absolute left-[90px] top-[48px] min-w-[190px] bg-white border border-gray-200 shadow-[0_4px_18px_0_#00000013] rounded-md z-10">
 							{CITIES.map((city) => (
 								<div
-									key={city}
+									
 									className={`px-5 py-2.5 flex justify-between items-center text-[15px] cursor-pointer transition-colors duration-150 ${city === selectedCity
 										? "bg-[#efefef] text-[#000000] font-semibold"
 										: "text-[#222] hover:bg-[#f8f8f8]"
@@ -361,6 +350,20 @@ export default function Navbar({ onClose }) {
 							</a>
 						</li>
 						<li>
+							<a
+								className={`flex flex-col items-center py-3 ${isActive ? 'text-black font-bold' : 'text-gray-700 font-normal'}`}
+
+								href="/mylistings/"
+							>
+								<img
+									src={MyAds}
+									alt=""
+									className={`${isActive ? 'text-black' : 'text-gray-700'} w-6 h-6`}
+								/>
+								<span style={{ fontSize: '13px' }}>My Ads</span>
+							</a>
+						</li>
+						<li>
 							<div className="relative px-2 py-6 text-[#2B2D2E] dark:text-gray-200 text-[14px]">
 								<button
 									onClick={toggleDropdown}
@@ -368,7 +371,7 @@ export default function Navbar({ onClose }) {
 								>
 									{user ? (
 										<>
-											<div className="px-2  text-[#2B2D2E] dark:text-gray-200 text-[14px] flex items-center gap-2">
+											<div className="px-2 text-[#2B2D2E] dark:text-gray-200 text-[14px] flex items-center gap-2">
 												{image ? (
 													<img
 														src={`https://syrizzle.vyominfotech.in${image.image}`}
@@ -391,20 +394,19 @@ export default function Navbar({ onClose }) {
 											</div>
 
 											<div className="relative inline-block text-left" ref={dropdownRef}>
-												{/* <button
-													onClick={toggleDropdown}
-													className="px-4 py-2 border rounded hover:bg-gray-200"
-												>
-													Menu
-												</button> */}
 												<svg
 													onClick={toggleDropdown}
-													className={`w-4 h-4 ml-2 transition-transform `}
+													className={`w-4 h-4 ml-2 transition-transform`}
 													fill="none"
 													stroke="currentColor"
 													viewBox="0 0 24 24"
 												>
-													<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+													<path
+														strokeLinecap="round"
+														strokeLinejoin="round"
+														strokeWidth={2}
+														d="M19 9l-7 7-7-7"
+													/>
 												</svg>
 
 												{isDropdownOpen && (
@@ -421,7 +423,7 @@ export default function Navbar({ onClose }) {
 															<button
 																className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
 																onClick={handleLogout}
-																style={{ fontSize: '14px', backgroundColor: 'white', color: 'black' }}
+																style={{ fontSize: "14px", backgroundColor: "white", color: "black" }}
 															>
 																Logout
 															</button>
@@ -431,15 +433,16 @@ export default function Navbar({ onClose }) {
 											</div>
 										</>
 									) : (
-										<button
+										<div
+											role="button"
 											onClick={() => setOpenModal(true)}
 											className="cursor-pointer px-2 py-6 text-[#2B2D2E] border-x border-transparent hover:border-[#EEF0F1] dark:text-gray-200 text-[14px] transition-colors duration-200"
 										>
 											Log in or sign up
-										</button>
+										</div>
 									)}
-
 								</button>
+
 
 
 							</div>
@@ -719,7 +722,7 @@ export default function Navbar({ onClose }) {
 													},
 												].map(({ id, text, img, className }) => (
 													<button
-														key={id}
+														
 														id={`popup_${id}_login_btn`}
 														type="button"
 														className={`w-72 flex border ${className} px-4 py-2 rounded-md transition duration-200 hover:border-gray-300`}
@@ -777,89 +780,7 @@ export default function Navbar({ onClose }) {
 					</ul>
 				</nav>
 			</div>
-			<div className="lg:border-b lg:border-b-gray-500/10 dark:lg:border-b-gray-300/10">
-				<div className="container hidden lg:flex">
-					<ul className="flex justify-center lg:w-full space-x-8">
-						<li class="relative group">
-							<a
-								className="font-medium text-gray-800 py-3 px-2 inline-block "
-								href="#"
-							>
-								Motors
 
-							</a>
-
-							<div class="absolute left-0 hidden group-hover:block  bg-white dark:bg-gray-800 shadow-lg mt-2 rounded-md " style={{ zIndex: "999", width: "190px" }}>
-								<a class="block px-7 py-4 text-gray-800 hover:bg-gray-200" href="#">
-									Car
-								</a>
-								<a class="block px-7  py-4 text-gray-800 hover:bg-gray-200" href="#">
-									<p>	Rental Cars</p>
-								</a>
-								<a class="block px-7 py-4 text-gray-800 hover:bg-gray-200" href="#">
-									New Cars
-								</a>
-							</div>
-						</li>
-						<li>
-							<a
-								className="font-medium dark:text-gray-200 py-3 px-2 inline-block border-b-4 hover:border-b-4 border-transparent hover:border-b-black dark:hover:border-b-primary-500 duration-200"
-								href="#"
-							>
-								Property for Rent
-							</a>
-						</li>
-						<li>
-							<a
-								className="font-medium dark:text-gray-200 py-3 px-2 inline-block border-b-4 hover:border-b-4 border-transparent hover:border-b-black dark:hover:border-b-primary-500 duration-200"
-								href="#"
-							>
-								Property for Sale
-							</a>
-						</li>
-						<li>
-							<a
-								className="font-medium dark:text-gray-200 py-3 px-2 inline-block border-b-4 hover:border-b-4 border-transparent hover:border-b-black dark:hover:border-b-primary-500 duration-200"
-								href="#"
-							>
-								ClassFields
-							</a>
-						</li>
-						<li>
-							<a
-								className="font-medium dark:text-gray-200 py-3 px-2 inline-block border-b-4 hover:border-b-4 border-transparent hover:border-b-black dark:hover:border-b-primary-500 duration-200"
-								href="#"
-							>
-								Furniture & Garden
-							</a>
-						</li>
-						<li>
-							<a
-								className="font-medium dark:text-gray-200 py-3 px-2 inline-block border-b-4 hover:border-b-4 border-transparent hover:border-b-black dark:hover:border-b-primary-500 duration-200"
-								href="#"
-							>
-								Mobiles & Tablets
-							</a>
-						</li>
-						<li>
-							<a
-								className="font-medium dark:text-gray-200 py-3 px-2 inline-block border-b-4 hover:border-b-4 border-transparent hover:border-b-black dark:hover:border-b-primary-500 duration-200"
-								href="#"
-							>
-								Jobs
-							</a>
-						</li>
-						<li>
-							<a
-								className="font-medium dark:text-gray-200 py-3 px-2 inline-block border-b-4 hover:border-b-4 border-transparent hover:border-b-black dark:hover:border-b-primary-500 duration-200"
-								href="#"
-							>
-								Community
-							</a>
-						</li>
-					</ul>
-				</div>
-			</div>
 
 			<div className="fixed w-full bottom-0 z-50">
 				<div className="lg:hidden absolute bottom-0 left-0 flex border-t border-t-gray-300/40 dark:border-t-gray-200/20 text-gray-500 w-full justify-between bg-white dark:bg-[#202124]">
@@ -883,6 +804,479 @@ export default function Navbar({ onClose }) {
 						<img src={profile} alt="profile-icon" />
 						<span>Profile</span>
 					</a>
+				</div>
+			</div>
+
+			<div className="lg:border-b lg:border-b-gray-500/10 dark:lg:border-b-gray-300/10">
+				<div className="container hidden lg:flex">
+					<ul className="flex justify-around lg:w-full space-x-8">
+						{/* MOTORS menu items*/}
+						<li className="relative group">
+							<a
+								className="font-medium text-gray-800 py-3 px-2 inline-block border-b-4 border-transparent"
+								href="/motors/"
+							>
+								Motors{" "}
+								<span className="ml-1 bg-red-600 text-white text-xs px-1 py-0.5 rounded">
+									NEW
+								</span>
+							</a>
+
+							{/* MOTORS DROPDOWN */}
+							<div className="absolute left-0 mt-2 w-[700px] rounded-md shadow-xl bg-white z-50 border p-0 flex text-sm opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity duration-200">
+								{/* Left Panel */}
+								<div className="w-1/3 border-r p-4">
+									<h3 className="font-bold text-gray-700 mb-3">Cars</h3>
+									<ul className="space-y-2">
+										<li className="flex justify-between items-center">
+											Rental Cars{" "}
+											<span className="bg-red-600 text-white text-[10px] px-1 rounded">
+												NEW
+											</span>
+										</li>
+										<li>New Cars</li>
+										<li>Export Cars</li>
+										<li>Motorcycles</li>
+										<li>Auto Accessories & Parts</li>
+										<li>Heavy Vehicles</li>
+										<li>Boats</li>
+										<li>Number Plates</li>
+									</ul>
+
+									<div className="mt-4 pt-4 border-t">
+										<h4 className="font-semibold mb-2 flex items-center gap-1">
+											Services by{" "}
+											<img
+												src="https://www.dubizzle.com/frontend-assets/logos/dubizzle_cars.svg"
+												alt="dubizzle"
+												className="h-4"
+											/>
+										</h4>
+										<ul className="space-y-2">
+											<li className="flex items-center gap-2">
+												🚗 Sell My Car
+											</li>
+											<li className="flex items-center gap-2">
+												🔍 Car Inspection
+											</li>
+										</ul>
+									</div>
+								</div>
+
+								{/* Right Panel */}
+								<div className="w-2/3 p-4">
+									<div className="flex justify-between items-center mb-3">
+										<h3 className="font-bold text-gray-700">Cars</h3>
+										<a
+											href="#"
+											className="text-red-600 text-sm font-semibold hover:underline"
+										>
+											View All →
+										</a>
+									</div>
+									<div className="grid grid-cols-3 gap-y-2 gap-x-6">
+										{[
+											"Toyota",
+											"Mercedes-Benz",
+											"Nissan",
+											"BMW",
+											"Ford",
+											"Lexus",
+											"Chevrolet",
+											"Land Rover",
+											"Hyundai",
+											"Audi",
+											"Volkswagen",
+											"Honda",
+											"Kia",
+											"Mitsubishi",
+											"Porsche",
+											"Jeep",
+											"Dodge",
+											"GMC",
+											"Infiniti",
+											"Cadillac",
+										].map((brand) => (
+											<div
+												
+												className="hover:underline cursor-pointer text-gray-700"
+											>
+												{brand}
+											</div>
+										))}
+									</div>
+								</div>
+							</div>
+						</li>
+
+						{/* Property menu items */}
+						<li className="relative group">
+							<a
+								className="font-medium dark:text-gray-200 py-3 px-2 inline-block border-b-4 border-transparent dark:hover:border-b-primary-500 duration-200"
+								href="#"
+							>
+								Property{" "}
+								<span className="ml-1 bg-red-600 text-white text-xs px-1 py-0.5 rounded">
+									NEW
+								</span>
+							</a>
+							{/* Property DROPDOWN */}
+							<div className="absolute left-0 mt-2 w-[250px] rounded-md shadow-xl bg-white z-50 border p-0 flex text-sm opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity duration-200">
+								{/* Left Panel */}
+								<div className="w-full border-r p-4">
+									<ul className="space-y-2">
+										<li>
+											<h3 className="font-bold text-gray-700 mb-3">For Rent</h3>
+										</li>
+										<li>Residential</li>
+										<li>Commercial</li>
+										<li>Rooms For Rent</li>
+										<li>Monthly Short Term</li>
+										<li>Daily Short Term</li>
+
+										<li>
+											<h3 className="font-bold text-gray-700 mb-3">For Sale</h3>
+										</li>
+										<li>New Projects</li>
+										<li>Residential</li>
+										<li>Commercial</li>
+										<li>Off-Plan</li>
+										<li>Land</li>
+										<li>Multiple Units</li>
+
+										<li className="flex justify-between items-center">
+											<h3 className="font-bold text-gray-700 mb-1">Agent & Agency Search</h3>
+											<span className="bg-red-600 text-white text-[10px] px-1 rounded items-center ml-2">
+												NEW
+											</span>
+										</li>
+									</ul>
+
+								</div>
+							</div>
+						</li>
+
+
+						{/* Jobs menu items */}
+						<li className="relative group">
+							<a
+								className="font-medium dark:text-gray-200 py-3 px-2 inline-block border-b-4 border-transparent hover:border-b-black dark:hover:border-b-primary-500 duration-200"
+								href="#"
+							>
+								Jobs
+							</a>
+
+							{/* JOBS DROPDOWN */}
+							<div className="absolute left-0 mt-2 w-[700px] h-96 rounded-md shadow-xl bg-white z-50 border p-0 flex text-sm opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity duration-200">
+								{/* Left Panel */}
+								<div className="w-1/3 border-r p-4">
+									<h3 className="font-bold text-gray-700 mb-3">Jobs Seekers</h3>
+									<ul className="space-y-2">
+										<li> Jobs by Categories </li>
+										<li> Jobs by Types </li>
+										<li> Jobs by Qualifications</li>
+										<h3 className="font-bold text-gray-700 pt-6 mb-3"> Recruiters </h3>
+										<li> Jobs Seeker by Categories </li>
+										<li> Jobs Seeker by Types </li>
+										<li> Jobs Seeker by Qualifications </li>
+										<h3 className="font-bold text-gray-700 mb-3">Hire with Us</h3>
+									</ul>
+								</div>
+
+								{/* Right Panel */}
+								<div className="w-2/3 p-4">
+									<div className="flex justify-between items-center mb-4">
+										<h3 className="font-bold text-gray-700"> Jobs by Categories </h3>
+										<a
+											href="#"
+											className="text-red-600 text-sm font-semibold hover:underline"
+										>
+											View All →
+										</a>
+									</div>
+									<div className="grid grid-cols-2 gap-y-2 gap-x-6">
+										{[
+											"Accounting / Finance",
+											"Automobile",
+											"Beauty / Saloon",
+											"Cleaner / Housekeeper",
+											"Construction",
+											"Cook / Chief",
+											"Customer Services / Call Center",
+											"Data Management & Analysis",
+											"Design",
+											"Driver / Delivery",
+											"Education",
+											"Engineering",
+											"Event Management & Operations",
+											"HR / Admin",
+											"Handyman / Technician",
+											"Information Technology",
+											"Legal Services",
+											"Logistics & Distribution",
+											"Manufacturing / Warehouse",
+											"Marine Caption / Crew",
+										].map((brand) => (
+											<div
+												
+												className="hover:underline cursor-pointer text-gray-700"
+											>
+												{brand}
+											</div>
+										))}
+									</div>
+								</div>
+							</div>
+						</li>
+
+						{/* ClassFields menu items */}
+						<li className="relative group">
+							<a
+								className="font-medium dark:text-gray-200 py-3 px-2 inline-block border-b-4 border-transparent hover:border-b-black dark:hover:border-b-primary-500 duration-200"
+								href="#"
+							>
+								ClassFields
+							</a>
+							{/* ClASSFIELDS DROPDOWN */}
+							<div className="absolute left-0 mt-2 w-[700px] h-96 rounded-md shadow-xl bg-white z-50 border p-0 flex text-sm opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity duration-200">
+								{/* Left Panel */}
+								<div className="w-1/3 border-r p-4 overflow-y-auto">
+									<h3 className="font-bold text-gray-700 mb-3">Electronics</h3>
+									<ul className="space-y-2">
+										<li> Computer & Networking </li>
+										<li> Business & Industrial </li>
+										<li> Home Appliances </li>
+										<li> Sports Equipment </li>
+										<li> Clothings & Accessories </li>
+										<li> Cameras & Imaging </li>
+										<li> Jewelry & Watches </li>
+										<li> Pets </li>
+										<li> Musical Instruments </li>
+										<li> Gaming </li>
+										<li> Baby Items </li>
+										<li> Toys </li>
+										<li> Tickets & Vouchers </li>
+										<li> Collectibles </li>
+										<li> Books </li>
+										<li> Music </li>
+										<li> Free Stuff </li>
+										<li> Lost / Found </li>
+										<li> DVDs & Movies </li>
+										<li> Furniture,Home & Garden </li>
+										<li> Mobile Phones & Tables </li>
+									</ul>
+								</div>
+
+								{/* Right Panel */}
+								<div className="w-2/3 p-4">
+									<div className="flex justify-between items-center mb-4">
+										<h3 className="font-bold text-gray-700"> Electronics </h3>
+										<a
+											href="#"
+											className="text-red-600 text-sm font-semibold hover:underline"
+										>
+											View All →
+										</a>
+									</div>
+									<div className="grid grid-cols-2 gap-y-2 gap-x-6">
+										{[
+											"Home Audio & Turntables",
+											"Televisions",
+											"DVD & Home Theater",
+											"Electronic Accessories",
+											"Gadgets",
+											"Car Electronics",
+											"Projectors",
+											"Mp3 Players and Portable Audio",
+											"Satellite & Cable TV",
+											"Health Electronics",
+											"Smart Home",
+											"Wearable Technology",
+											"Other",
+										].map((brand) => (
+											<div
+												
+												className="hover:underline cursor-pointer text-gray-700"
+											>
+												{brand}
+											</div>
+										))}
+									</div>
+								</div>
+							</div>
+						</li>
+
+						{/* Furniture & Garden menu items */}
+						<li className="relative group">
+							<a
+								className="font-medium dark:text-gray-200 py-3 px-2 inline-block border-b-4 border-transparent hover:border-b-black dark:hover:border-b-primary-500 duration-200"
+								href="#"
+							>
+								Furniture & Garden
+							</a>
+
+							{/* Furniture & Garden DROPDOWN */}
+							<div className="absolute left-[-170px] mt-2 w-[700px] h-96 rounded-md shadow-xl bg-white z-50 border p-0 flex text-sm opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity duration-200">
+								{/* Left Panel */}
+								<div className="w-1/3 border-r p-4">
+									<h3 className="font-bold text-gray-700 mb-3">Furniture</h3>
+									<ul className="space-y-2">
+										<li> Home Accessories </li>
+										<li> Garden & Outdoor </li>
+										<li> Lighting & Fans </li>
+										<li> Rugs & Carpets </li>
+										<li> Curtains & Blinds </li>
+										<li> Tools & Home Improvement </li>
+									</ul>
+								</div>
+
+								{/* Right Panel */}
+								<div className="w-2/3 p-4 mr-8w-2/3 p-4 mr-auto">
+									<div className="flex justify-between items-center mb-4">
+										<h3 className="font-bold text-gray-700"> Furniture </h3>
+										<a
+											href="#"
+											className="text-red-600 text-sm font-semibold hover:underline"
+										>
+											View All →
+										</a>
+									</div>
+									<div className="grid grid-cols-2 gap-y-2 gap-x-6">
+										{[
+											"Armoires & Wardrobes",
+											"Bar Tables",
+											"Beds & Bed Sets",
+											"Bookcases",
+											"Cabinets & Cupboards",
+											"Chairs, Benches & Stools",
+											"Children's Furniture",
+											"Dining Sets",
+											"Dressers & Vanities",
+											"Entertainment Centers",
+											"Kitchen Islands & Carts",
+											"Nightstands",
+											"Other",
+											"Office Furniture",
+											"Sofas, Futons & Lounges",
+											"Study Tables & Computer",
+											"Tables",
+											"Tables",
+											"Other",
+										].map((brand) => (
+											<div
+												
+												className="hover:underline cursor-pointer text-gray-700"
+											>
+												{brand}
+											</div>
+										))}
+									</div>
+								</div>
+							</div>
+						</li>
+
+						{/* Mobiles & Tablets menu items */}
+						<li className="relative group">
+							<a
+								className="font-medium dark:text-gray-200 py-3 px-2 inline-block border-b-4 border-transparent hover:border-b-black dark:hover:border-b-primary-500 duration-200"
+								href="#"
+							>
+								Mobiles & Tablets
+							</a>
+
+							{/* Community DROPDOWN */}
+							<div className="absolute left-[-383px] mt-2 w-[700px] h-96 rounded-md shadow-xl bg-white z-50 border p-0 flex text-sm opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity duration-200">
+								{/* Left Panel */}
+								<div className="w-1/3 border-r p-4">
+									<h3 className="font-bold text-gray-700 mb-3">Mobile Phones</h3>
+									<ul className="space-y-2">
+										<li> Mobile Phones & Tablet Accessories </li>
+										<li> Tablets </li>
+										<li> Other Mobile Phones & Tablets </li>
+
+									</ul>
+								</div>
+
+								{/* Right Panel */}
+								<div className="w-2/3 p-4 mr-8w-2/3 p-4 mr-auto">
+									<div className="flex justify-between items-center mb-4">
+										<h3 className="font-bold text-gray-700"> Mobile Phones </h3>
+										<a
+											href="#"
+											className="text-red-600 text-sm font-semibold hover:underline"
+										>
+											View All →
+										</a>
+									</div>
+									<div className="grid grid-cols-2 gap-y-2 gap-x-6">
+										{[
+											"Apple",
+											"Samsung",
+											"Google",
+											"Huawei",
+											"Xiaomi",
+											"Oppo",
+											"OnePlus",
+											"Honor",
+											"Nokia",
+											"Vivo",
+											"Motorola",
+											"Realme",
+											"Sony Ericsson",
+											"ZTE Phones",
+											"Vertu",
+											"Asus",
+											"Infinix",
+											"Blackberry",
+											"Nothing Phone",
+											"Aquos",
+
+
+										].map((brand) => (
+											<div
+												
+												className="hover:underline cursor-pointer text-gray-700"
+											>
+												{brand}
+											</div>
+										))}
+									</div>
+								</div>
+							</div>
+						</li>
+
+
+						{/* Mobiles & Tablets menu items */}
+						<li className="relative group">
+							<a
+								className="font-medium dark:text-gray-200 py-3 px-2 inline-block border-b-4 border-transparent hover:border-b-black dark:hover:border-b-primary-500 duration-200"
+								href="#"
+							>
+								Community
+							</a>
+
+							{/* Community DROPDOWN */}
+							<div className="absolute left-[-130px] mt-2 w-[250px] rounded-md shadow-xl bg-white z-50 border p-0 flex text-sm opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity duration-200">
+								{/* Left Panel */}
+								<div className="w-full border-r p-4">
+									<ul className="space-y-2">
+										<li>Auto Services </li>
+										<li>Consultancy Services</li>
+										<li>Domestic</li>
+										<li>Event & Entertainment</li>
+										<li>Freelancers</li>
+										<li>Health & Wellbeing Services </li>
+										<li>Home Maintenance</li>
+										<li>Movers & Removals</li>
+										<li>Other Services</li>
+										<li>Restoration & Repairs </li>
+										<li>Tutors & Classes </li>
+										<li>Web & Computer Services </li>
+									</ul>
+								</div>
+							</div>
+						</li>
+					</ul>
 				</div>
 			</div>
 			<ToastContainer />

@@ -25,6 +25,7 @@ import { apiFunctions } from "../../../api/apiFunctions";
 import API from "../../../api/apis";
 import { Options } from "../../../context/Options";
 import { MdOutlineCalendarMonth, MdOutlineSpeed } from "react-icons/md";
+import { Link } from "react-router-dom";
 const carBrands = [
 
     "Mercedes-Benz 5658",
@@ -365,6 +366,29 @@ const Motors = () => {
                                         {car.location}
                                     </div>
                                 </div>
+                                <div className="flex items-center gap-1">
+                                    <img src="https://static.dubizzle.com/frontend-web/static-resources/assets/listing-card-icons/speedometer.svg" alt="" />
+                                    {car.mileage}
+                                </div>
+                                <div className="flex items-center gap-1">
+                                    <img src="https://static.dubizzle.com/frontend-web/static-resources/assets/listing-card-icons/steering-side.svg" alt="" />
+                                    {car.hand}
+                                </div>
+                                <div className="flex items-center gap-1">
+                                    <img src="https://static.dubizzle.com/frontend-web/static-resources/assets/listing-card-icons/regional-specs.svg" alt="" />
+                                    {car.specs}
+                                </div>
+                                <div className="flex items-center justify-center">
+                                    <div className="rounded-lg overflow-hidden absolute" style={{ right: "10px", top: "-6px", padding: "4px", border: "1px solid rgb(224, 225, 227)", width: "74px", height: "74px" }}>
+                                        <img
+                                            src="https://dbz-images.dubizzle.com/profiles/auto_agency/2024/08/09/955fadee2f2544e68014e0072b2a268b-.jpg?impolicy=agency"
+                                            alt="UPGRADE YOUR CAR AUCTIONS L.L.C"
+                                            className="w-full h-full object-contain"
+                                            loading="lazy"
+                                        />
+                                    </div>
+                                </div>
+
                             </div>
                         );
                     })}
@@ -390,34 +414,26 @@ const Motors = () => {
                         </button>
 
                         {/* Page Numbers */}
-                        {[...Array(totalPages)].map((_, index) => {
-                            const pageNum = index + 1;
-                            return (
-                                <button
-                                    key={pageNum}
-                                    onClick={() => goToPage(pageNum)}
-                                    className={`w-10 h-10 rounded border text-sm font-medium transition-colors ${currentPage === pageNum
-                                        ? 'bg-gray-900 text-white'
-                                        : 'bg-white text-gray-900 border-gray-300 hover:bg-gray-100'
-                                        }`}
-                                >
-                                    {pageNum}
-                                </button>
-                            );
-                        })}
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                            <button
+                                key={page}
+                                className={`px-3 py-1 rounded border text-sm ${currentPage === page ? 'bg-blue-500 text-white border-blue-500' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'}`}
+                                onClick={() => goToPage(page)}
+                            >
+                                {page}
+                            </button>
+                        ))}
 
                         {/* Next & Last */}
                         <button
-                            className={`${arrowBtnBase} ${currentPage === totalPages ? disabledArrowStyle : activeArrowStyle
-                                }`}
+                            className={`${arrowBtnBase} ${currentPage === totalPages ? disabledArrowStyle : activeArrowStyle}`}
                             onClick={() => goToPage(currentPage + 1)}
                             disabled={currentPage === totalPages}
                         >
                             <ChevronRight size={16} />
                         </button>
                         <button
-                            className={`${arrowBtnBase} ${currentPage === totalPages ? disabledArrowStyle : activeArrowStyle
-                                }`}
+                            className={`${arrowBtnBase} ${currentPage === totalPages ? disabledArrowStyle : activeArrowStyle}`}
                             onClick={() => goToPage(totalPages)}
                             disabled={currentPage === totalPages}
                         >

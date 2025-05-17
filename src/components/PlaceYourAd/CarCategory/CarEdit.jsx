@@ -108,38 +108,7 @@ const CarEdit = () => {
         // Example: fetch trims for selected model
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        const token = localStorage.getItem('jwt');
-        if (!token) {
-            console.error('No JWT found');
-            return;
-        }
-
-        axios.put(
-            `https://syrizzle.vyominfotech.in/api/update-motor/${motorId}`,
-            {
-                emirate,
-                model_id: selectedModelId,
-                trim_id: selectedTrimId,
-                regional_spec_id: selectedSpecId,
-                year,
-                kilometer: kilometers,
-                body_type_id: bodyType,
-                car_insured: carInsured,
-                price,
-                mobile: phone,
-            },
-            {
-                headers: { Authorization: `Bearer ${token}` },
-            }
-        )
-            .then(response => {
-                console.log('Car data updated:', response.data);
-                // Handle success (e.g., redirect to another page)
-            })
-            .catch(err => console.error('Error updating car data:', err));
-    };
+   
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -352,6 +321,7 @@ const CarEdit = () => {
             mobile: phone,
             status: 'draft',
         };
+        console.log("hyyyy", payload.trim_id);
 
         try {
             const response = await axios.post(
@@ -370,13 +340,18 @@ const CarEdit = () => {
             // Store response data
             toast.success('Data submitted as draft!');
 
+            // Navigate back to the car categories screen after successful update
+            navigate(`/place-an-ad/motors/used-cars/new/?_Id=${motorId}`, {
+                state: { formSubmitted: true, responseData: response.data.data.result }
+            });
+
         } catch (err) {
             toast.error('Submission failed');
         }
     };
     return (
         <div className="flex items-center justify-center h-screen bg-gray-50">
-    <div className="w-full max-w-md space-y-4">
+            <div className="w-full max-w-md space-y-4">
                 <div className="flex justify-center text-3xl font-bold mb-8">
                     <span className="text-black">dub</span>
                     <span className="text-red-600 relative">
@@ -546,7 +521,7 @@ const CarEdit = () => {
                     </a>
                 </div>
             </div>
-                        <ToastContainer position="top-right" autoClose={3000} />
+            <ToastContainer position="top-right" autoClose={3000} />
 
         </div>
     );
